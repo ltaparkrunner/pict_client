@@ -8,33 +8,34 @@ find_package(Qt6 REQUIRED COMPONENTS Quick)
 
 qt_standard_project_setup(REQUIRES 6.8)
 
-qt_add_executable(apppict_client
+qt_add_executable(pict_client
     main.cpp
 )
 
-qt_add_qml_module(apppict_client
+qt_add_qml_module(pict_client
     URI pict_client
     QML_FILES
         Main.qml
+        SOURCES listStringModel.h
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
-set_target_properties(apppict_client PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.apppict_client
+set_target_properties(pict_client PROPERTIES
+#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.pict_client
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(apppict_client
+target_link_libraries(pict_client
     PRIVATE Qt6::Quick
 )
 
 include(GNUInstallDirs)
-install(TARGETS apppict_client
+install(TARGETS pict_client
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
