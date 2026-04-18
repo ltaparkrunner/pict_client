@@ -42,30 +42,50 @@ ApplicationWindow {
                 placeholderText: "Line Edit 2"
                 Layout.fillWidth: true
             }
-
-            // Сетка с 6 изображениями
-            GridLayout {
-                columns: 2 // 2 колонки, 3 ряда
-                //Layout.fillWidth: true
+            Item{
                 Layout.fillHeight: true
+                Layout.fillWidth: true
+                GridView {
+                    id: grid
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    clip: true
+                    // Layout.fillHeight: true
+                    // Layout.fillWidth: true
+                    // 1. Настройка размера ячейки (обязательно!)
+                    cellWidth: 100
+                    cellHeight: 100
 
-                // Повторитель для создания 6 элементов
-                Repeater {
-                    model: 6
-                    Rectangle {
-                        // Ограничиваем ширину каждого изображения
-                        Layout.maximumWidth: 162
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        color: mainImageSource === "" ? "#808080" : "#eee"   //"lightgray"
-                        border.color: "#ccc"    //"gray"
+                    // 2. Ваша C++ модель (imageModel)
+                    model: imageModel
 
-                        Image {
+                    // 3. Описание одного элемента
+                    delegate: Item {
+                        width: grid.cellWidth
+                        height: grid.cellHeight
+
+                        Rectangle {
                             anchors.fill: parent
-                            source: myImages[index] //"https://placeholder.com" // Замените на свои пути
-                            fillMode: Image.PreserveAspectFit
+                            anchors.margins: 5 // Отступы между картинками
+                            color: "white"
+                            border.color: "silver"
+                            radius: 4
+
+                            Image {
+                                anchors.fill: parent
+                                anchors.margins: 2
+                                source: {
+//                                    console.log("the way is: ", model.imagePath)
+                                    model.imagePath // Данные из C++
+                                }
+                                fillMode: Image.PreserveAspectCrop // Чтобы не искажать пропорции
+                                clip: true
+                            }
                         }
                     }
+
+                    // Включаем прокрутку, если элементов много
+                    ScrollBar.vertical: ScrollBar {}
                 }
             }
         }
