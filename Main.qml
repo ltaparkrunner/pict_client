@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import Qt.labs.platform 1.1
 
 ApplicationWindow {
     visible: true
@@ -12,44 +13,53 @@ ApplicationWindow {
 
     property string mainImageSource: ""
     property list<string> myImages: ["", "", "", "", "", ""]
-    property var gridImages: [
-            "path/to/gray.png", "path/to/gray.png",
-            "path/to/gray.png", "path/to/gray.png",
-            "path/to/gray.png", "path/to/gray.png"
-        ]
+    // property var gridImages: [
+    //         "path/to/gray.png", "path/to/gray.png",
+    //         "path/to/gray.png", "path/to/gray.png",
+    //         "path/to/gray.png", "path/to/gray.png"
+    //     ]
     // Основной горизонтальный контейнер
     ColumnLayout{
         anchors.fill: parent
-//        Layout.fillHeight: true
-//        Layout.fillWidth: true
-//        Layout.fillWidth : bool
         RowLayout {
             Layout.fillHeight: true
             width: parent.width
-            // Поля ввода
             ColumnLayout{
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
                 Text{
                     text: { return "Read/Write to filesystem" + "  " + toString(parent.width) }
                 }
                 RowLayout{
                     TextField {
-                        placeholderText: "Line Edit 1"
+                        placeholderText: "Path to folder/file"
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 3
+                        text: folderDialog
                     }
                     Button {
                         text: "Browse"
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        onClicked: folderDialog.open()
                     }
                 }
                 RowLayout{
                     Button {
                         text: "Write to filesystem"
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        Component.onCompleted: {
+                            console.log("Ширина 7: ", width)
+                        }
                     }
                     Button {
                         text: "Write to database"
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        Component.onCompleted: {
+                            console.log("Ширина 8: ", width)
+                        }
                     }
                 }
                 Component.onCompleted: {
@@ -58,6 +68,7 @@ ApplicationWindow {
             }
             ColumnLayout{
                 Layout.fillWidth: true
+                Layout.preferredWidth: 1
                 Text{
                     text: "Read/Write to database"
                 }
@@ -66,10 +77,18 @@ ApplicationWindow {
                     TextField {
                         placeholderText: "Line Edit 1"
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 3
+                        Component.onCompleted: {
+                            console.log("Ширина 5: ", width)
+                        }
                     }
                     Button {
                         text: "Browse"
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        Component.onCompleted: {
+                            console.log("Ширина 5: ", width)
+                        }
                     }
                 }
                 RowLayout{
@@ -77,15 +96,17 @@ ApplicationWindow {
                     Button {
                         text: "Write to filesystem"
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 1
                     }
                     Button {
                         //text: "Write to database"
                         text: ""
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 1
                     }
                 }
                 Component.onCompleted: {
-                    console.log("Ширина родителя 2: ", width)
+                    console.log("Ширина 2: ", width)
                 }
             }
         }
@@ -102,40 +123,9 @@ ApplicationWindow {
             ColumnLayout {
                 id: cl1
                 // Рассчитываем ширину: 2 колонки по 150px + отступы (например, 10px spacing + 20px margins)
-                //Layout.maximumWidth: 330
                 Layout.fillHeight: true
-//                Layout.preferredWidth: 330//300
                 Layout.preferredWidth: (parent.width - 330 < 300) ? parent.width / 2 : 330
                 spacing: 5//10
-
-                // // Поля ввода
-                // RowLayout{
-                //     Layout.preferredWidth: cl1.width
-                //     TextField {
-                //         placeholderText: "Line Edit 1"
-                //         Layout.fillWidth: true
-                //     }
-                //     Button {
-                //         text: "Browse"
-                //         Layout.fillWidth: true
-                //     }
-                // }
-                // RowLayout{
-                //     Layout.preferredWidth: cl1.width
-                //     Button {
-                //         text: "Write to filesystem"
-                //         Layout.fillWidth: true
-                //     }
-                //     Button {
-                //         text: "Write to "
-                //         Layout.fillWidth: true
-                //     }
-                // }
-
-                // TextField {
-                //     placeholderText: "Line Edit 2"
-                //     Layout.fillWidth: true
-                // }
                 Item{
                     Layout.fillHeight: true
                     Layout.fillWidth: true
@@ -180,33 +170,11 @@ ApplicationWindow {
             // ПРАВАЯ ЧАСТЬ (Большое окно изображения)
             ColumnLayout{
                 Layout.preferredWidth: (parent.width - 330 < 300) ? parent.width / 2 : parent.width - 330
-//                Layout.preferredWidth:270
-                // RowLayout{
-                //     TextField {
-                //         placeholderText: "Line Edit 1"
-                //         Layout.fillWidth: true
-                //     }
-                //     Button {
-                //         text: "Browse"
-                //         Layout.fillWidth: true
-                //     }
-                // }
-                // RowLayout{
-                //     Button {
-                //         text: "Write to filesystem"
-                //         Layout.fillWidth: true
-                //     }
-                //     Button {
-                //         text: "Write to "
-                //         Layout.fillWidth: true
-                //     }
-                // }
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.preferredWidth: (parent.width - 330 < 300) ? parent.width / 2 : parent.width - 330
-                    //Layout.preferredWidth: parent.width / 2
-                    //color: "black"
+
                     color: mainImageSource === "" ? "#808080" : "#222"
                     border.color: "#222"    //"#333"
 
@@ -230,6 +198,16 @@ ApplicationWindow {
                     }
                 }
             }
+        }
+    }
+    FolderDialog {
+        id: folderDialog
+        title: "Выберите папку с изображениями"
+
+        onAccepted: {
+            console.log("Выбрана папка:", folder)
+            // Здесь можно вызвать C++ метод для загрузки картинок из этой папки
+            // imageModel.loadFromFolder(folder)
         }
     }
 }
