@@ -22,6 +22,8 @@ qt_add_qml_module(pict_client
         SOURCES listStringModel.h
         SOURCES filehelper.h filehelper.cpp
         SOURCES websocketclient.h websocketclient.cpp
+        SOURCES unifiedstoragemodel.h unifiedstoragemodel.cpp
+        QML_FILES CustomFileDialog.qml
 )
 
 qt_add_protobuf(PictSerializer

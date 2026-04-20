@@ -12,6 +12,10 @@ ApplicationWindow {
     minimumHeight: 300
     title: "Fixed Left, Flexible Right"
 
+    CustomFileDialog {
+        id: customDialog
+    }
+
     property string mainImageSource: ""
     property list<string> myImages: ["", "", "", "", "", ""]
     // property var gridImages: [
@@ -65,13 +69,23 @@ ApplicationWindow {
                         text: "Open file"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
-                        onClicked: fileDialog.open()
+//                        onClicked: fileDialog.open()
+                        onClicked: {
+                            //storageModel.openLocalPath("/"); // Начальная точка
+                            storageModel.enterLocal("/");
+                            customDialog.open();
+                        }
                     }
                     Button {
                         text: "Open folder"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
-                        onClicked: folderDialog.open()
+//                        onClicked: folderDialog.open()
+                        onClicked: {
+                            //storageModel.openLocalPath("/"); // Начальная точка
+                            storageModel.enterLocal("/");
+                            customDialog.open();
+                        }
                     }
                 // }
                 // RowLayout{
