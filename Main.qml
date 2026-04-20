@@ -27,87 +27,88 @@ ApplicationWindow {
             ColumnLayout{
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                Text{
-                    text: { return "Read/Write to filesystem" + "  " + toString(parent.width) }
-                }
+                // Text{
+                //     text: { return "Read/Write to filesystem" + "  " + toString(parent.width) }
+                // }
                 RowLayout{
                     TextField {
-                        placeholderText: "Path to folder/file"
+                        placeholderText: "Open file/folder"
                         Layout.fillWidth: true
-                        Layout.preferredWidth: 3
-                        text: folderDialog
+                        Layout.preferredWidth: 4
+                        text: folderDialog.folder
                     }
                     Button {
-                        text: "Browse"
+                        text: "Open"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
-                        onClicked: folderDialog.open()
                     }
                 }
                 RowLayout{
                     Button {
-                        text: "Write to filesystem"
+                        text: "Open file"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
-                        Component.onCompleted: {
-                            console.log("Ширина 7: ", width)
-                        }
                     }
                     Button {
-                        text: "Write to database"
+                        text: "Open folder"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
-                        Component.onCompleted: {
-                            console.log("Ширина 8: ", width)
-                        }
                     }
-                }
-                Component.onCompleted: {
-                    console.log("Ширина 1: ", width)
+                // }
+                // RowLayout{
+                    Button {
+                        text: "Open net file"
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                    }
+                    Button {
+                        text: "Open net backet "
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                    }
                 }
             }
             ColumnLayout{
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                Text{
-                    text: "Read/Write to database"
-                }
                 RowLayout{
-                    Layout.fillWidth: true
                     TextField {
-                        placeholderText: "Line Edit 1"
+                        placeholderText: "Write file/folder"
                         Layout.fillWidth: true
-                        Layout.preferredWidth: 3
-                        Component.onCompleted: {
-                            console.log("Ширина 5: ", width)
-                        }
+                        Layout.preferredWidth: 4
                     }
                     Button {
-                        text: "Browse"
+                        text: "Write"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
-                        Component.onCompleted: {
-                            console.log("Ширина 5: ", width)
-                        }
                     }
                 }
                 RowLayout{
                     Layout.fillWidth: true
                     Button {
-                        text: "Write to filesystem"
+                        text: "Write to file"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
                     }
                     Button {
                         //text: "Write to database"
-                        text: ""
+                        text: "Write to folder"
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                    }
+                    Button {
+                        text: "Write file to netstore"
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                    }
+                    Button {
+                        //text: "Write to database"
+                        text: "Write folder to netstore"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
                     }
                 }
-                Component.onCompleted: {
-                    console.log("Ширина 2: ", width)
-                }
+
             }
         }
 
