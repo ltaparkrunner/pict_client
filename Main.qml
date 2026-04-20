@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt.labs.platform 1.1
+import com.myapp.helpers 1.0
 
 ApplicationWindow {
     visible: true
@@ -21,24 +22,40 @@ ApplicationWindow {
     // Основной горизонтальный контейнер
     ColumnLayout{
         anchors.fill: parent
-        RowLayout {
+        ColumnLayout {
             Layout.fillHeight: true
             width: parent.width
-            ColumnLayout{
-                Layout.fillWidth: true
-                Layout.preferredWidth: 1
-                // Text{
-                //     text: { return "Read/Write to filesystem" + "  " + toString(parent.width) }
-                // }
                 RowLayout{
                     TextField {
-                        placeholderText: "Open file/folder"
+                        id: tf1
+                        placeholderText: "Open/Write file/folder"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 4
                         text: folderDialog.folder
                     }
                     Button {
                         text: "Open"
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        onClicked: {
+                            if(tf1.text && tf1.text.trim().length > 0) {
+                                let type = FileHelper.checkPathType(tf1.text);
+                                if (type === FileHelperType.LocalFile) {
+                                    console.log("Это локальный файл");
+                                } else if (type === FileHelperType.LocalFolder) {
+                                    console.log("Это локальная папка");
+                                } else if (type === FileHelperType.MinioBucket) {
+                                    console.log("Это бакет MinIO");
+                                } else if (type === FileHelperType.MinioFile) {
+                                    console.log("Это объект (файл) в MinIO");
+                                } else {
+                                    console.log("Путь не распознан или не существует");
+                                }
+                            }
+                        }
+                    }
+                    Button {
+                        text: "Write"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
                     }
@@ -57,59 +74,16 @@ ApplicationWindow {
                 // }
                 // RowLayout{
                     Button {
-                        text: "Open net file"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                    }
-                    Button {
-                        text: "Open net backet "
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                    }
-                }
-            }
-            ColumnLayout{
-                Layout.fillWidth: true
-                Layout.preferredWidth: 1
-                RowLayout{
-                    TextField {
-                        placeholderText: "Write file/folder"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 4
-                    }
-                    Button {
-                        text: "Write"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                    }
-                }
-                RowLayout{
-                    Layout.fillWidth: true
-                    Button {
                         text: "Write to file"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
                     }
                     Button {
-                        //text: "Write to database"
-                        text: "Write to folder"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                    }
-                    Button {
-                        text: "Write file to netstore"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                    }
-                    Button {
-                        //text: "Write to database"
-                        text: "Write folder to netstore"
+                        text: "Write to folder "
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
                     }
                 }
-
-            }
         }
 
         RowLayout {
@@ -122,7 +96,7 @@ ApplicationWindow {
 
             // ЛЕВАЯ ЧАСТЬ (Поля ввода и сетка)
             ColumnLayout {
-                id: cl1
+                // id: cl1
                 // Рассчитываем ширину: 2 колонки по 150px + отступы (например, 10px spacing + 20px margins)
                 Layout.fillHeight: true
                 Layout.preferredWidth: (parent.width - 330 < 300) ? parent.width / 2 : 330

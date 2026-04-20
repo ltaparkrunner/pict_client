@@ -17,6 +17,7 @@ qt_add_qml_module(pict_client
     QML_FILES
         Main.qml
         SOURCES listStringModel.h
+        SOURCES filehelper.h filehelper.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
