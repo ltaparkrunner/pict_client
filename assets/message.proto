@@ -1,0 +1,33 @@
+syntax = "proto3";
+package pict_data;
+
+message Picture {
+  string emailLogin = 1;
+  string contentType = 2;
+  bytes data = 3;
+  string filename = 4;
+  int64 timestamp = 5;
+}
+
+message ImageListRequest {
+  int32 count = 1; // Запрашиваем 6
+}
+
+message ImageInfo {
+  string filename = 1;
+  string url = 2;
+}
+
+message ImageListResponse {
+  repeated ImageInfo images = 1;
+}
+
+message BaseMessage {
+  oneof content {
+      Picture pict = 1;
+      ImageListRequest listRequest = 2;
+      ImageInfo info = 3;
+      ImageListResponse listResponse = 4;
+  }
+}
+

@@ -5,6 +5,7 @@
 #include <QUrl>
 #include <QFile>
 #include <QFileInfo>
+#include <QDir>
 
 class FileHelper : public QObject {
     Q_OBJECT
@@ -22,6 +23,8 @@ public:
     Q_INVOKABLE bool exists(const QString &path);
     Q_INVOKABLE bool fileExists(const QString &path);
     Q_INVOKABLE int checkPathType(const QString &path);
+    Q_INVOKABLE bool writeToFile(const QString &fileUrl, const QString &content);
+    Q_INVOKABLE bool saveFilesToFolder(const QString &folderUrl, const QStringList &fileUrls);
 };
 
 #endif // FILEHELPER_H

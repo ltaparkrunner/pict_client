@@ -53,3 +53,44 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
 
     return Unknown;
 }
+
+Q_INVOKABLE bool FileHelper::writeToFile(const QString &fileUrl, const QString &content) {
+    // Преобразуем QML URL в локальный путь
+    QString localPath = QUrl(fileUrl).toLocalFile();
+
+    QFile file(localPath);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream out(&file);
+        out << content;
+        file.close();
+        return true;
+    }
+    return false;
+}
+
+Q_INVOKABLE bool FileHelper::saveFilesToFolder(const QString &folderUrl, const QStringList &fileUrls) {
+    // Превращаем URL папки в обычный путь
+    QString destDir = QUrl(folderUrl).toLocalFile();
+    QDir dir(destDir);
+
+    if (!dir.exists()) return false;
+
+    bool allOk = true;
+    for (const QString &fileUrl : fileUrls) {
+        QString srcPath = QUrl(fileUrl).toLocalFile();
+        QFileInfo fileInfo(srcPath);
+
+        // Формируем новый путь: папка_назначения / имя_файла
+        QString destPath = dir.absoluteFilePath(fileInfo.fileName());
+
+        // Если файл уже существует, удаляем его (или можно пропустить)
+        if (QFile::exists(destPath)) {
+            QFile::remove(destPath);
+        }
+
+        if (!QFile::copy(srcPath, destPath)) {
+            allOk = false;
+        }
+    }
+    return allOk;
+}

@@ -65,11 +65,13 @@ ApplicationWindow {
                         text: "Open file"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
+                        onClicked: fileDialog.open()
                     }
                     Button {
                         text: "Open folder"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
+                        onClicked: folderDialog.open()
                     }
                 // }
                 // RowLayout{
@@ -177,12 +179,61 @@ ApplicationWindow {
     }
     FolderDialog {
         id: folderDialog
-        title: "Выберите папку с изображениями"
+        title: "Select the folder with images"
 
         onAccepted: {
-            console.log("Выбрана папка:", folder)
+            console.log("Selected folder:", folder)
             // Здесь можно вызвать C++ метод для загрузки картинок из этой папки
             // imageModel.loadFromFolder(folder)
         }
     }
+    FileDialog {
+        id: fileDialog
+        title: "Выберите изображение"
+        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
+
+        // Настройка фильтров файлов
+        nameFilters: ["Image files (*.png *.jpg)", "All files (*)"]
+
+        // Режимы: OpenFile (один), OpenFiles (несколько), SaveFile (сохранение)
+        fileMode: FileDialog.OpenFile
+
+        onAccepted: {
+            console.log("Выбран файл: " + fileDialog.file)
+            // fileDialog.file возвращает URL (file:///...)
+        }
+    }
+    FileDialog {
+        id: saveDialog
+        fileMode: FileDialog.SaveFile
+        title: "Сохранить файл как..."
+        onAccepted: {
+            // Вызываем ваш метод C++ для записи данных
+            FileHelper.writeToFile(saveDialog.file, "Привет, это контент файла!")
+        }
+    }
+    FolderDialog {
+        id: folderDialog2
+        title: "Выберите папку для сохранения"
+
+        onAccepted: {
+            console.log("Сохраняем в:", folder)
+
+            // Вызываем C++ метод
+            let success = FileHelper.saveFilesToFolder(folder, filesToSave)
+
+            if (success) {
+                console.log("Все файлы успешно сохранены!")
+            } else {
+                console.log("Произошла ошибка при сохранении.")
+            }
+        }
+    }
+    /*
+        Если вы планируете сохранять файлы, которые еще не существуют на диске (например, данные из интернета или текст из памяти), C++ метод должен использовать QFile::write вместо QFile::copy.
+        FolderDialog: Позволяет пользователю выбрать только директорию. Он возвращает путь вида file:///....
+        QStringList: QML автоматически преобразует массив JavaScript [] в QStringList для C++.
+        QFile::copy: Самый быстрый способ перенести файлы. Мы используем QFileInfo(srcPath).fileName(), чтобы сохранить оригинальное имя файла в новой папке.
+
+    */
 }
