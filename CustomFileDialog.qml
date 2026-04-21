@@ -2,15 +2,16 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
-Dialog {
+Window {
     id: root
     title: "Выбор объекта (Локально / MinIO)"
     width: 500; height: 400
-    modal: true
-    standardButtons: Dialog.Cancel | Dialog.Open
+//    modal: false
+//    standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: ""
     property string currentPath: "/"
+    signal pathSelected(string folderPath)
 
     ColumnLayout {
         anchors.fill: parent
@@ -91,9 +92,19 @@ Dialog {
             placeholderText: "Ничего не выбрано"
         }
     }
-
-    onAccepted: {
-        console.log("Окончательный выбор:", currentSelectedPath)
-        // Передаем путь в основное приложение
+    RowLayout {
+        Layout.alignment: Qt.AlignRight
+        Button { text: "Cancel"; onClicked: root.close() }
+        Button {
+            text: "Open";
+            onClicked: { console.log(currentSelectedPath);
+                root.pathSelected(currentSelectedPath);
+                root.close() }
+        }
     }
+
+    // onAccepted: {
+    //     console.log("Окончательный выбор:", currentSelectedPath)
+    //     // Передаем путь в основное приложение
+    // }
 }

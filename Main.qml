@@ -14,6 +14,10 @@ ApplicationWindow {
 
     CustomFileDialog {
         id: customDialog
+        onPathSelected: {
+            // folderPath — это параметр, который мы передали из сигнала
+            tf.text = currentSelectedPath
+        }
     }
 
     property string mainImageSource: ""
@@ -31,7 +35,7 @@ ApplicationWindow {
             width: parent.width
                 RowLayout{
                     TextField {
-                        id: tf1
+                        id: tf
                         placeholderText: "Open/Write file/folder"
                         Layout.fillWidth: true
                         Layout.preferredWidth: 4
@@ -42,8 +46,8 @@ ApplicationWindow {
                         Layout.fillWidth: true
                         Layout.preferredWidth: 1
                         onClicked: {
-                            if(tf1.text && tf1.text.trim().length > 0) {
-                                let type = FileHelper.checkPathType(tf1.text);
+                            if(tf.text && tf.text.trim().length > 0) {
+                                let type = FileHelper.checkPathType(tf.text);
                                 if (type === FileHelperType.LocalFile) {
                                     console.log("Это локальный файл");
                                 } else if (type === FileHelperType.LocalFolder) {
@@ -73,7 +77,7 @@ ApplicationWindow {
                         onClicked: {
                             //storageModel.openLocalPath("/"); // Начальная точка
                             storageModel.enterLocal("/");
-                            customDialog.open();
+                            customDialog.show();
                         }
                     }
                     Button {
@@ -84,7 +88,11 @@ ApplicationWindow {
                         onClicked: {
                             //storageModel.openLocalPath("/"); // Начальная точка
                             storageModel.enterLocal("/");
-                            customDialog.open();
+                            customDialog.show();
+                            onFileSelected: {
+                                        console.log("Выбран путь из окна:", path)
+                                        pathField.text = path
+                            }
                         }
                     }
                 // }
