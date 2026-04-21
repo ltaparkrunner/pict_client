@@ -13,6 +13,12 @@ Window {
     property string currentPath: "/"
     signal pathSelected(string folderPath)
 
+    onVisibleChanged: {
+        if (visible) {
+            listView.forceActiveFocus()
+        }
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
@@ -37,7 +43,9 @@ Window {
             id: listView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
+            clip: true // clip what is it?
+            focus: true
+
             model: storageModel // Объект UnifiedStorageModel из C++
             property real lastClickTime: 0
             // Настройка ScrollBar (Полоса прокрутки)
@@ -46,9 +54,13 @@ Window {
                 policy: ScrollBar.AlwaysOn // Или AsNeeded
             }
 
+            highlight: Rectangle { color: "lightblue"; radius: 2 }
+            highlightFollowsCurrentItem: true
+
             delegate: ItemDelegate {
                 width: listView.width
-                highlighted: root.currentSelectedPath === model.path
+                //highlighted: root.currentSelectedPath === model.path
+                highlighted: ListView.isCurrentItem
 
                 contentItem: RowLayout {
                     spacing: 10
@@ -65,20 +77,33 @@ Window {
                         }
                     }
                 }
-
-                onClicked: {
-                    let currentTime = Date.now()
-                    if (currentTime - listView.lastClickTime < 500) {
-                        console.log("Too quickly")
-                        return
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        // let currentTime = Date.now()
+                        // if (currentTime - listView.lastClickTime < 500) {
+                        //     console.log("Too quickly")
+                        //     return
+                        // }
+                        // listView.lastClickTime = currentTime
+                    // root.currentSelectedPath = model.path
+                    // if (model.isDir) {
+                    //     // if (model.isMinio) storageModel.openMinioBucket(model.name)
+                    //     // else storageModel.openLocalPath(model.path)
+                    //     if (model.isMinio) storageModel.enterMinio(model.name)
+                    //     else storageModel.enterLocal(model.path)
+                    // }
+                        console.log("listView.currentIndex = index")
+                        listView.currentIndex = index
                     }
-                    listView.lastClickTime = currentTime
-                    root.currentSelectedPath = model.path
-                    if (model.isDir) {
-                        // if (model.isMinio) storageModel.openMinioBucket(model.name)
-                        // else storageModel.openLocalPath(model.path)
-                        if (model.isMinio) storageModel.enterMinio(model.name)
-                        else storageModel.enterLocal(model.path)
+                    onDoubleClicked: {
+                        root.currentSelectedPath = model.path
+                        if (model.isDir) {
+                            if (model.isMinio) storageModel.enterMinio(model.name)
+                            else storageModel.enterLocal(model.path)
+                        } else {
+                            root.accept() // Или закрыть диалог с выбором файла
+                        }
                     }
                 }
             }

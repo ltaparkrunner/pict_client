@@ -36,10 +36,10 @@ void UnifiedStorageModel::enterMinio(QString path) {
 // 1. Return number of items
 int UnifiedStorageModel::rowCount(const QModelIndex &parent) const {
     if (parent.isValid()) {
-        qDebug() << "UnifiedStorageModel::rowCount parent.isValid() return 0";
+//        qDebug() << "UnifiedStorageModel::rowCount parent.isValid() return 0";
         return 0;
     }
-    qDebug() << "UnifiedStorageModel::rowCount m_items.size(): " << m_items.size();
+//    qDebug() << "UnifiedStorageModel::rowCount m_items.size(): " << m_items.size();
     return m_items.size();
 }
 
