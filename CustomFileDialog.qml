@@ -30,13 +30,69 @@ Window {
             Layout.fillWidth: true
             TabButton {
                 text: "Локально"
-//                onClicked: storageModel.openLocalPath("/")
                 onClicked: storageModel.enterLocal("/")
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 15
+                    font.weight: parent.checked ? Font.DemiBold : Font.Normal
+                    color: parent.checked ? "#616161" : (parent.hovered ? "#555" : "#888")
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+                // 2. Фон и индикатор (линия под кнопкой)
+                background: Rectangle {
+                    color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "transparent")
+
+                    // Линия-индикатор
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        width: parent.width
+                        height: parent.parent.checked ? 3 : 0 // Появляется только когда выбрано
+                        color: "#616161"        //"#2196F3"
+                        radius: 2
+
+                        // Плавная анимация появления линии
+                        Behavior on height { NumberAnimation { duration: 150 } }
+                    }
+
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
             }
             TabButton {
                 text: "MinIO"
-//                onClicked: storageModel.openMinioBucket("main-bucket")
                 onClicked: storageModel.enterMinio("main-bucket")
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 15
+                    font.weight: parent.checked ? Font.DemiBold : Font.Normal
+                    color: parent.checked ? "#616161" : (parent.hovered ? "#555" : "#888")
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+                // 2. Фон и индикатор (линия под кнопкой)
+                background: Rectangle {
+                    color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "transparent")
+
+                    // Линия-индикатор
+                    Rectangle {
+                        anchors.bottom: parent.bottom
+                        width: parent.width
+                        height: parent.parent.checked ? 3 : 0 // Появляется только когда выбрано
+                        color: "#616161"        //"#2196F3"
+                        radius: 2
+
+                        // Плавная анимация появления линии
+                        Behavior on height { NumberAnimation { duration: 150 } }
+                    }
+
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
             }
         }
 
