@@ -44,6 +44,7 @@ Window {
                 }
                 // 2. Фон и индикатор (линия под кнопкой)
                 background: Rectangle {
+                    anchors.fill: parent
                     color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "transparent")
 
                     // Линия-индикатор
@@ -77,6 +78,7 @@ Window {
                 }
                 // 2. Фон и индикатор (линия под кнопкой)
                 background: Rectangle {
+                    anchors.fill: parent
                     color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "transparent")
 
                     // Линия-индикатор
@@ -118,24 +120,25 @@ Window {
                 policy: ScrollBar.AlwaysOn // Или AsNeeded
             }
 
-//            highlight: Rectangle { color: "lightgreen"; radius: 2 }
+            highlight: Rectangle { color: "gainsboro"; radius: 2} //; z:2 }
             highlightFollowsCurrentItem: true
 
             delegate: ItemDelegate {
 //                width: listView.width
                 //highlighted: root.currentSelectedPath === model.path
-                width: gridView.cellWidth - 2
-                height: gridView.cellHeight - 2
-                highlighted: GridView.isCurrentItem
+                width: gridView.cellWidth - 4
+                height: gridView.cellHeight - 4
+//                highlighted: GridView.isCurrentItem
 
                 contentItem: RowLayout {
-                    spacing: 2
+                    spacing: 10
                     Text {
                         text: model.isDir ? "📁" : "📄"
                         font.pixelSize: 18
                         Layout.alignment: Qt.AlignHCenter
                     }
                     Column {
+                        //color:"blue"
                         Layout.fillWidth: true
                         Text {
                             width: parent.width
@@ -192,6 +195,7 @@ Window {
                     root.pathSelected(currentSelectedPath);
                     root.close() }
                 background: Rectangle {
+                    anchors.fill: parent
                     color: parent.pressed ? "#f0f0f0" : "white"
                     radius: 10
                     border.color: "#d0d0d0"
@@ -211,6 +215,7 @@ Window {
                 Layout.preferredWidth: 1
                 text: "Close";
                 background: Rectangle {
+                    anchors.fill: parent
                     color: parent.pressed ? "#f0f0f0" : "white"
                     radius: 10
                     border.color: "#d0d0d0"
