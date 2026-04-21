@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+
 #include "listStringModel.h"
 #include "filehelper.h"
 #include "websocketclient.h"

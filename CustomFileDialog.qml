@@ -1,6 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Effects
+import QtQuick.Controls.Basic
 
 Window {
     id: root
@@ -15,7 +17,7 @@ Window {
 
     onVisibleChanged: {
         if (visible) {
-            listView.forceActiveFocus()
+            gridView.forceActiveFocus()
         }
     }
 
@@ -39,38 +41,53 @@ Window {
         }
 
         // Список файлов и папок
-        ListView {
-            id: listView
+//        ListView {
+        GridView{
+//            id: listView
+            id: gridView
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true // clip what is it?
             focus: true
+            flow: GridView.FlowTopToBottom
+
+            cellWidth: 140  // Ширина колонки
+            cellHeight: 60 // Высота строки
 
             model: storageModel // Объект UnifiedStorageModel из C++
-            property real lastClickTime: 0
+//            property real lastClickTime: 0
             // Настройка ScrollBar (Полоса прокрутки)
             ScrollBar.vertical: ScrollBar {
                 active: true // Всегда видна при прокрутке
                 policy: ScrollBar.AlwaysOn // Или AsNeeded
             }
 
-            highlight: Rectangle { color: "lightblue"; radius: 2 }
+//            highlight: Rectangle { color: "lightgreen"; radius: 2 }
             highlightFollowsCurrentItem: true
 
             delegate: ItemDelegate {
-                width: listView.width
+//                width: listView.width
                 //highlighted: root.currentSelectedPath === model.path
-                highlighted: ListView.isCurrentItem
+                width: gridView.cellWidth - 2
+                height: gridView.cellHeight - 2
+                highlighted: GridView.isCurrentItem
 
                 contentItem: RowLayout {
-                    spacing: 10
+                    spacing: 2
                     Text {
                         text: model.isDir ? "📁" : "📄"
                         font.pixelSize: 18
+                        Layout.alignment: Qt.AlignHCenter
                     }
                     Column {
                         Layout.fillWidth: true
-                        Text { text: model.name; font.bold: true }
+                        Text {
+                            width: parent.width
+                            text: model.name; font.bold: true
+                            // horizontalAlignment: Text.AlignHCenter
+                            // verticalAlignment: Text.AlignLeft
+                            elide: Text.ElideRight // Обрезаем длинные имена
+                        }
                         Text {
                             text: model.isMinio ? "Облако MinIO" : "Локальный путь"
                             font.pixelSize: 10; color: "gray"
@@ -80,21 +97,7 @@ Window {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        // let currentTime = Date.now()
-                        // if (currentTime - listView.lastClickTime < 500) {
-                        //     console.log("Too quickly")
-                        //     return
-                        // }
-                        // listView.lastClickTime = currentTime
-                    // root.currentSelectedPath = model.path
-                    // if (model.isDir) {
-                    //     // if (model.isMinio) storageModel.openMinioBucket(model.name)
-                    //     // else storageModel.openLocalPath(model.path)
-                    //     if (model.isMinio) storageModel.enterMinio(model.name)
-                    //     else storageModel.enterLocal(model.path)
-                    // }
-                        console.log("listView.currentIndex = index")
-                        listView.currentIndex = index
+                        gridView.currentIndex = index
                     }
                     onDoubleClicked: {
                         root.currentSelectedPath = model.path
@@ -102,7 +105,10 @@ Window {
                             if (model.isMinio) storageModel.enterMinio(model.name)
                             else storageModel.enterLocal(model.path)
                         } else {
-                            root.accept() // Или закрыть диалог с выбором файла
+//                            root.accept() // Или закрыть диалог с выбором файла
+                            console.log(currentSelectedPath);
+                            root.pathSelected(currentSelectedPath);
+                            root.close()
                         }
                     }
                 }
@@ -116,20 +122,56 @@ Window {
             readOnly: true
             placeholderText: "Ничего не выбрано"
         }
-    }
-    RowLayout {
-        Layout.alignment: Qt.AlignRight
-        Button { text: "Cancel"; onClicked: root.close() }
-        Button {
-            text: "Open";
-            onClicked: { console.log(currentSelectedPath);
-                root.pathSelected(currentSelectedPath);
-                root.close() }
+
+        RowLayout {
+            Layout.fillWidth: true
+            //Layout.alignment: Qt.AlignRight
+            Button {
+                id: btn_opn
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                text: "Open"
+
+                onClicked: {
+                    root.pathSelected(currentSelectedPath);
+                    root.close() }
+                background: Rectangle {
+                    color: parent.pressed ? "#f0f0f0" : "white"
+                    radius: 10
+                    border.color: "#d0d0d0"
+
+                    // Ваш любимый эффект теперь будет работать без варнингов
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        shadowEnabled: true
+                        shadowOpacity: parent.pressed ? 0.2 : 0.4
+                        shadowBlur: 0.5
+                        shadowVerticalOffset: parent.pressed ? 1 : 3
+                    }
+                }
+            }
+            Button {
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                text: "Close";
+                background: Rectangle {
+                    color: parent.pressed ? "#f0f0f0" : "white"
+                    radius: 10
+                    border.color: "#d0d0d0"
+
+                    // Ваш любимый эффект теперь будет работать без варнингов
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        shadowEnabled: true
+                        shadowOpacity: parent.pressed ? 0.2 : 0.4
+                        shadowBlur: 0.5
+                        shadowVerticalOffset: parent.pressed ? 1 : 3
+                    }
+                }
+                onClicked: {
+                    root.close()
+                }
+            }
         }
     }
-
-    // onAccepted: {
-    //     console.log("Окончательный выбор:", currentSelectedPath)
-    //     // Передаем путь в основное приложение
-    // }
 }
