@@ -8,7 +8,16 @@ void UnifiedStorageModel::enterLocal(QString path) {
     beginResetModel();
     m_items.clear();
     QDir dir(path);
-    for (auto &info : dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot)) {
+
+    QStringList filters;
+    filters << "*.jpg" << "*.jpeg" << "*.png" << "*.gif" << "*.bmp" << "*.webp";
+
+    QFileInfoList files = dir.entryInfoList(filters, QDir::AllEntries | QDir::NoDot, QDir::DirsFirst);
+//    QFileInfoList list = dir.entryInfoList(QDir::AllEntries | QDir::NoDot, QDir::DirsFirst);
+    QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDot, QDir::DirsFirst);
+    QFileInfoList fullList = dirs + files;
+//    for (auto &info : dir.entryInfoList(QDir::AllEntries | QDir::NoDot)) {
+    for (const QFileInfo &info : std::as_const(fullList)) {
         m_items.append({info.fileName(), info.absoluteFilePath(), info.isDir(), false});
     }
     endResetModel();
@@ -26,7 +35,11 @@ void UnifiedStorageModel::enterMinio(QString path) {
 
 // 1. Return number of items
 int UnifiedStorageModel::rowCount(const QModelIndex &parent) const {
-// ??    if (parent.isValid()) return 0;
+    if (parent.isValid()) {
+        qDebug() << "UnifiedStorageModel::rowCount parent.isValid() return 0";
+        return 0;
+    }
+    qDebug() << "UnifiedStorageModel::rowCount m_items.size(): " << m_items.size();
     return m_items.size();
 }
 
@@ -74,6 +87,7 @@ void UnifiedStorageModel::loadRoot() {
 
     endResetModel();
 }
+
 /*
 void UnifiedStorageModel::enterLocal(QString path) {
     // 1. Преобразуем URL в обычный путь, если нужно

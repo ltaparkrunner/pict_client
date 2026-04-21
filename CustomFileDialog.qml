@@ -10,6 +10,7 @@ Dialog {
     standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: ""
+    property string currentPath: "/"
 
     ColumnLayout {
         anchors.fill: parent
@@ -37,6 +38,12 @@ Dialog {
             Layout.fillHeight: true
             clip: true
             model: storageModel // Объект UnifiedStorageModel из C++
+            property real lastClickTime: 0
+            // Настройка ScrollBar (Полоса прокрутки)
+            ScrollBar.vertical: ScrollBar {
+                active: true // Всегда видна при прокрутке
+                policy: ScrollBar.AlwaysOn // Или AsNeeded
+            }
 
             delegate: ItemDelegate {
                 width: listView.width
@@ -59,6 +66,12 @@ Dialog {
                 }
 
                 onClicked: {
+                    let currentTime = Date.now()
+                    if (currentTime - listView.lastClickTime < 500) {
+                        console.log("Too quickly")
+                        return
+                    }
+                    listView.lastClickTime = currentTime
                     root.currentSelectedPath = model.path
                     if (model.isDir) {
                         // if (model.isMinio) storageModel.openMinioBucket(model.name)
@@ -68,8 +81,6 @@ Dialog {
                     }
                 }
             }
-
-            ScrollIndicator.vertical: ScrollIndicator { }
         }
 
         // Поле выбранного пути
