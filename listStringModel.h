@@ -4,6 +4,7 @@
 // ImageModel.h
 #include <QAbstractListModel>
 #include <QStringList>
+#include <QUrl>
 
 class ImageModel : public QAbstractListModel {
     Q_OBJECT
@@ -40,12 +41,18 @@ protected:
 
 public:
     // Helper to add data and notify the view
-    void addImagePath(const QString &path) {
+    Q_INVOKABLE void addImagePath(const QString &path) {
+        QUrl url = QUrl::fromLocalFile(path);
+        QString pathForQml = url.toString();
         beginInsertRows(QModelIndex(), m_imagePaths.count(), m_imagePaths.count());
-        m_imagePaths.append(path);
+        m_imagePaths.append(pathForQml);
         endInsertRows(); // This triggers the QML view update
     }
 
+    Q_INVOKABLE QString resolvePath(const QString &path) {
+        QUrl url = QUrl::fromLocalFile(path);
+        return url.toString();
+    }
 private:
     QStringList m_imagePaths;
 };

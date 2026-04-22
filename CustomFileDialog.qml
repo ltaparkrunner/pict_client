@@ -11,8 +11,8 @@ Window {
 //    modal: false
 //    standardButtons: Dialog.Cancel | Dialog.Open
 
-    property string currentSelectedPath: ""
-    property string currentPath: "/"
+    property string currentSelectedPath: "."
+//    property string currentPath: "/"
     signal pathSelected(string folderPath)
     property int lastSelectedTab: 0
 

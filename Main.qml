@@ -16,18 +16,13 @@ ApplicationWindow {
     CustomFileDialog {
         id: customDialog
         onPathSelected: {
-            // folderPath — это параметр, который мы передали из сигнала
             tf.text = currentSelectedPath
+            processPath(currentSelectedPath)
         }
     }
 
     property string mainImageSource: ""
     property list<string> myImages: ["", "", "", "", "", ""]
-    // property var gridImages: [
-    //         "path/to/gray.png", "path/to/gray.png",
-    //         "path/to/gray.png", "path/to/gray.png",
-    //         "path/to/gray.png", "path/to/gray.png"
-    //     ]
     // Основной горизонтальный контейнер
     ColumnLayout{
         anchors.fill: parent
@@ -251,4 +246,25 @@ ApplicationWindow {
         QFile::copy: Самый быстрый способ перенести файлы. Мы используем QFileInfo(srcPath).fileName(), чтобы сохранить оригинальное имя файла в новой папке.
 
     */
+    function processPath(path){
+//        if(path && path.trim().length > 0) {
+        if(path) {
+            let type = FileHelper.checkPathType(path);
+            if (type === FileHelperType.LocalFile) {
+                console.log("Это локальный файл");
+//                grid.model.addImagePath({ "filePath": Qt.resolvedUrl(newPath) })
+                grid.model.addImagePath(path)
+                console.log("resolved path", grid.model.resolvePath(path))
+                mainImageSource = grid.model.resolvePath(path)
+            } else if (type === FileHelperType.LocalFolder) {
+                console.log("Это локальная папка");
+            } else if (type === FileHelperType.MinioBucket) {
+                console.log("Это бакет MinIO");
+            } else if (type === FileHelperType.MinioFile) {
+                console.log("Это объект (файл) в MinIO");
+            } else {
+                console.log("Путь не распознан или не существует");
+            }
+        }
+    }
 }
