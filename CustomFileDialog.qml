@@ -248,22 +248,26 @@ Window {
                         gridView.currentIndex = index
                     }
                     onDoubleClicked: {
-                        acceptSelection()
-                        mouse.accepted = true;
+                        acceptSelection(gridView)
+                        //mouse.accepted = true;
                     }
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        acceptSelection(); // Ваш метод подтверждения выбора
+                        acceptSelection(gridView); // Ваш метод подтверждения выбора
                         event.accepted = true; // Останавливаем дальнейшее распространение события
                     }
                 }
 
-                function acceptSelection() {
+                function acceptSelection(grid) {
                     root.currentSelectedPath = model.path
+                    //root.
                     if (model.isDir) {
                         if (model.isMinio) storageModel.enterMinio(model.name)
                         else storageModel.enterLocal(model.path)
+                        //  console.log("acceptSelection: ", grid)
+                        grid.currentIndex = 0
+                        // parent.currentItem = 0
                     } else {
                         console.log(currentSelectedPath);
                         root.pathSelected(currentSelectedPath);

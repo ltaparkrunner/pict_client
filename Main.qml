@@ -95,8 +95,8 @@ ApplicationWindow {
                         storageModel.enterLocal("/");
                         customDialog.show();
                         onFileSelected: {
-                                    console.log("Выбран путь из окна:", path)
-                                    pathField.text = path
+                            console.log("Выбран путь из окна:", path)
+                            pathField.text = path
                         }
                     }
                 }
