@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import Qt.labs.platform 1.1
 import com.myapp.helpers 1.0
+import QtQuick.Controls.Basic
 
 ApplicationWindow {
     visible: true
@@ -33,81 +34,73 @@ ApplicationWindow {
         ColumnLayout {
             Layout.fillHeight: true
             width: parent.width
-                RowLayout{
-                    TextField {
-                        id: tf
-                        placeholderText: "Open/Write file/folder"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 4
-                        text: folderDialog.folder
+            RowLayout{
+                TextField {
+                    id: tf
+                    placeholderText: "Open/Write file/folder"
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 4
+                    text: folderDialog.folder
+                    background: Rectangle {
+                        implicitWidth: 200
+                        implicitHeight: 40
+                        color: tf.enabled ? "transparent" : "#353535"
+                        border.color: tf.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: tf.activeFocus ? 2 : 1
+                        radius: 4
                     }
-                    Button {
-                        text: "Open"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                        onClicked: {
-                            if(tf.text && tf.text.trim().length > 0) {
-                                let type = FileHelper.checkPathType(tf.text);
-                                if (type === FileHelperType.LocalFile) {
-                                    console.log("Это локальный файл");
-                                } else if (type === FileHelperType.LocalFolder) {
-                                    console.log("Это локальная папка");
-                                } else if (type === FileHelperType.MinioBucket) {
-                                    console.log("Это бакет MinIO");
-                                } else if (type === FileHelperType.MinioFile) {
-                                    console.log("Это объект (файл) в MinIO");
-                                } else {
-                                    console.log("Путь не распознан или не существует");
-                                }
+                }
+                Button {
+                    text: "Open"
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    onClicked: {
+                        if(tf.text && tf.text.trim().length > 0) {
+                            let type = FileHelper.checkPathType(tf.text);
+                            if (type === FileHelperType.LocalFile) {
+                                console.log("Это локальный файл");
+                            } else if (type === FileHelperType.LocalFolder) {
+                                console.log("Это локальная папка");
+                            } else if (type === FileHelperType.MinioBucket) {
+                                console.log("Это бакет MinIO");
+                            } else if (type === FileHelperType.MinioFile) {
+                                console.log("Это объект (файл) в MinIO");
+                            } else {
+                                console.log("Путь не распознан или не существует");
                             }
                         }
                     }
-                    Button {
-                        text: "Write"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
+                }
+                Button {
+                    text: "Write"
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                }
+            }
+            RowLayout{
+                Button {
+                    text: "Open file/folder"
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    onClicked: {
+                        storageModel.enterLocal("/");
+                        customDialog.show();
                     }
                 }
-                RowLayout{
-                    Button {
-                        text: "Open file"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-//                        onClicked: fileDialog.open()
-                        onClicked: {
-                            //storageModel.openLocalPath("/"); // Начальная точка
-                            storageModel.enterLocal("/");
-                            customDialog.show();
+                Button {
+                    text: "Write file/folder"
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    onClicked: {
+                        storageModel.enterLocal("/");
+                        customDialog.show();
+                        onFileSelected: {
+                                    console.log("Выбран путь из окна:", path)
+                                    pathField.text = path
                         }
-                    }
-                    Button {
-                        text: "Open folder"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-//                        onClicked: folderDialog.open()
-                        onClicked: {
-                            //storageModel.openLocalPath("/"); // Начальная точка
-                            storageModel.enterLocal("/");
-                            customDialog.show();
-                            onFileSelected: {
-                                        console.log("Выбран путь из окна:", path)
-                                        pathField.text = path
-                            }
-                        }
-                    }
-                // }
-                // RowLayout{
-                    Button {
-                        text: "Write to file"
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
-                    }
-                    Button {
-                        text: "Write to folder "
-                        Layout.fillWidth: true
-                        Layout.preferredWidth: 1
                     }
                 }
+            }
         }
 
         RowLayout {

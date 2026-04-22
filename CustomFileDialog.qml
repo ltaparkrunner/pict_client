@@ -25,13 +25,33 @@ Window {
     ColumnLayout {
         anchors.fill: parent
         spacing: 2
-//        Layout.margins: 20
         // Поле выбранного пути
         TextField {
             Layout.fillWidth: true
             text: root.currentSelectedPath
-            readOnly: true
             placeholderText: "Ничего не выбрано"
+
+            font.pixelSize: 15
+            font.weight: parent.checked ? Font.DemiBold : Font.Normal
+            color: parent.checked ? "#616161" : (parent.hovered ? "#555" : "#888")
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+
+            background: Rectangle {
+                implicitWidth: 200
+                implicitHeight: 40
+                color: "#f0f0f0" //parent.enabled ? "transparent" : "#353535"
+                border.color: parent.activeFocus ? "#21be2b" : "#bdbebf"
+                border.width: parent.activeFocus ? 2 : 1
+                radius: 4
+            }
+            Keys.onPressed: (event) => {
+                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                    console.log("TextField Keys.onPressed Enter")
+                    // gridView.forceActiveFocus()
+                    // event.accepted = true
+                }
+            }
         }
         // Навигационная панель (Табы)
         TabBar {
@@ -42,7 +62,6 @@ Window {
             focusPolicy: Qt.StrongFocus
             onActiveFocusChanged: {
                 if (activeFocus && currentItem) {
-                    console.log("currentIndex ", currentIndex, "  currentItem ", currentItem)
                     currentItem.forceActiveFocus()
                 }
             }
@@ -58,17 +77,12 @@ Window {
                 onActiveFocusChanged: {
                     if (activeFocus) {storageModel.enterLocal("/"); root.lastSelectedTab=0}
                 }
-                //KeyNavigation.down: gridView    //.forceActiveFocus()
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         gridView.forceActiveFocus()
                         event.accepted = true
                     }
                 }
-                // Keys.onRightPressed: {
-                //     console.log("tb_local.Keys.onRightPressed:")
-                //     tb_minio.forceActiveFocus()
-                // }
                 KeyNavigation.right: tb_minio
                 Keys.onDownPressed: {
                     gridView.forceActiveFocus()
@@ -99,16 +113,16 @@ Window {
 
                         // Плавная анимация появления линии
                         Behavior on height { NumberAnimation { duration: 150 } }
+                        visible: !tb_local.activeFocus
                     }
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -3 // Рамка чуть шире самой кнопки
-                        color: "transparent"
-                        border.color: "#2196F3"
-                        border.width: 2
-                        radius: 6
-//                        visible: tb_local.visualFocus
-                        visible: tb_local.activeFocus
+                        color: tb_local.enabled ? "transparent" : "#353535"
+                        border.color: tb_local.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: tb_local.activeFocus ? 2 : 1
+                        radius: 4
+                        visible: tb_local.activeFocus   //  tb_local.visualFocus
                     }
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -121,22 +135,16 @@ Window {
                 onClicked: {
                     storageModel.enterMinio("main-bucket")
                     tb_minio.forceActiveFocus()
-                    //gridView.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {storageModel.enterMinio("main-bucket"); root.lastSelectedTab=1}
                 }
-                //KeyNavigation.down: gridView    //.forceActiveFocus()
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         gridView.forceActiveFocus()
                         event.accepted = true
                     }
                 }
-                // Keys.onLeftPressed: {
-                //     console.log("tb_local.Keys.onLeftPressed:")
-                //     tb_local.forceActiveFocus()
-                // }
                 KeyNavigation.left: tb_local
                 Keys.onDownPressed: {
                     gridView.forceActiveFocus()
@@ -167,16 +175,20 @@ Window {
 
                         // Плавная анимация появления линии
                         Behavior on height { NumberAnimation { duration: 150 } }
+                        visible: !tb_minio.activeFocus
                     }
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -3 // Рамка чуть шире самой кнопки
-                        color: "transparent"
-                        border.color: "#2196F3"
-                        border.width: 2
-                        radius: 6
-                        visible: tb_minio.activeFocus // Виден только при фокусе
-                        //visible: tb_minio.visualFocus// || (gridView.activeFocus && root.lastSelectedTab === 1)
+                        // color: "transparent"
+                        // border.color: "#2196F3"
+                        // border.width: 2
+                        // radius: 6
+                        color: tb_minio.enabled ? "transparent" : "#353535"
+                        border.color: tb_minio.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: tb_minio.activeFocus ? 2 : 1
+                        radius: 4
+                        visible: tb_minio.activeFocus // tb_minio.visualFocus       Виден только при фокусе
                     }
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -184,9 +196,7 @@ Window {
         }
 
         // Список файлов и папок
-//        ListView {
         GridView{
-//            id: listView
             id: gridView
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -198,9 +208,6 @@ Window {
             cellHeight: 60 // Высота строки
 
             model: storageModel // Объект UnifiedStorageModel из C++
-//            var minio0 = model.isMinio()
-//            var minio1 = model.get(myGridView.currentIndex)
-//            property real lastClickTime: 0
             // Настройка ScrollBar (Полоса прокрутки)
             ScrollBar.vertical: ScrollBar {
                 active: true // Всегда видна при прокрутке
@@ -211,11 +218,8 @@ Window {
             highlightFollowsCurrentItem: true
 
             delegate: ItemDelegate {
-//                width: listView.width
-                //highlighted: root.currentSelectedPath === model.path
                 width: gridView.cellWidth - 4
                 height: gridView.cellHeight - 4
-//                highlighted: GridView.isCurrentItem
 
                 contentItem: RowLayout {
                     spacing: 10
@@ -230,8 +234,6 @@ Window {
                         Text {
                             width: parent.width
                             text: model.name; font.bold: true
-                            // horizontalAlignment: Text.AlignHCenter
-                            // verticalAlignment: Text.AlignLeft
                             elide: Text.ElideRight // Обрезаем длинные имена
                         }
                         Text {
@@ -247,12 +249,11 @@ Window {
                     }
                     onDoubleClicked: {
                         acceptSelection()
-                        event.accepted = true;
+                        mouse.accepted = true;
                     }
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-//                        console.log("Enter нажата!");
                         acceptSelection(); // Ваш метод подтверждения выбора
                         event.accepted = true; // Останавливаем дальнейшее распространение события
                     }
@@ -281,31 +282,34 @@ Window {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 text: "Open"
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 15
+                    font.weight: parent.checked ? Font.DemiBold : Font.Normal
+                    color: parent.checked ? "#616161" : (parent.hovered ? "#555" : "#888")
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
 
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
                 onClicked: {
                     root.pathSelected(currentSelectedPath);
                     root.close() }
                 background: Rectangle {
                     anchors.fill: parent
-                    color: parent.pressed ? "#f0f0f0" : "white"
-                    radius: 10
-                    border.color: "#d0d0d0"
-
-                    // Ваш любимый эффект теперь будет работать без варнингов
-                    layer.enabled: true
-                    layer.effect: MultiEffect {
-                        shadowEnabled: true
-                        shadowOpacity: parent.pressed ? 0.2 : 0.4
-                        shadowBlur: 0.5
-                        shadowVerticalOffset: parent.pressed ? 1 : 3
-                    }
+                    color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "#f0f0f0")   //"transparent")
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -3 // Рамка чуть шире самой кнопки
-                        color: "transparent"
-                        border.color: "#2196F3"
-                        border.width: 2
-                        radius: 6
+                        // color: "transparent"
+                        // border.color: "#2196F3"
+                        // border.width: 2
+                        // radius: 6
+                        color: btn_opn.enabled ? "transparent" : "#353535"
+                        border.color: btn_opn.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: btn_opn.activeFocus ? 2 : 1
+                        radius: 4
                         visible: btn_opn.visualFocus // Виден только при фокусе
                     }
                 }
@@ -315,27 +319,27 @@ Window {
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 text: "Close";
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 15
+                    font.weight: parent.checked ? Font.DemiBold : Font.Normal
+                    color: parent.checked ? "#616161" : (parent.hovered ? "#555" : "#888")
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
                 background: Rectangle {
                     anchors.fill: parent
-                    color: parent.pressed ? "#f0f0f0" : "white"
-                    radius: 10
-                    border.color: "#d0d0d0"
-
-                    // Ваш любимый эффект теперь будет работать без варнингов
-                    layer.enabled: true
-                    layer.effect: MultiEffect {
-                        shadowEnabled: true
-                        shadowOpacity: parent.pressed ? 0.2 : 0.4
-                        shadowBlur: 0.5
-                        shadowVerticalOffset: parent.pressed ? 1 : 3
-                    }
+                    color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "#f0f0f0")  //"transparent")
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -3 // Рамка чуть шире самой кнопки
-                        color: "transparent"
-                        border.color: "#2196F3"
-                        border.width: 2
-                        radius: 6
+                        color: btn_cls.enabled ? "transparent" : "#353535"
+                        border.color: btn_cls.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: btn_cls.activeFocus ? 2 : 1
+                        radius: 4
                         visible: btn_cls.visualFocus // Виден только при фокусе
                     }
                 }
