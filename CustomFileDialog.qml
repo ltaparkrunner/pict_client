@@ -14,6 +14,7 @@ Window {
     property string currentSelectedPath: ""
     property string currentPath: "/"
     signal pathSelected(string folderPath)
+    property int lastSelectedTab: 0
 
     onVisibleChanged: {
         if (visible) {
@@ -36,11 +37,12 @@ Window {
         TabBar {
             id: tabBar
             Layout.fillWidth: true
-            currentIndex: 0
+            currentIndex: root.lastSelectedTab
             focus: true
             focusPolicy: Qt.StrongFocus
             onActiveFocusChanged: {
                 if (activeFocus && currentItem) {
+                    console.log("currentIndex ", currentIndex, "  currentItem ", currentItem)
                     currentItem.forceActiveFocus()
                 }
             }
@@ -54,7 +56,7 @@ Window {
                     gridView.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
-                    if (activeFocus) storageModel.enterLocal("/")
+                    if (activeFocus) {storageModel.enterLocal("/"); root.lastSelectedTab=0}
                 }
                 //KeyNavigation.down: gridView    //.forceActiveFocus()
                 Keys.onPressed: (event) => {
@@ -63,6 +65,11 @@ Window {
                         event.accepted = true
                     }
                 }
+                // Keys.onRightPressed: {
+                //     console.log("tb_local.Keys.onRightPressed:")
+                //     tb_minio.forceActiveFocus()
+                // }
+                KeyNavigation.right: tb_minio
                 Keys.onDownPressed: {
                     gridView.forceActiveFocus()
                 }
@@ -100,7 +107,9 @@ Window {
                         border.color: "#2196F3"
                         border.width: 2
                         radius: 6
-                        visible: tb_local.visualFocus // Виден только при фокусе
+//                        visible: tb_local.visualFocus  // Виден только при фокусе
+//                        visible: tabBar.visualFocus//&& parent.currentIndex === 0 // || (gridView.activeFocus) // && gridView.model.isDir())
+                        visible: tb_local.visualFocus//tb_local.checked   //tb_local.visualFocus //tb_local.checked// && (tb_local.visualFocus || gridView.activeFocus) // && gridView.model.isDir())
                     }
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -115,7 +124,7 @@ Window {
                     gridView.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
-                    if (activeFocus) storageModel.enterMinio("main-bucket")
+                    if (activeFocus) {storageModel.enterMinio("main-bucket"); root.lastSelectedTab=1}
                 }
                 //KeyNavigation.down: gridView    //.forceActiveFocus()
                 Keys.onPressed: (event) => {
@@ -124,6 +133,11 @@ Window {
                         event.accepted = true
                     }
                 }
+                // Keys.onLeftPressed: {
+                //     console.log("tb_local.Keys.onLeftPressed:")
+                //     tb_local.forceActiveFocus()
+                // }
+                KeyNavigation.left: tb_local
                 Keys.onDownPressed: {
                     gridView.forceActiveFocus()
                 }
@@ -161,7 +175,10 @@ Window {
                         border.color: "#2196F3"
                         border.width: 2
                         radius: 6
-                        visible: tb_minio.visualFocus // Виден только при фокусе
+//                        visible: tb_minio.visualFocus // Виден только при фокусе
+//                        visible: tb_minio.visualFocus //|| (gridView.activeFocus) // && gridView.model.isMinio())
+//                        visible: tb_minio.checked //tb_minio.visualFocus || (gridView.activeFocus) // && gridView.model.isMinio)
+                        visible: tb_minio.visualFocus   //tb_minio.checked   //tb_minio.visualFocus   //tb_minio.checked// && (tb_minio.visualFocus || gridView.activeFocus)
                     }
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -183,6 +200,8 @@ Window {
             cellHeight: 60 // Высота строки
 
             model: storageModel // Объект UnifiedStorageModel из C++
+//            var minio0 = model.isMinio()
+//            var minio1 = model.get(myGridView.currentIndex)
 //            property real lastClickTime: 0
             // Настройка ScrollBar (Полоса прокрутки)
             ScrollBar.vertical: ScrollBar {
@@ -323,9 +342,14 @@ Window {
                     }
                 }
                 onClicked: {
+                    //let curr0 = gridView.model.isMinio()
+                    // console.log("gridView.model.isMinio(): ", curr0)
+                    // let currentData = gridView.model.get(gridView.currentIndex)
+                    // console.log("gridView.model.get(myGridView.currentIndex): ", currentData)
                     root.close()
                 }
             }
         }
     }
+    onActiveFocusItemChanged: console.log("Фокус сейчас на: " + activeFocusItem)
 }
