@@ -5,6 +5,7 @@
 #include <QAbstractListModel>
 #include <QStringList>
 #include <QUrl>
+#include <QDir>
 
 class ImageModel : public QAbstractListModel {
     Q_OBJECT
@@ -53,6 +54,33 @@ public:
         QUrl url = QUrl::fromLocalFile(path);
         return url.toString();
     }
+
+    Q_INVOKABLE QString addImagesFromFolder(const QString &folderPath) {
+        QDir dir(folderPath);
+
+        // 1. Устанавливаем фильтры: только файлы, игнорируем "." и ".."
+        dir.setFilter(QDir::Files | QDir::NoDotAndDotDot);
+
+        // 2. Устанавливаем маски для изображений
+        QStringList filters;
+        filters << "*.jpg" << "*.jpeg" << "*.png" << "*.bmp" << "*.gif";
+        dir.setNameFilters(filters);
+
+        // 3. Получаем список имен файлов (без вложенных папок)
+        QStringList fileList = dir.entryList();
+
+        // 4. Добавляем каждый файл в модель
+        for (const QString &fileName : std::as_const(fileList)) {
+            // Формируем полный путь
+            QString fullPath = dir.absoluteFilePath(fileName);
+
+            // Вызываем вашу функцию (убедитесь, что она внутри вызывает beginInsertRows)
+            addImagePath(fullPath);
+        }
+        QUrl url = QUrl::fromLocalFile(dir.absoluteFilePath(fileList.first()));
+        return url.toString();
+    }
+
 private:
     QStringList m_imagePaths;
 };

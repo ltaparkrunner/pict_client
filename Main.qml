@@ -146,9 +146,14 @@ ApplicationWindow {
                                     clip: true
                                 }
                             }
+                            MouseArea {
+                                anchors.fill: parent
+                                onDoubleClicked: {
+//                                    console.log("delegate onDoubleClicked: ", model.imagePath)
+                                    mainImageSource = model.imagePath
+                                }
+                            }
                         }
-
-                        // Включаем прокрутку, если элементов много
                         ScrollBar.vertical: ScrollBar {}
                     }
                 }
@@ -251,13 +256,11 @@ ApplicationWindow {
         if(path) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
-                console.log("Это локальный файл");
-//                grid.model.addImagePath({ "filePath": Qt.resolvedUrl(newPath) })
                 grid.model.addImagePath(path)
-                console.log("resolved path", grid.model.resolvePath(path))
                 mainImageSource = grid.model.resolvePath(path)
             } else if (type === FileHelperType.LocalFolder) {
-                console.log("Это локальная папка");
+//                console.log("Это локальная папка");
+                mainImageSource = grid.model.addImagesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
                 console.log("Это бакет MinIO");
             } else if (type === FileHelperType.MinioFile) {
