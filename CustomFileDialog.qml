@@ -17,20 +17,53 @@ Window {
 
     onVisibleChanged: {
         if (visible) {
-            gridView.forceActiveFocus()
+            tabBar.forceActiveFocus()
         }
     }
 
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
-
+        // Поле выбранного пути
+        TextField {
+            Layout.fillWidth: true
+            text: root.currentSelectedPath
+            readOnly: true
+            placeholderText: "Ничего не выбрано"
+        }
         // Навигационная панель (Табы)
         TabBar {
+            id: tabBar
             Layout.fillWidth: true
+            currentIndex: 0
+            focus: true
+            focusPolicy: Qt.StrongFocus
+            onActiveFocusChanged: {
+                if (activeFocus && currentItem) {
+                    currentItem.forceActiveFocus()
+                }
+            }
             TabButton {
                 text: "Локально"
-                onClicked: storageModel.enterLocal("/")
+//                focus: true
+                focusPolicy:Qt.ClickFocus
+                onClicked: {
+                    storageModel.enterLocal("/")
+                    gridView.forceActiveFocus()
+                }
+                onActiveFocusChanged: {
+                    if (activeFocus) storageModel.enterLocal("/")
+                }
+                //KeyNavigation.down: gridView    //.forceActiveFocus()
+                Keys.onPressed: (event) => {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        gridView.forceActiveFocus()
+                        event.accepted = true
+                    }
+                }
+                Keys.onDownPressed: {
+                    gridView.forceActiveFocus()
+                }
                 contentItem: Text {
                     text: parent.text
                     font.pixelSize: 15
@@ -64,7 +97,25 @@ Window {
             }
             TabButton {
                 text: "MinIO"
-                onClicked: storageModel.enterMinio("main-bucket")
+                focus: true
+                focusPolicy:Qt.ClickFocus
+                onClicked: {
+                    storageModel.enterMinio("main-bucket")
+                    gridView.forceActiveFocus()
+                }
+                onActiveFocusChanged: {
+                    if (activeFocus) storageModel.enterMinio("main-bucket")
+                }
+                //KeyNavigation.down: gridView    //.forceActiveFocus()
+                Keys.onPressed: (event) => {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        gridView.forceActiveFocus()
+                        event.accepted = true
+                    }
+                }
+                Keys.onDownPressed: {
+                    gridView.forceActiveFocus()
+                }
                 contentItem: Text {
                     text: parent.text
                     font.pixelSize: 15
@@ -159,27 +210,30 @@ Window {
                         gridView.currentIndex = index
                     }
                     onDoubleClicked: {
-                        root.currentSelectedPath = model.path
-                        if (model.isDir) {
-                            if (model.isMinio) storageModel.enterMinio(model.name)
-                            else storageModel.enterLocal(model.path)
-                        } else {
-//                            root.accept() // Или закрыть диалог с выбором файла
-                            console.log(currentSelectedPath);
-                            root.pathSelected(currentSelectedPath);
-                            root.close()
-                        }
+                        acceptSelection()
+                        event.accepted = true;
+                    }
+                }
+                Keys.onPressed: (event) => {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+//                        console.log("Enter нажата!");
+                        acceptSelection(); // Ваш метод подтверждения выбора
+                        event.accepted = true; // Останавливаем дальнейшее распространение события
+                    }
+                }
+
+                function acceptSelection() {
+                    root.currentSelectedPath = model.path
+                    if (model.isDir) {
+                        if (model.isMinio) storageModel.enterMinio(model.name)
+                        else storageModel.enterLocal(model.path)
+                    } else {
+                        console.log(currentSelectedPath);
+                        root.pathSelected(currentSelectedPath);
+                        root.close()
                     }
                 }
             }
-        }
-
-        // Поле выбранного пути
-        TextField {
-            Layout.fillWidth: true
-            text: root.currentSelectedPath
-            readOnly: true
-            placeholderText: "Ничего не выбрано"
         }
 
         RowLayout {
