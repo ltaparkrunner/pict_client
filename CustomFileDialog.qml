@@ -23,7 +23,8 @@ Window {
 
     ColumnLayout {
         anchors.fill: parent
-        spacing: 0
+        spacing: 2
+//        Layout.margins: 20
         // Поле выбранного пути
         TextField {
             Layout.fillWidth: true
@@ -45,6 +46,7 @@ Window {
             }
             TabButton {
                 text: "Локально"
+                id: tb_local
 //                focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
@@ -91,11 +93,20 @@ Window {
                         // Плавная анимация появления линии
                         Behavior on height { NumberAnimation { duration: 150 } }
                     }
-
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3 // Рамка чуть шире самой кнопки
+                        color: "transparent"
+                        border.color: "#2196F3"
+                        border.width: 2
+                        radius: 6
+                        visible: tb_local.visualFocus // Виден только при фокусе
+                    }
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
             }
             TabButton {
+                id: tb_minio
                 text: "MinIO"
                 focus: true
                 focusPolicy:Qt.ClickFocus
@@ -143,7 +154,15 @@ Window {
                         // Плавная анимация появления линии
                         Behavior on height { NumberAnimation { duration: 150 } }
                     }
-
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3 // Рамка чуть шире самой кнопки
+                        color: "transparent"
+                        border.color: "#2196F3"
+                        border.width: 2
+                        radius: 6
+                        visible: tb_minio.visualFocus // Виден только при фокусе
+                    }
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
             }
@@ -238,6 +257,7 @@ Window {
 
         RowLayout {
             Layout.fillWidth: true
+            Layout.margins: 5
             //Layout.alignment: Qt.AlignRight
             Button {
                 id: btn_opn
@@ -262,9 +282,19 @@ Window {
                         shadowBlur: 0.5
                         shadowVerticalOffset: parent.pressed ? 1 : 3
                     }
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3 // Рамка чуть шире самой кнопки
+                        color: "transparent"
+                        border.color: "#2196F3"
+                        border.width: 2
+                        radius: 6
+                        visible: btn_opn.visualFocus // Виден только при фокусе
+                    }
                 }
             }
             Button {
+                id: btn_cls
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
                 text: "Close";
@@ -281,6 +311,15 @@ Window {
                         shadowOpacity: parent.pressed ? 0.2 : 0.4
                         shadowBlur: 0.5
                         shadowVerticalOffset: parent.pressed ? 1 : 3
+                    }
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3 // Рамка чуть шире самой кнопки
+                        color: "transparent"
+                        border.color: "#2196F3"
+                        border.width: 2
+                        radius: 6
+                        visible: btn_cls.visualFocus // Виден только при фокусе
                     }
                 }
                 onClicked: {
