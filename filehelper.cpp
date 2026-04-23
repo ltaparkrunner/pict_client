@@ -28,7 +28,7 @@ Q_INVOKABLE bool FileHelper::exists(const QString &path) {
 }
 
 Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
-    qDebug() << "FileHelper::checkPathType";
+//    qDebug() << "FileHelper::checkPathType" << path;
     if (path.isEmpty()) return Unknown;
 
     QUrl url(path);
@@ -52,13 +52,12 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
     if (url.scheme() == "http" || url.scheme() == "https") {
         QString pathStr = url.path();
         if (pathStr.startsWith("/")) pathStr = pathStr.mid(1); // убираем первый слеш
-
         QStringList parts = pathStr.split('/', Qt::SkipEmptyParts);
-
         if (parts.count() == 1) return MinioBucket; // Только имя бакета
+        qDebug() << "after minio check 4";
         if (parts.count() > 1) return MinioFile;    // Бакет + путь к объекту
+        qDebug() << "after minio check 5";
     }
-
     return Unknown;
 }
 

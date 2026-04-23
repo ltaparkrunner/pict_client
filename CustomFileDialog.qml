@@ -6,7 +6,7 @@ import QtQuick.Controls.Basic
 
 Window {
     id: root
-    title: "Выбор объекта (Локально / MinIO)"
+    title: "Selecting an object (Locally / MinIO)"
     width: 500; height: 400
 //    modal: false
 //    standardButtons: Dialog.Cancel | Dialog.Open
@@ -25,11 +25,11 @@ Window {
     ColumnLayout {
         anchors.fill: parent
         spacing: 2
-        // Поле выбранного пути
+        // TextField of selected path
         TextField {
             Layout.fillWidth: true
             text: root.currentSelectedPath
-            placeholderText: "Ничего не выбрано"
+            placeholderText: "Nothing is selected"
 
             font.pixelSize: 15
             font.weight: parent.checked ? Font.DemiBold : Font.Normal
@@ -75,7 +75,10 @@ Window {
                     tb_local.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
-                    if (activeFocus) {storageModel.enterLocal("/"); root.lastSelectedTab=0}
+                    if (activeFocus) {
+                        storageModel.enterLocal("/");
+                        root.lastSelectedTab=0
+                    }
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
@@ -137,7 +140,10 @@ Window {
                     tb_minio.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
-                    if (activeFocus) {storageModel.enterMinio("main-bucket"); root.lastSelectedTab=1}
+                    if (activeFocus) {
+                        storageModel.enterMinio("main-bucket");
+                        root.lastSelectedTab=1
+                    }
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {

@@ -17,10 +17,11 @@ public:
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
     QString lastReceivedPath() const;
     Q_INVOKABLE QStringList getBucketsList() const;
-    Q_INVOKABLE QStringList getImagesListfromBucket(const QString &bucket) const;
+    /*Q_INVOKABLE*/ void getImagesListfromBucketRequest(const QString &bucket) const;
 
 signals:
-    void pathReceived(QString path);
+    void pathReceived(const QString &path);
+    void pathsReceived(const QStringList &paths);
 
 private slots:
     void onConnected();
@@ -29,8 +30,9 @@ private slots:
     void onBinaryMessageReceived(const QByteArray &message);
     void onError(QAbstractSocket::SocketError error);
 
-private:
+public:
     QWebSocket *m_webSocket;
+private:
     QUrl m_url;
     QTimer m_reconnectTimer;
     QTimer m_pingTimer;

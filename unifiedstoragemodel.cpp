@@ -1,7 +1,8 @@
 #include "unifiedstoragemodel.h"
 
-UnifiedStorageModel::UnifiedStorageModel(QObject *parent)
+UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, QObject *parent)
     : QAbstractListModel{parent}
+    , wsclient (wsc)
 {}
 
 void UnifiedStorageModel::enterLocal(QString path) {
@@ -25,12 +26,22 @@ void UnifiedStorageModel::enterLocal(QString path) {
 
 void UnifiedStorageModel::enterMinio(QString path) {
     // Здесь вы вызываете API MinIO. Когда придет ответ:
+    connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::MinioPathsToQML);
+    wsclient->getImagesListfromBucketRequest("images");
+    // beginResetModel();
+    // m_items.clear();
+    // // Имитация добавления бакетов
+
+    // m_items.append({"My-Bucket-1", "s3://bucket1", true, true});
+    // m_items.append({"Logs-Bucket", "s3://logs", true, true});
+    // endResetModel();
+}
+void UnifiedStorageModel::MinioPathsToQML(const QStringList &paths) {
     beginResetModel();
     m_items.clear();
-    // Имитация добавления бакетов
-
-    m_items.append({"My-Bucket-1", "s3://bucket1", true, true});
-    m_items.append({"Logs-Bucket", "s3://logs", true, true});
+    for (const QString &path : paths) {
+         m_items.append({path, path, true, true});
+    }
     endResetModel();
 }
 

@@ -17,9 +17,11 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     if (!base.deserialize(&serializer, data)) return;
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ListResponse) {
         const auto &response = base.listResponse();
-        // for (const auto &info : response.images()) {
-        //     downloadImage(info.url());
-        // }
+        QStringList sl;
+        for (const auto &info : response.images()) {
+            sl.append(info.url());
+        }
+        emit pathsReceived(sl);
     }
 }
 
@@ -37,7 +39,6 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
     m_webSocket->setSslConfiguration(sslConf);
 
     connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebSocketClient::onBinaryMessageReceived);
-//    connect(m_webSocket, &QWebSocket::connected, this, []() { qDebug() << "Connected!"; });
     connect(m_webSocket, &QWebSocket::connected, this, &WebSocketClient::onConnected);
     connect(m_webSocket, &QWebSocket::disconnected, this, &WebSocketClient::onDisconnected);
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &WebSocketClient::onTextMessageReceived);
@@ -54,31 +55,36 @@ QString WebSocketClient::lastReceivedPath() const { return m_path; }
 Q_INVOKABLE QStringList WebSocketClient::getBucketsList() const{
     return {};
 }
-Q_INVOKABLE QStringList WebSocketClient::getImagesListfromBucket(const QString &bucket) const{
-    return {};
+Q_INVOKABLE void WebSocketClient::getImagesListfromBucketRequest(const QString &bucket) const{
+    pict_data::BaseMessage base;
+    pict_data::ImageListRequest message;
+    message.setCount(6);
+
+    base.setListRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = base.serialize(&serializer);
+    qint64 sz = m_webSocket->sendBinaryMessage(data);
 }
 
-
 void WebSocketClient::onConnected() {
-    qDebug() << "Подключено. Heartbeat запущен.";
+    qDebug() << "Connected. Heartbeat has started.";
     m_reconnectTimer.stop();
-    // m_pingTimer.start(PING_INTERVAL);
+    m_pingTimer.start(PING_INTERVAL);
 }
 
 void WebSocketClient::onDisconnected() {
-    qDebug() << "Связь потеряна. Ожидание переподключения...";
-//    m_pingTimer.stop();
+    qDebug() << "Connection is lost. Waiting for reconnection...";
+    m_pingTimer.stop();
 //    m_reconnectTimer.start(RECONNECT_INTERVAL);
 }
 
-// Обработка текста
 void WebSocketClient::onTextMessageReceived(const QString &message) {
-    qDebug() << "Текст от сервера:" << message;
+    qDebug() << "Text from server:" << message;
 }
 
 
 void WebSocketClient::onError(QAbstractSocket::SocketError error) {
-    qDebug() << "Ошибка:" << m_webSocket->errorString();
+    qDebug() << "Error:" << m_webSocket->errorString();
     if (m_webSocket->state() != QAbstractSocket::ConnectedState && !m_reconnectTimer.isActive()) {
         m_reconnectTimer.start(RECONNECT_INTERVAL);
     }

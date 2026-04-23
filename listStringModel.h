@@ -84,6 +84,15 @@ public:
         return {};
     }
 
+    Q_INVOKABLE QString addMinioImagePath(const QString &path) {
+        QUrl url = QUrl::fromUserInput(path);
+        QString pathForQml = url.toString();
+        beginInsertRows(QModelIndex(), m_imagePaths.count(), m_imagePaths.count());
+        m_imagePaths.append(pathForQml);
+        endInsertRows(); // This triggers the QML view update
+        return pathForQml;
+    }
+
 private:
     QStringList m_imagePaths;
 };

@@ -78,6 +78,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
                     onClicked: {
+                        wsClient.connectToServer()
                         storageModel.enterLocal("/");
                         customDialog.show();
                     }
@@ -254,6 +255,7 @@ ApplicationWindow {
     */
     function processPath(path){
 //        if(path && path.trim().length > 0) {
+//        console.log("path = ", path)
         if(path) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
@@ -265,7 +267,8 @@ ApplicationWindow {
             } else if (type === FileHelperType.MinioBucket) {
                 console.log("Это бакет MinIO");
             } else if (type === FileHelperType.MinioFile) {
-                console.log("Это объект (файл) в MinIO");
+//                console.log("Это объект (файл) в MinIO");
+                mainImageSource = grid.model.addMinioImagePath(path)
             } else {
                 console.log("Путь не распознан или не существует");
             }

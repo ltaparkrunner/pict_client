@@ -4,6 +4,8 @@
 #include <QAbstractListModel>
 #include <QDir>
 #include <QObject>
+#include "websocketclient.h"
+
 enum PathType {
     Unknown,
     LocalFile,
@@ -25,7 +27,7 @@ class UnifiedStorageModel : public QAbstractListModel {
 public:
     enum Roles { NameRole = Qt::UserRole + 2, PathRole, IsDirRole, IsMinioRole, PathType };
 
-    explicit UnifiedStorageModel(QObject *parent = nullptr);
+    explicit UnifiedStorageModel(WebSocketClient *wsc, QObject *parent = nullptr);
     // Основные методы модели
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
@@ -35,9 +37,11 @@ public:
     Q_INVOKABLE void loadRoot();          // Показать выбор: "Local" и "MinIO"
     Q_INVOKABLE void enterLocal(QString path); // Зайти в локальную папку
     Q_INVOKABLE void enterMinio(QString path);        // Зайти в список бакетов MinIO
+    Q_INVOKABLE void MinioPathsToQML(const QStringList &paths);
 
 private:
     QVector<StorageItem> m_items;
+    WebSocketClient *wsclient;
 };
 
 #endif // UNIFIEDSTORAGEMODEL_H
