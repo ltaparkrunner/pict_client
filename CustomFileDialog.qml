@@ -354,4 +354,5 @@ Window {
         }
     }
 //    onActiveFocusItemChanged: console.log("Фокус сейчас на: " + activeFocusItem)
+//    Component.on
 }

@@ -87,6 +87,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
                     onClicked: {
+                        wsClient.connectToServer()
                         storageModel.enterLocal("/");
                         customDialog.show();
                         onFileSelected: {

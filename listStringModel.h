@@ -77,8 +77,11 @@ public:
             // Вызываем вашу функцию (убедитесь, что она внутри вызывает beginInsertRows)
             addImagePath(fullPath);
         }
-        QUrl url = QUrl::fromLocalFile(dir.absoluteFilePath(fileList.first()));
-        return url.toString();
+        if(!fileList.isEmpty()) {
+            QUrl url = QUrl::fromLocalFile(dir.absoluteFilePath(fileList.first()));
+            return url.toString();
+        }
+        return {};
     }
 
 private:

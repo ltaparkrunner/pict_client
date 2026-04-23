@@ -28,6 +28,7 @@ void UnifiedStorageModel::enterMinio(QString path) {
     beginResetModel();
     m_items.clear();
     // Имитация добавления бакетов
+
     m_items.append({"My-Bucket-1", "s3://bucket1", true, true});
     m_items.append({"Logs-Bucket", "s3://logs", true, true});
     endResetModel();

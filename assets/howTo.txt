@@ -1,3 +1,11 @@
+To ask/request list from Minio make -> ImageListRequest
+Unified storage model ask websocket of connection and others.
+1. to connect in enterMinio
+2. send request
+3. get respond
+4. get paths, show pictures
+
+
 CMAKE_TOOLCHAIN_FILE			C:/wrk/qt_download/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 Given: picture_client application is written on Qt/c++, qwebsocket, Protobuf, TLS, transmit images to picture_server. picture_server is written on Node.js MongoDB, MinIO. Server saves and stores images. Write code to picture_client to request and to get, and picture_server to transmit first six images, stored in specified MioIo backet.

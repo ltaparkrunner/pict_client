@@ -8,21 +8,27 @@ Q_INVOKABLE bool FileHelper::fileExists(const QString &path) {
     if (localPath.startsWith("file:///")) {
         localPath = QUrl(path).toLocalFile();
     }
+    qDebug() << "FileHelper::fileExists";
     return QFile::exists(localPath);
 }
 
 Q_INVOKABLE bool FileHelper::exists(const QString &path) {
-    if (path.isEmpty()) return false;
-
+    qDebug() << "FileHelper::exists";
+    if (path.isEmpty()) {
+        qDebug() << "FileHelper::exists, path.isEmpty() ";
+        return false;
+    }
+    qDebug() << "FileHelper::exists, path.is not Empty() ";
     // Превращаем QML URL (file:///...) в путь для файловой системы
     QString localPath = QUrl(path).isLocalFile()
                             ? QUrl(path).toLocalFile()
                             : path;
-
+    qDebug() << "FileHelper::exists, path.is not Empty() 2 ";
     return QFile::exists(localPath);
 }
 
 Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
+    qDebug() << "FileHelper::checkPathType";
     if (path.isEmpty()) return Unknown;
 
     QUrl url(path);
@@ -35,7 +41,9 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
         qDebug() << "localPath" << localPath << " is " << info.exists()
                  << " is local file " << info.isFile() << " is local folder" << info.isDir();
         if (!info.exists()) return Unknown;
+        qDebug() << "if (!info.exists()) return Unknown;";
         if (info.isDir()) return LocalFolder;
+        qDebug() << "if (if (info.isDir()) return LocalFolder;";
         if (info.isFile()) return LocalFile;
     }
 

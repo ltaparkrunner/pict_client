@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     // }
 
     FileHelper fileHlp;
-    WebSocketClient wsClient;
+    WebSocketClient wsClient(QUrl("wss://localhost:8080"));
     UnifiedStorageModel usModel;
 
     QQmlApplicationEngine engine;

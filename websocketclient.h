@@ -13,19 +13,31 @@ class WebSocketClient : public QObject
     Q_OBJECT
     Q_PROPERTY(QString lastReceivedPath READ lastReceivedPath NOTIFY pathReceived)
 public:
-    explicit WebSocketClient(QObject *parent = nullptr);
-    Q_INVOKABLE void connectToServer(const QString &url);
+    explicit WebSocketClient(const QUrl &url, QObject *parent = nullptr);
+    Q_INVOKABLE void connectToServer(/*const QString &url*/);
     QString lastReceivedPath() const;
+    Q_INVOKABLE QStringList getBucketsList() const;
+    Q_INVOKABLE QStringList getImagesListfromBucket(const QString &bucket) const;
 
 signals:
     void pathReceived(QString path);
 
 private slots:
-    void onBinaryMessage(const QByteArray &message);
+    void onConnected();
+    void onDisconnected();
+    void onTextMessageReceived(const QString &message);
+    void onBinaryMessageReceived(const QByteArray &message);
+    void onError(QAbstractSocket::SocketError error);
 
 private:
-    QWebSocket m_webSocket;
+    QWebSocket *m_webSocket;
+    QUrl m_url;
+    QTimer m_reconnectTimer;
+    QTimer m_pingTimer;
     QString m_path;
+
+    const int RECONNECT_INTERVAL = 5000;
+    const int PING_INTERVAL = 30000;
 };
 
 #endif // WEBSOCKETCLIENT_H
