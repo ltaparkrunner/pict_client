@@ -10,6 +10,7 @@
 //         emit pathReceived(m_path);
 //     }
 // }
+
 void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     //    qDebug() << "ImageClient::onBinaryMessageReceived(const QByteArray &data)";
     pict_data::BaseMessage base;
@@ -17,11 +18,23 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     if (!base.deserialize(&serializer, data)) return;
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ListResponse) {
         const auto &response = base.listResponse();
-        QStringList sl;
+        QList<QStringList> sl;
         for (const auto &info : response.images()) {
-            sl.append(info.url());
+            sl.append({info.filename(), info.url()});
         }
-        emit pathsReceived(sl);
+        if(sreq == usmodel) emit pathsReceived(sl);
+        else emit pathsReceived2(sl);
+    }
+    if (base.contentField() == pict_data::BaseMessage::ContentFields::Buckets) {
+        const auto &response = base.buckets();
+        QStringList sl;
+        for (const auto &info : response.bucketInf()) {
+            sl.append(info.bucketName());
+            qDebug() << "info.bucketName()" << info.bucketName();
+            sl.append(info.url());
+            qDebug() << "info.url()" << info.url();
+        }
+        emit bucketsReceived(sl);
     }
 }
 
@@ -52,18 +65,29 @@ Q_INVOKABLE void WebSocketClient::connectToServer(/*const QString &url*/) {
 
 QString WebSocketClient::lastReceivedPath() const { return m_path; }
 
-Q_INVOKABLE QStringList WebSocketClient::getBucketsList() const{
+Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
+    pict_data::BaseMessage base;
+    pict_data::BucketRequest message;
+    message.setUserId("Ivon");
+
+    base.setUser(message);
+    QProtobufSerializer serializer;
+    QByteArray data = base.serialize(&serializer);
+    /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
     return {};
 }
-Q_INVOKABLE void WebSocketClient::getImagesListfromBucketRequest(const QString &bucket) const{
+
+/*Q_INVOKABLE*/ void WebSocketClient::getImagesListfromBucketRequest(const QString &bucket, sourceReq sr){
     pict_data::BaseMessage base;
     pict_data::ImageListRequest message;
+    sreq = sr;
     message.setCount(6);
+    message.setBucketName(bucket);
 
     base.setListRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = base.serialize(&serializer);
-    qint64 sz = m_webSocket->sendBinaryMessage(data);
+    /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
 }
 
 void WebSocketClient::onConnected() {
@@ -81,7 +105,6 @@ void WebSocketClient::onDisconnected() {
 void WebSocketClient::onTextMessageReceived(const QString &message) {
     qDebug() << "Text from server:" << message;
 }
-
 
 void WebSocketClient::onError(QAbstractSocket::SocketError error) {
     qDebug() << "Error:" << m_webSocket->errorString();

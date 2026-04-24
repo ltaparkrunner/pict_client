@@ -66,6 +66,14 @@ Window {
                     currentItem.forceActiveFocus()
                 }
             }
+            Keys.onPressed: (event) => {
+                if (event.key === Qt.Key_Left) {
+                    console.log("TabBar Нажата стрелка Влево")
+                }
+                if (event.key === Qt.Key_Right) {
+                    console.log("TabBar Нажата стрелка Вправо")
+                }
+            }
             spacing: 4
             TabButton {
                 text: "Локально"
@@ -86,6 +94,12 @@ Window {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         gridView.forceActiveFocus()
                         event.accepted = true
+                    }
+                    if (event.key === Qt.Key_Left) {
+                        console.log("tb_local Нажата стрелка Влево")
+                    }
+                    if (event.key === Qt.Key_Right) {
+                        console.log("tb_local Нажата стрелка Вправо")
                     }
                 }
                 KeyNavigation.right: tb_minio
@@ -151,6 +165,12 @@ Window {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         gridView.forceActiveFocus()
                         event.accepted = true
+                    }
+                    if (event.key === Qt.Key_Right) {
+                        console.log("tb_minio Нажата стрелка Вправо")
+                    }
+                    if (event.key === Qt.Key_Left) {
+                        console.log("tb_minio Нажата стрелка Влево")
                     }
                 }
                 KeyNavigation.left: tb_local
@@ -272,7 +292,7 @@ Window {
                     root.currentSelectedPath = model.path
                     //root.
                     if (model.isDir) {
-                        if (model.isMinio) storageModel.enterMinio(model.name)
+                        if (model.isMinio) storageModel.enterMinioBucket(model.name)
                         else storageModel.enterLocal(model.path)
                         //  console.log("acceptSelection: ", grid)
                         grid.currentIndex = 0

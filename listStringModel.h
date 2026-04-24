@@ -7,6 +7,8 @@
 #include <QUrl>
 #include <QDir>
 
+#include "websocketclient.h"
+
 class ImageModel : public QAbstractListModel {
     Q_OBJECT
 public:
@@ -14,7 +16,7 @@ public:
         PathRole = Qt::UserRole + 1
     };
 
-    explicit ImageModel(QObject *parent = nullptr) : QAbstractListModel(parent) {}
+    explicit ImageModel(WebSocketClient *wsc, QObject *parent = nullptr) : QAbstractListModel(parent), wsclient (wsc) {}
 
     // 1. Return number of items
     int rowCount(const QModelIndex &parent = QModelIndex()) const override {
@@ -44,6 +46,14 @@ public:
     // Helper to add data and notify the view
     Q_INVOKABLE void addImagePath(const QString &path) {
         QUrl url = QUrl::fromLocalFile(path);
+        QString pathForQml = url.toString();
+        beginInsertRows(QModelIndex(), m_imagePaths.count(), m_imagePaths.count());
+        m_imagePaths.append(pathForQml);
+        endInsertRows(); // This triggers the QML view update
+    }
+
+    Q_INVOKABLE void addImageMinioPath(const QString &path) {
+        QUrl url = QUrl::fromUserInput(path);
         QString pathForQml = url.toString();
         beginInsertRows(QModelIndex(), m_imagePaths.count(), m_imagePaths.count());
         m_imagePaths.append(pathForQml);
@@ -93,8 +103,31 @@ public:
         return pathForQml;
     }
 
+    Q_INVOKABLE QStringList addImagesFromMinioBucket(const QString &path) {
+        QString fileName = QUrl(path).fileName();
+        connect(wsclient, &WebSocketClient::pathsReceived2, this, &ImageModel::minioPathsToQML);
+        wsclient->getImagesListfromBucketRequest(fileName, model);
+        return {};
+    }
+
+    Q_INVOKABLE QString  minioPathsToQML(const QList<QStringList> &paths) {
+        for (const auto &image : std::as_const(paths)) {
+            addImageMinioPath(image[1]);
+        }
+        if(!paths.isEmpty()) {
+            QUrl url = QUrl::fromUserInput(paths.first()[1]);
+            minioImageToQML(url.toString());
+            return url.toString();
+        }
+        return {};
+    }
+
+signals:
+    void minioImageToQML(const QString &path);
+
 private:
     QStringList m_imagePaths;
+    WebSocketClient *wsclient;
 };
 
 #endif // LISTSTRINGMODEL_H

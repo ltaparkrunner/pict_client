@@ -1,3 +1,5 @@
+Enter MinIO on every focus is not good sense?
+
 To ask/request list from Minio make -> ImageListRequest
 Unified storage model ask websocket of connection and others.
 1. to connect in enterMinio

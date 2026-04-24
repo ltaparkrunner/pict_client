@@ -13,6 +13,16 @@ ApplicationWindow {
     minimumHeight: 300
     title: "Fixed Left, Flexible Right"
 
+    Connections {
+        target: imageModel
+        function onminioImageToQML(url) {
+            mainImageSource = url;
+            console.log("Получено из C++:", newMessage)
+//            console.log("Получено из C++:", newMessage)
+
+        }
+    }
+
     CustomFileDialog {
         id: customDialog
         onPathSelected: {
@@ -265,9 +275,10 @@ ApplicationWindow {
 //                console.log("Это локальная папка");
                 mainImageSource = grid.model.addImagesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
-                console.log("Это бакет MinIO");
+//                console.log("Это бакет MinIO");
+                mainImageSource = grid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {
-//                console.log("Это объект (файл) в MinIO");
+                console.log("Это объект (файл) в MinIO", path);
                 mainImageSource = grid.model.addMinioImagePath(path)
             } else {
                 console.log("Путь не распознан или не существует");

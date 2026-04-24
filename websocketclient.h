@@ -8,6 +8,11 @@
 #include <QSslConfiguration>
 #include <QFile>
 
+enum sourceReq{
+    model,
+    usmodel
+};
+
 class WebSocketClient : public QObject
 {
     Q_OBJECT
@@ -16,12 +21,15 @@ public:
     explicit WebSocketClient(const QUrl &url, QObject *parent = nullptr);
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
     QString lastReceivedPath() const;
-    Q_INVOKABLE QStringList getBucketsList() const;
-    /*Q_INVOKABLE*/ void getImagesListfromBucketRequest(const QString &bucket) const;
+    Q_INVOKABLE QStringList getBucketsListRequest() const;
+    /*Q_INVOKABLE*/ void getImagesListfromBucketRequest(const QString &bucket, sourceReq sr);
+//    void getImagesListfromBucketRequest2(const QString &bucket) const;
 
 signals:
     void pathReceived(const QString &path);
-    void pathsReceived(const QStringList &paths);
+    void pathsReceived(const QList<QStringList> &paths);
+    void pathsReceived2(const QList<QStringList> &paths);
+    void bucketsReceived(const QStringList &buckets);
 
 private slots:
     void onConnected();
@@ -37,6 +45,7 @@ private:
     QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
+    sourceReq sreq;
 
     const int RECONNECT_INTERVAL = 5000;
     const int PING_INTERVAL = 30000;

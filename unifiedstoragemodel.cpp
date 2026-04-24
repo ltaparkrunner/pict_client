@@ -25,22 +25,38 @@ void UnifiedStorageModel::enterLocal(QString path) {
 }
 
 void UnifiedStorageModel::enterMinio(QString path) {
-    // Здесь вы вызываете API MinIO. Когда придет ответ:
-    connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::MinioPathsToQML);
-    wsclient->getImagesListfromBucketRequest("images");
-    // beginResetModel();
-    // m_items.clear();
-    // // Имитация добавления бакетов
-
-    // m_items.append({"My-Bucket-1", "s3://bucket1", true, true});
-    // m_items.append({"Logs-Bucket", "s3://logs", true, true});
-    // endResetModel();
+//    qDebug() << "UnifiedStorageModel::enterMinio and request";
+    connect(wsclient, &WebSocketClient::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
+    wsclient->getBucketsListRequest();
 }
-void UnifiedStorageModel::MinioPathsToQML(const QStringList &paths) {
+
+void UnifiedStorageModel::enterMinioBucket(const QString &path) {
+    connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+    wsclient->getImagesListfromBucketRequest(path, usmodel);
+}
+
+// void UnifiedStorageModel::enterMinio2(const QString &path) {
+//     connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+//     wsclient->getImagesListfromBucketRequest("images");
+// }
+
+void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
     beginResetModel();
     m_items.clear();
-    for (const QString &path : paths) {
-         m_items.append({path, path, true, true});
+    // for (const QString &bucket : buckets) {
+    //     m_items.append({bucket, bucket, true, true});
+    // }
+    for (int i = 0; i < buckets.size(); i += 2) {
+        m_items.append({buckets[i], buckets[i+1], true, true});
+    }
+    endResetModel();
+}
+
+void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
+    beginResetModel();
+    m_items.clear();
+    for (const QStringList& image : paths) {
+        m_items.append({image[0], image[1], false, true});
     }
     endResetModel();
 }
@@ -79,7 +95,6 @@ QVariant UnifiedStorageModel::data(const QModelIndex &index, int role) const {
 }
 
 // 3. Map integer roles to string names used in QML
-
 QHash<int, QByteArray> UnifiedStorageModel::roleNames() const{
     QHash<int, QByteArray> roles;
     roles[NameRole] = "name";
