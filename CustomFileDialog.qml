@@ -18,6 +18,7 @@ Window {
 
     onVisibleChanged: {
         if (visible) {
+            lastSelectedTab = 0
             tabBar.forceActiveFocus()
         }
     }
@@ -65,6 +66,7 @@ Window {
                     currentItem.forceActiveFocus()
                 }
             }
+            spacing: 4
             TabButton {
                 text: "Локально"
                 id: tb_local
@@ -220,6 +222,7 @@ Window {
                 policy: ScrollBar.AlwaysOn // Или AsNeeded
             }
 
+            highlightMoveDuration: 0
             highlight: Rectangle { color: "gainsboro"; radius: 2} //; z:2 }
             highlightFollowsCurrentItem: true
 
