@@ -12,7 +12,7 @@ Window {
 //    standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: "."
-//    property string currentPath: "/"
+
     signal openPathSelected(string path)
     signal writePathSelected(list<string> listPath, string destPath)
     signal deletePathSelected(string path)

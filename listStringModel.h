@@ -131,9 +131,6 @@ public:
         const QString &item = m_imagePaths.at(row);
         QVariantMap res;
 
-        // Вручную наполняем карту данными
-        // res["url"] = item.url;
-        // res["title"] = item.title;
         res["imagePath"] = item;
         return res;
     }

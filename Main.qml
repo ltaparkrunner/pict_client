@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.15
 import Qt.labs.platform 1.1
 import com.myapp.helpers 1.0
 import QtQuick.Controls.Basic
+import QtQuick.Dialogs
 
 ApplicationWindow {
     visible: true
@@ -34,19 +35,93 @@ ApplicationWindow {
 
     SecondCustomFileDialog {
         id: secondCustomDialog
-        onOpenPathSelected: {
+        onOpenPathSelected:(paths) => {
             tf.text = currentSelectedPath
             processPath(currentSelectedPath)
         }
-        onWritePathSelected: {
-            tf.text = currentSelectedPath
-            processWritePath(currentSelectedPath)
+        // root.writePathSelected(ls, currentSelectedPath)
+        onWritePathSelected:(ls, paths) => {
+            if(paths){
+                for(var path of paths) {
+                    let type = FileHelper.checkPathType(path);
+                    if(type === FileHelperType.LocalFolder){
+                        tf.text = path;
+                        processWritePathsLocal(ls, path)
+                        return
+                    }
+                    else if(type === FileHelperType.MinioBucket){
+                        tf.text = path;
+                        processWritePathsMinio(ls, path)
+                        return
+                    }
+                    else if(type === FileHelperType.LocalFile){
+                        const dir = path.substring(0, filePath.lastIndexOf("/"));
+                        tf.text = dir;
+                        processWritePathsLocal(ls, dir)
+                        return
+                    }
+                    else if(type === FileHelperType.MinioFile){
+                        const dir = path.substring(0, filePath.lastIndexOf("/"));
+                        tf.text = dir;
+                        processWritePathsMinio(ls, dir)
+                        return
+                    }
+                }
+            }
+            msgNothingToDo.text = "You must select a folder to save the images."
+            msgNothingToDo.open()
         }
-        onDeletePathSelected: {
-            tf.text = currentSelectedPath
-            processDeletePath(currentSelectedPath)
+
+        onDeletePathSelected:(paths) => {
+            onWritePathSelected:(ls, paths) => {
+                if(paths){
+                    for(var path of paths) {
+                        let type = FileHelper.checkPathType(path);
+                        if(type === FileHelperType.LocalFolder){
+                            processDeleteFolderLocal(ls, path)
+                        }
+                        else if(type === FileHelperType.MinioBucket){
+                            processDeleteFolderMinio(path)
+                        }
+                        else if(type === FileHelperType.LocalFile){
+                            processDeletePathLocal(ls, dir)
+                        }
+                        else if(type === FileHelperType.MinioFile){
+                            processDeletePathMinio(ls, dir)
+                        }
+                    }
+                    tf.text = path;
+                }
+                else {
+                    msgNothingToDo.text = "You must select a folder to save the images."
+                    msgNothingToDo.open()
+                }
+            }
         }
     }
+
+    MessageDialog {
+        id: msgNothingToDo
+        title: "Nothing To Do"  // "Подтверждение"
+        text: "Path is empty, or smth like this"    // "Вы уверены, что хотите удалить этот файл?"
+        informativeText: "Nothing To Do"     //"Это действие нельзя будет отменить."
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+
+        onAccepted: close()     //console.log("Нажата кнопка ОК")
+        onRejected: close()     //console.log("Нажата кнопка Отмена")
+    }
+
+    MessageDialog {
+        id: plug
+        title: "Plug"  // "Подтверждение"
+        text: "Code is not ready"    // "Вы уверены, что хотите удалить этот файл?"
+        informativeText: "It'll be written"     //"Это действие нельзя будет отменить."
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+
+        onAccepted: close()     //console.log("Нажата кнопка ОК")
+        onRejected: close()     //console.log("Нажата кнопка Отмена")
+    }
+
     property string mainImageSource: ""
     property list<string> myImages: ["", "", "", "", "", ""]
     // Основной горизонтальный контейнер
@@ -226,55 +301,7 @@ ApplicationWindow {
             // imageModel.loadFromFolder(folder)
         }
     }
-    FileDialog {
-        id: fileDialog
-        title: "Выберите изображение"
-        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
 
-        // Настройка фильтров файлов
-        nameFilters: ["Image files (*.png *.jpg)", "All files (*)"]
-
-        // Режимы: OpenFile (один), OpenFiles (несколько), SaveFile (сохранение)
-        fileMode: FileDialog.OpenFile
-
-        onAccepted: {
-            console.log("Выбран файл: " + fileDialog.file)
-            // fileDialog.file возвращает URL (file:///...)
-        }
-    }
-    FileDialog {
-        id: saveDialog
-        fileMode: FileDialog.SaveFile
-        title: "Сохранить файл как..."
-        onAccepted: {
-            // Вызываем ваш метод C++ для записи данных
-            FileHelper.writeToFile(saveDialog.file, "Привет, это контент файла!")
-        }
-    }
-    FolderDialog {
-        id: folderDialog2
-        title: "Выберите папку для сохранения"
-
-        onAccepted: {
-            console.log("Сохраняем в:", folder)
-
-            // Вызываем C++ метод
-            let success = FileHelper.saveFilesToFolder(folder, filesToSave)
-
-            if (success) {
-                console.log("Все файлы успешно сохранены!")
-            } else {
-                console.log("Произошла ошибка при сохранении.")
-            }
-        }
-    }
-    /*
-        Если вы планируете сохранять файлы, которые еще не существуют на диске (например, данные из интернета или текст из памяти), C++ метод должен использовать QFile::write вместо QFile::copy.
-        FolderDialog: Позволяет пользователю выбрать только директорию. Он возвращает путь вида file:///....
-        QStringList: QML автоматически преобразует массив JavaScript [] в QStringList для C++.
-        QFile::copy: Самый быстрый способ перенести файлы. Мы используем QFileInfo(srcPath).fileName(), чтобы сохранить оригинальное имя файла в новой папке.
-
-    */
     function processPath(path){
 //        if(path && path.trim().length > 0) {
 //        console.log("path = ", path)
@@ -297,8 +324,8 @@ ApplicationWindow {
             }
         }
     }
-    function processWritePath(currentSelectedPath) {
-        if(path) {
+    function processWritePaths(ls, paths) {
+        if(paths) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
                 grid.model.addImagePath(path)
