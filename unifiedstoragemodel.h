@@ -1,5 +1,5 @@
-#ifndef UNIFIEDSTORAGEMODEL_H
-#define UNIFIEDSTORAGEMODEL_H
+#ifndef UNifIEDSTORAGEMODEL_H
+#define UNifIEDSTORAGEMODEL_H
 
 #include <QAbstractListModel>
 #include <QDir>
@@ -41,6 +41,7 @@ public:
     Q_INVOKABLE void enterMinioBucket(const QString &path);
     Q_INVOKABLE void minioPathsToQML(const QList<QStringList> &paths);
     Q_INVOKABLE void minioBucketsToQML(const QStringList &paths);
+    Q_INVOKABLE QVariantMap get(int row) const;
 //    QString fileName = QUrl(urlString).fileName();
 
 private:
@@ -48,4 +49,4 @@ private:
     WebSocketClient *wsclient;
 };
 
-#endif // UNIFIEDSTORAGEMODEL_H
+#endif // UNifIEDSTORAGEMODEL_H

@@ -15,11 +15,9 @@ ApplicationWindow {
 
     Connections {
         target: imageModel
-        function onminioImageToQML(url) {
+        function onMinioImageToQML(url) {
             mainImageSource = url;
-            console.log("Получено из C++:", newMessage)
-//            console.log("Получено из C++:", newMessage)
-
+            //console.log("Получено из C++:", url)
         }
     }
 
@@ -31,6 +29,21 @@ ApplicationWindow {
         }
     }
 
+    SecondCustomFileDialog {
+        id: secondCustomDialog
+        onOpenPathSelected: {
+            tf.text = currentSelectedPath
+            processPath(currentSelectedPath)
+        }
+        onWritePathSelected: {
+            tf.text = currentSelectedPath
+            processWritePath(currentSelectedPath)
+        }
+        onDeletePathSelected: {
+            tf.text = currentSelectedPath
+            processDeletePath(currentSelectedPath)
+        }
+    }
     property string mainImageSource: ""
     property list<string> myImages: ["", "", "", "", "", ""]
     // Основной горизонтальный контейнер
@@ -100,11 +113,7 @@ ApplicationWindow {
                     onClicked: {
                         wsClient.connectToServer()
                         storageModel.enterLocal("/");
-                        customDialog.show();
-                        onFileSelected: {
-                            console.log("Выбран путь из окна:", path)
-                            pathField.text = path
-                        }
+                        secondCustomDialog.show();
                     }
                 }
             }
@@ -266,6 +275,46 @@ ApplicationWindow {
     function processPath(path){
 //        if(path && path.trim().length > 0) {
 //        console.log("path = ", path)
+        if(path) {
+            let type = FileHelper.checkPathType(path);
+            if (type === FileHelperType.LocalFile) {
+                grid.model.addImagePath(path)
+                mainImageSource = grid.model.resolvePath(path)
+            } else if (type === FileHelperType.LocalFolder) {
+//                console.log("Это локальная папка");
+                mainImageSource = grid.model.addImagesFromFolder(path)
+            } else if (type === FileHelperType.MinioBucket) {
+//                console.log("Это бакет MinIO");
+                mainImageSource = grid.model.addImagesFromMinioBucket(path)
+            } else if (type === FileHelperType.MinioFile) {
+                console.log("Это объект (файл) в MinIO", path);
+                mainImageSource = grid.model.addMinioImagePath(path)
+            } else {
+                console.log("Путь не распознан или не существует");
+            }
+        }
+    }
+    function processWritePath(currentSelectedPath) {
+        if(path) {
+            let type = FileHelper.checkPathType(path);
+            if (type === FileHelperType.LocalFile) {
+                grid.model.addImagePath(path)
+                mainImageSource = grid.model.resolvePath(path)
+            } else if (type === FileHelperType.LocalFolder) {
+//                console.log("Это локальная папка");
+                mainImageSource = grid.model.addImagesFromFolder(path)
+            } else if (type === FileHelperType.MinioBucket) {
+//                console.log("Это бакет MinIO");
+                mainImageSource = grid.model.addImagesFromMinioBucket(path)
+            } else if (type === FileHelperType.MinioFile) {
+                console.log("Это объект (файл) в MinIO", path);
+                mainImageSource = grid.model.addMinioImagePath(path)
+            } else {
+                console.log("Путь не распознан или не существует");
+            }
+        }
+    }
+    function processDeletePath(currentSelectedPath) {
         if(path) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {

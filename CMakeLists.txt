@@ -25,6 +25,7 @@ qt_add_qml_module(pict_client
         SOURCES unifiedstoragemodel.h unifiedstoragemodel.cpp
         QML_FILES CustomFileDialog.qml
         QML_FILES
+        QML_FILES SecondCustomFileDialog.qml
 )
 
 qt_add_protobuf(PictSerializer
@@ -33,11 +34,11 @@ qt_add_protobuf(PictSerializer
         assets/message.proto
 )
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
+# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTifIER automatically since Qt 6.1.
+# if you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 set_target_properties(pict_client PROPERTIES
-#    MACOSX_BUNDLE_GUI_IDENTIFIER com.example.pict_client
+#    MACOSX_BUNDLE_GUI_IDENTifIER com.example.pict_client
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE

@@ -1,3 +1,8 @@
+qrc:/qt/qml/pict_client/SecondCustomFileDialog.qml:333: ReferenceError: list is not defined
+
+
+Message from Minio: Sorry, but server does not respond, check the connection, and if the server has started.
+Sorry, but the server is not responding, please check your connection and if the server is running.
 Enter MinIO on every focus is not good sense?
 
 To ask/request list from Minio make -> ImageListRequest

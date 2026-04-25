@@ -122,6 +122,22 @@ public:
         return {};
     }
 
+    Q_INVOKABLE QVariantMap get(int row) const {
+        // Проверка границ, чтобы избежать падения
+        if (row < 0 || row >= m_imagePaths.count()) {
+            return QVariantMap();
+        }
+
+        const QString &item = m_imagePaths.at(row);
+        QVariantMap res;
+
+        // Вручную наполняем карту данными
+        // res["url"] = item.url;
+        // res["title"] = item.title;
+        res["PathRole"] = item;
+        return res;
+    }
+
 signals:
     void minioImageToQML(const QString &path);
 

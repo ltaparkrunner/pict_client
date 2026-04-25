@@ -13,11 +13,13 @@ Window {
 
     property string currentSelectedPath: "."
 //    property string currentPath: "/"
-    signal pathSelected(string path)
+    signal openPathSelected(string path)
+    signal writePathSelected(list<string> listPath, string destPath)
+    signal deletePathSelected(string path)
     property int lastSelectedTab: 0
 
     onVisibleChanged: {
-        if(visible) {
+        if (visible) {
             lastSelectedTab = 0
             tabBar.forceActiveFocus()
         }
@@ -311,10 +313,10 @@ Window {
             Layout.margins: 5
             //Layout.alignment: Qt.AlignRight
             Button {
-                id: btn_opn
+                id: btn_wrt
                 Layout.fillWidth: true
                 Layout.preferredWidth: 1
-                text: "Open"
+                text: "Write"
                 contentItem: Text {
                     text: parent.text
                     font.pixelSize: 15
@@ -327,24 +329,65 @@ Window {
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
                 onClicked: {
-                    root.pathSelected(currentSelectedPath);
+//                    var p = storageModel.data(0, path)
+                    let ls = []
+//                    console.log("storageModel.data(0, PathRole))", storageModel.data(0, storageModel.PathRole))
+                    console.log("storageModel.get(0).path", storageModel.data(0, PathRole))
+//                    ls.push(storageModel.data(0, PathRole))
+                    ls.push(storageModel.data(0, PathRole))
+                    console.log("after ls.append(storageModel.data(0, PathRole))")
+                    root.writePathSelected(ls, currentSelectedPath);
                     root.close() }
                 background: Rectangle {
                     anchors.fill: parent
                     color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "#f0f0f0")   //"transparent")
                     Rectangle {
                         anchors.fill: parent
-                        anchors.margins: -3 // Рамка чуть шире самой кнопки
+                        anchors.margins: -3
                         // color: "transparent"
                         // border.color: "#2196F3"
                         // border.width: 2
                         // radius: 6
-                        color: btn_opn.enabled ? "transparent" : "#353535"
-                        border.color: btn_opn.activeFocus ? "#21be2b" : "#bdbebf"
-                        border.width: btn_opn.activeFocus ? 2 : 1
+                        color: btn_wrt.enabled ? "transparent" : "#353535"
+                        border.color: btn_wrt.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: btn_wrt.activeFocus ? 2 : 1
                         radius: 4
-                        visible: btn_opn.visualFocus // Виден только при фокусе
+                        visible: btn_wrt.visualFocus // Виден только при фокусе
                     }
+                }
+            }
+            Button {
+                id: btn_dlt
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                text: "Delete";
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 15
+                    font.weight: parent.checked ? Font.DemiBold : Font.Normal
+                    color: parent.checked ? "#616161" : (parent.hovered ? "#555" : "#888")
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "#f0f0f0")  //"transparent")
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3 // Рамка чуть шире самой кнопки
+                        color: btn_dlt.enabled ? "transparent" : "#353535"
+                        border.color: btn_dlt.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: btn_dlt.activeFocus ? 2 : 1
+                        radius: 4
+                        visible: btn_dlt.visualFocus // Виден только при фокусе
+                    }
+                }
+                onClicked: {
+                    root.deletePathSelected(currentSelectedPath);
+                    root.close()
                 }
             }
             Button {

@@ -115,40 +115,20 @@ void UnifiedStorageModel::loadRoot() {
     endResetModel();
 }
 
-/*
-void UnifiedStorageModel::enterLocal(QString path) {
-    // 1. Преобразуем URL в обычный путь, если нужно
-    QString cleanPath = QUrl(path).isLocalFile() ? QUrl(path).toLocalFile() : path;
-
-    beginResetModel();
-    m_items.clear();
-
-    QDir dir(cleanPath);
-    // Получаем список файлов и папок
-    QFileInfoList list = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst);
-
-    for (const QFileInfo &info : list) {
-        m_items.append({
-            info.fileName(),
-            info.absoluteFilePath(),
-            info.isDir(),
-            false // isMinio = false
-        });
+Q_INVOKABLE QVariantMap UnifiedStorageModel::get(int row) const {
+    // Проверка границ, чтобы избежать падения
+    if (row < 0 || row >= m_items.count()) {
+        return QVariantMap();
     }
-    endResetModel();
+
+    const StorageItem &item = m_items.at(row);
+    QVariantMap res;
+
+//    Вручную наполняем карту данными
+    res["NameRole"] = item.name;
+    res["PathRole"] = item.path;
+    res["IsDirRole"] = item.isDirectory;
+    res["IsMinioRole"] = item.isMinio;
+    res["PathType"] = item.pt;
+    return res;
 }
-
-void UnifiedStorageModel::enterMinio() {
-    // Вариант А: Если вы просто запрашиваете список БАКЕТОВ
-    // (Логика запроса к вашему Node.js серверу через WebSocket)
-
-    beginResetModel();
-    m_items.clear();
-
-    // Здесь должен быть запрос. Пока добавим "заглушки" для теста:
-    m_items.append({"images-bucket", "bucket_id_1", true, true});
-    m_items.append({"reports-2024", "bucket_id_2", true, true});
-
-    endResetModel();
-}
-*/
