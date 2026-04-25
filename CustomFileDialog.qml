@@ -13,8 +13,10 @@ Window {
 
     property string currentSelectedPath: "."
 //    property string currentPath: "/"
-    signal pathSelected(string path)
+    signal pathsSelected(list<string> path)
     property int lastSelectedTab: 0
+    property var selectedIndices: []
+//    property var selectedPaths: []
 
     onVisibleChanged: {
         if(visible) {
@@ -249,9 +251,13 @@ Window {
             delegate: ItemDelegate {
                 width: gridView.cellWidth - 4
                 height: gridView.cellHeight - 4
-
+                background: Rectangle {
+                    anchors.fill: parent
+                    border.color: selectedIndices.indexOf(index) !== -1 ? "blue" : "transparent"
+                }
                 contentItem: RowLayout {
                     spacing: 10
+
                     Text {
                         text: model.isDir ? "📁" : "📄"
                         font.pixelSize: 18
@@ -271,10 +277,41 @@ Window {
                         }
                     }
                 }
+//                    border.color: selectedIndices.indexOf(index) !== -1 ? "blue" : "transparent"
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: {
-                        gridView.currentIndex = index
+                    // onClicked: {
+                    //     gridView.currentIndex = index
+                    // }
+                    onClicked: (mouse) => {
+                       if (mouse.modifiers & Qt.ShiftModifier && selectedIndices.length > 0) {
+                           // Выбор диапазона от последнего выбранного до текущего
+                           let start = selectedIndices[selectedIndices.length - 1];
+                           let end = index;
+                           let range = [];
+                           for (let i = Math.min(start, end); i <= Math.max(start, end); i++) {
+                               range.push(i);
+                           }
+                           selectedIndices = range;
+                       } else
+                        if (mouse.modifiers & Qt.ControlModifier) {
+                            // Режим мультивыбора (Ctrl)
+                            let temp = selectedIndices;
+                            let foundAt = temp.indexOf(index);
+
+                            if (foundAt !== -1) {
+                                temp.splice(foundAt, 1); // Убрать из выбора, если уже там
+                            } else {
+                                temp.push(index); // Добавить в выбор
+                            }
+                            selectedIndices = temp; // Обновляем массив для срабатывания Binding
+                        } else {
+                            // Одиночный выбор (без Ctrl)
+                            selectedIndices = [index];
+                        }
+
+                        // Устанавливаем currentIndex для GridView (визуальный фокус)
+                        gridView.currentIndex = index;
                     }
                     onDoubleClicked: {
                         acceptSelection(gridView)
@@ -327,7 +364,16 @@ Window {
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
                 onClicked: {
-                    root.pathSelected(currentSelectedPath);
+                    if(selectedIndices){
+                        console.log("selectedIndices", selectedIndices)
+                        var selectedPaths = []
+                        for(let index of selectedIndices) {
+                            console.log("storageModel.get(index).path", storageModel.get(index).path)
+                            selectedPaths.push(storageModel.get(index).path)
+                        }
+                        root.pathsSelected(selectedPaths);
+                    }
+                    else root.pathSelected([currentSelectedPath]);
                     root.close() }
                 background: Rectangle {
                     anchors.fill: parent

@@ -23,9 +23,12 @@ ApplicationWindow {
 
     CustomFileDialog {
         id: customDialog
-        onPathSelected: {
-            tf.text = currentSelectedPath
-            processPath(currentSelectedPath)
+        onPathsSelected:(paths) => {
+            if(paths){
+                tf.text = paths[0]
+                for(var path of paths)
+                    processPath(path)
+            }
         }
     }
 

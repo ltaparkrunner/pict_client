@@ -332,10 +332,13 @@ Window {
 //                    var p = storageModel.data(0, path)
                     let ls = []
 //                    console.log("storageModel.data(0, PathRole))", storageModel.data(0, storageModel.PathRole))
-                    console.log("storageModel.get(0).path", storageModel.data(0, PathRole))
-//                    ls.push(storageModel.data(0, PathRole))
-                    ls.push(storageModel.data(0, PathRole))
-                    console.log("after ls.append(storageModel.data(0, PathRole))")
+                    console.log("storageModel.get(0).path", imageModel.get(0))
+                    var data = imageModel.get(0)
+                    ls.push(data.imagePath)
+                    if(data) console.log("storageModel.get(0)", data.imagePath)
+                    data = imageModel.get(1)
+                    if(data.imagePath) console.log("storageModel.get(1)", data.imagePath)
+                    ls.push(data.imagePath)
                     root.writePathSelected(ls, currentSelectedPath);
                     root.close() }
                 background: Rectangle {

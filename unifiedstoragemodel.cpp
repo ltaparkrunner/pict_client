@@ -125,10 +125,10 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::get(int row) const {
     QVariantMap res;
 
 //    Вручную наполняем карту данными
-    res["NameRole"] = item.name;
-    res["PathRole"] = item.path;
-    res["IsDirRole"] = item.isDirectory;
-    res["IsMinioRole"] = item.isMinio;
-    res["PathType"] = item.pt;
+    res["name"] = item.name;
+    res["path"] = item.path;
+    res["isDir"] = item.isDirectory;
+    res["isMinio"] = item.isMinio;
+//    res["PathType"] = item.pt;
     return res;
 }

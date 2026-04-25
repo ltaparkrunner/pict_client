@@ -134,7 +134,7 @@ public:
         // Вручную наполняем карту данными
         // res["url"] = item.url;
         // res["title"] = item.title;
-        res["PathRole"] = item;
+        res["imagePath"] = item;
         return res;
     }
 
