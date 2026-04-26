@@ -68,7 +68,8 @@ QString WebSocketClient::lastReceivedPath() const { return m_path; }
 Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
     pict_data::BaseMessage base;
     pict_data::BucketRequest message;
-    message.setUserId("Ivon");
+//    message.setUserId("Ivon");
+    message.setUserLogin("Ivon");
 
     base.setUser(message);
     QProtobufSerializer serializer;

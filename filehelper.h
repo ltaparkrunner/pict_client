@@ -25,6 +25,16 @@ public:
     Q_INVOKABLE int checkPathType(const QString &path);
     Q_INVOKABLE bool writeToFile(const QString &fileUrl, const QString &content);
     Q_INVOKABLE bool saveFilesToFolder(const QString &folderUrl, const QStringList &fileUrls);
+
+    Q_INVOKABLE int processWritePathsLocal(const QStringList &ls, const QString &path);
+    Q_INVOKABLE int processWritePathsMinio(const QStringList &ls, const QString &path);
+    Q_INVOKABLE int processDeleteFolderLocal(const QString &path);
+    Q_INVOKABLE int processDeleteFolderMinio(const QString &path);
+    Q_INVOKABLE int processDeleteFileLocal(const QString &path);
+    Q_INVOKABLE int processDeleteFileMinio(const QString &path);
+
+
+
 };
 
 #endif // FILEHELPER_H

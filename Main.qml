@@ -48,7 +48,7 @@ ApplicationWindow {
                         ifFilesInFolder(ls, path)
                         if(ls){
                             tf.text = path;
-                            processWritePathsLocal(ls, path)
+                            FileHelper.processWritePathsLocal(ls, path)
                             return
                         }
                     }
@@ -56,25 +56,25 @@ ApplicationWindow {
                         ifFilesInFolder(ls, path)
                         if(ls){
                             tf.text = path;
-                            processWritePathsMinio(ls, path)
+                            FileHelper.processWritePathsMinio(ls, path)
                             return
                         }
                     }
                     else if(type === FileHelperType.LocalFile){
-                        let dir = path.substring(0, filePath.lastIndexOf("/"));
-                        ifFilesInFolder(ls, dir)
+                        const dir1 = path.substring(0, filePath.lastIndexOf("/"));
+                        ifFilesInFolder(ls, dir1);
                         if(ls){
-                            tf.text = dir;
-                            processWritePathsLocal(ls, dir)
+                            tf.text = dir1;
+                            FileHelper.processWritePathsLocal(ls, dir1)
                             return
                         }
                     }
                     else if(type === FileHelperType.MinioFile){
-                        const dir = path.substring(0, filePath.lastIndexOf("/"));
-                        ifFilesInFolder(ls, dir)
+                        const dir1 = path.substring(0, filePath.lastIndexOf("/"));
+                        ifFilesInFolder(ls, dir1)
                         if(ls){
-                            tf.text = dir;
-                            processWritePathsMinio(ls, dir)
+                            tf.text = dir1;
+                            FileHelper.processWritePathsMinio(ls, dir1)
                             return
                         }
                     }
@@ -90,16 +90,16 @@ ApplicationWindow {
                     for(var path of paths) {
                         let type = FileHelper.checkPathType(path);
                         if(type === FileHelperType.LocalFolder){
-                            processDeleteFolderLocal(ls, path)
+                            FileHelper.processDeleteFolderLocal(path)
                         }
                         else if(type === FileHelperType.MinioBucket){
-                            processDeleteFolderMinio(path)
+                            FileHelper.processDeleteFolderMinio(path)
                         }
                         else if(type === FileHelperType.LocalFile){
-                            processDeletePathLocal(ls, dir)
+                            FileHelper.processDeletePathLocal(path)
                         }
                         else if(type === FileHelperType.MinioFile){
-                            processDeletePathMinio(ls, dir)
+                            FileHelper.processDeletePathMinio(path)
                         }
                     }
                     tf.text = path;

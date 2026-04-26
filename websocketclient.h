@@ -16,7 +16,7 @@ enum sourceReq{
 class WebSocketClient : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString lastReceivedPath READ lastReceivedPath NOTifY pathReceived)
+    Q_PROPERTY(QString lastReceivedPath READ lastReceivedPath NOTIFY pathReceived)
 public:
     explicit WebSocketClient(const QUrl &url, QObject *parent = nullptr);
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
