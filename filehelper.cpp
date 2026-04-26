@@ -41,9 +41,9 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
         qDebug() << "localPath" << localPath << " is " << info.exists()
                  << " is local file " << info.isFile() << " is local folder" << info.isDir();
         if (!info.exists()) return Unknown;
-        qDebug() << "if (!info.exists()) return Unknown;";
+//        qDebug() << "if (!info.exists()) return Unknown;";
         if (info.isDir()) return LocalFolder;
-        qDebug() << "if (if (info.isDir()) return LocalFolder;";
+//        qDebug() << "if (if (info.isDir()) return LocalFolder;";
         if (info.isFile()) return LocalFile;
     }
 

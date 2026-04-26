@@ -45,26 +45,38 @@ ApplicationWindow {
                 for(var path of paths) {
                     let type = FileHelper.checkPathType(path);
                     if(type === FileHelperType.LocalFolder){
-                        tf.text = path;
-                        processWritePathsLocal(ls, path)
-                        return
+                        ifFilesInFolder(ls, path)
+                        if(ls){
+                            tf.text = path;
+                            processWritePathsLocal(ls, path)
+                            return
+                        }
                     }
                     else if(type === FileHelperType.MinioBucket){
-                        tf.text = path;
-                        processWritePathsMinio(ls, path)
-                        return
+                        ifFilesInFolder(ls, path)
+                        if(ls){
+                            tf.text = path;
+                            processWritePathsMinio(ls, path)
+                            return
+                        }
                     }
                     else if(type === FileHelperType.LocalFile){
-                        const dir = path.substring(0, filePath.lastIndexOf("/"));
-                        tf.text = dir;
-                        processWritePathsLocal(ls, dir)
-                        return
+                        let dir = path.substring(0, filePath.lastIndexOf("/"));
+                        ifFilesInFolder(ls, dir)
+                        if(ls){
+                            tf.text = dir;
+                            processWritePathsLocal(ls, dir)
+                            return
+                        }
                     }
                     else if(type === FileHelperType.MinioFile){
                         const dir = path.substring(0, filePath.lastIndexOf("/"));
-                        tf.text = dir;
-                        processWritePathsMinio(ls, dir)
-                        return
+                        ifFilesInFolder(ls, dir)
+                        if(ls){
+                            tf.text = dir;
+                            processWritePathsMinio(ls, dir)
+                            return
+                        }
                     }
                 }
             }
@@ -96,6 +108,13 @@ ApplicationWindow {
                     msgNothingToDo.text = "You must select a folder to save the images."
                     msgNothingToDo.open()
                 }
+            }
+        }
+        // Check if the files are in the target folder
+        function ifFilesInFolder(ls, path){
+            for(const [index, file] of ls.entries()){
+                const dir = file.substring(0, filePath.lastIndexOf("/"));
+                if(dir === path) ls.splice(index, 1);
             }
         }
     }
@@ -136,7 +155,7 @@ ApplicationWindow {
                     placeholderText: "Open/Write file/folder"
                     Layout.fillWidth: true
                     Layout.preferredWidth: 4
-                    text: folderDialog.folder
+                    text: ""//folderDialog.folder
                     background: Rectangle {
                         implicitWidth: 200
                         implicitHeight: 40
@@ -291,20 +310,10 @@ ApplicationWindow {
             }
         }
     }
-    FolderDialog {
-        id: folderDialog
-        title: "Select the folder with images"
 
-        onAccepted: {
-            console.log("Selected folder:", folder)
-            // Здесь можно вызвать C++ метод для загрузки картинок из этой папки
-            // imageModel.loadFromFolder(folder)
-        }
-    }
+//        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
 
     function processPath(path){
-//        if(path && path.trim().length > 0) {
-//        console.log("path = ", path)
         if(path) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
@@ -331,7 +340,6 @@ ApplicationWindow {
                 grid.model.addImagePath(path)
                 mainImageSource = grid.model.resolvePath(path)
             } else if (type === FileHelperType.LocalFolder) {
-//                console.log("Это локальная папка");
                 mainImageSource = grid.model.addImagesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
 //                console.log("Это бакет MinIO");
@@ -351,10 +359,8 @@ ApplicationWindow {
                 grid.model.addImagePath(path)
                 mainImageSource = grid.model.resolvePath(path)
             } else if (type === FileHelperType.LocalFolder) {
-//                console.log("Это локальная папка");
                 mainImageSource = grid.model.addImagesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
-//                console.log("Это бакет MinIO");
                 mainImageSource = grid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {
                 console.log("Это объект (файл) в MinIO", path);
