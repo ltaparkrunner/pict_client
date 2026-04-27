@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include "websocketclient.h"
 
 class FileHelper : public QObject {
     Q_OBJECT
@@ -19,7 +20,7 @@ public:
     };
     Q_ENUM(PathType) // Регистрируем enum в системе метаданных Qt
 
-    explicit FileHelper(QObject *parent = nullptr);
+    explicit FileHelper(WebSocketClient *wsc, QObject *parent = nullptr);
     Q_INVOKABLE bool exists(const QString &path);
     Q_INVOKABLE bool fileExists(const QString &path);
     Q_INVOKABLE int checkPathType(const QString &path);
@@ -33,8 +34,8 @@ public:
     Q_INVOKABLE int processDeleteFileLocal(const QString &path);
     Q_INVOKABLE int processDeleteFileMinio(const QString &path);
 
-
-
+private:
+    WebSocketClient *wsclient;
 };
 
 #endif // FILEHELPER_H

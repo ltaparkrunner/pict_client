@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     WebSocketClient wsClient(QUrl("wss://localhost:8080"));
 
-    FileHelper fileHlp;
+    FileHelper fileHlp(&wsClient);
     ImageModel model(&wsClient);
     // for(int i=0; i<5; i++){
     //     model.addImagePath("file:///C:/Windows/WinSxS/amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7/img23.jpg");

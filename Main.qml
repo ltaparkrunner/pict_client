@@ -24,7 +24,7 @@ ApplicationWindow {
 
     CustomFileDialog {
         id: customDialog
-        onPathsSelected:(paths) => {
+        onOpenPathsSelected:(paths) => {
             if(paths){
                 tf.text = paths[0]
                 for(var path of paths)
@@ -35,12 +35,12 @@ ApplicationWindow {
 
     SecondCustomFileDialog {
         id: secondCustomDialog
-        onOpenPathSelected:(paths) => {
+        onOpenPathsSelected:(paths) => {
             tf.text = currentSelectedPath
             processPath(currentSelectedPath)
         }
         // root.writePathSelected(ls, currentSelectedPath)
-        onWritePathSelected:(ls, paths) => {
+        onWritePathsSelected:(ls, paths) => {
             if(paths){
                 for(var path of paths) {
                     let type = FileHelper.checkPathType(path);
@@ -84,30 +84,32 @@ ApplicationWindow {
             msgNothingToDo.open()
         }
 
-        onDeletePathSelected:(paths) => {
-            onWritePathSelected:(ls, paths) => {
-                if(paths){
-                    for(var path of paths) {
-                        let type = FileHelper.checkPathType(path);
-                        if(type === FileHelperType.LocalFolder){
-                            FileHelper.processDeleteFolderLocal(path)
-                        }
-                        else if(type === FileHelperType.MinioBucket){
-                            FileHelper.processDeleteFolderMinio(path)
-                        }
-                        else if(type === FileHelperType.LocalFile){
-                            FileHelper.processDeletePathLocal(path)
-                        }
-                        else if(type === FileHelperType.MinioFile){
-                            FileHelper.processDeletePathMinio(path)
-                        }
+        onDeletePathsSelected:(paths) => {
+            console.log("onDeletePathsSelected:(paths)", paths)
+            if(paths){
+                for(var path of paths) {
+                    console.log("onDeletePathsSelected:(paths)", path)
+                    let type = FileHelper.checkPathType(path);
+                    if(type === FileHelperType.LocalFolder){
+                        FileHelper.processDeleteFolderLocal(path)
                     }
-                    tf.text = path;
+                    else if(type === FileHelperType.MinioBucket){
+                        FileHelper.processDeleteFolderMinio(path)
+                    }
+                    else if(type === FileHelperType.LocalFile){
+                        console.log("FileHelper.processDeleteFileLocal(path)")
+                        FileHelper.processDeleteFileLocal(path)
+                    }
+                    else if(type === FileHelperType.MinioFile){
+                        console.log("FileHelper.processDeleteFileMinio(path)")
+                        FileHelper.processDeleteFileMinio(path)
+                    }
                 }
-                else {
-                    msgNothingToDo.text = "You must select a folder to save the images."
-                    msgNothingToDo.open()
-                }
+                tf.text = path;
+            }
+            else {
+                msgNothingToDo.text = "You must select a folder to save the images."
+                msgNothingToDo.open()
             }
         }
         // Check if the files are in the target folder

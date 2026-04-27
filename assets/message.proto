@@ -53,13 +53,18 @@ message DeleteImageRequest {
     string bucketName = 4;  // Имя корзины (bucket)
 }
 
+message DeleteImagesBucketRequest {
+    string userLogin = 1;     // ID пользователя для проверки прав
+    string bucketName = 2;    // Имя корзины (bucket)
+}
+
 message BaseMessage {
   oneof content {
       Picture pict = 1;
       ImageListRequest listRequest = 2;
       ImageInfo info = 3;
       ImageListResponse listResponse = 4;
-      BucketRequest user = 5;
+      BucketRequest reqUserBuckets = 5;
       BucketList buckets = 6;
       DeleteImageRequest deleteImage = 7;
   }

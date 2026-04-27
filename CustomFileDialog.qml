@@ -13,7 +13,7 @@ Window {
 
     property string currentSelectedPath: "."
 //    property string currentPath: "/"
-    signal pathsSelected(list<string> path)
+    signal openPathsSelected(list<string> path)
     property int lastSelectedTab: 0
     property var selectedIndices: []
 //    property var selectedPaths: []
@@ -280,9 +280,6 @@ Window {
 //                    border.color: selectedIndices.indexOf(index) !== -1 ? "blue" : "transparent"
                 MouseArea {
                     anchors.fill: parent
-                    // onClicked: {
-                    //     gridView.currentIndex = index
-                    // }
                     onClicked: (mouse) => {
                        if (mouse.modifiers & Qt.ShiftModifier && selectedIndices.length > 0) {
                            // Выбор диапазона от последнего выбранного до текущего
@@ -336,7 +333,7 @@ Window {
                         // parent.currentItem = 0
                     } else {
                         console.log(currentSelectedPath);
-                        root.pathSelected(currentSelectedPath);
+                        root.openPathsSelected([currentSelectedPath]);
                         root.close()
                     }
                 }
@@ -373,7 +370,7 @@ Window {
                         }
                         root.pathsSelected(selectedPaths);
                     }
-                    else root.pathSelected([currentSelectedPath]);
+                    else root.openPathsSelected([currentSelectedPath]);
                     root.close() }
                 background: Rectangle {
                     anchors.fill: parent

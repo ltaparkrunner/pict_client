@@ -13,10 +13,11 @@ Window {
 
     property string currentSelectedPath: "."
 
-    signal openPathSelected(string path)
-    signal writePathSelected(list<string> listPath, string destPath)
-    signal deletePathSelected(string path)
+    signal openPathsSelected(string path)
+    signal writePathsSelected(list<string> listPath, string destPath)
+    signal deletePathsSelected(list<string> paths)
     property int lastSelectedTab: 0
+    property var selectedIndices: []
 
     onVisibleChanged: {
         if (visible) {
@@ -251,7 +252,10 @@ Window {
             delegate: ItemDelegate {
                 width: gridView.cellWidth - 4
                 height: gridView.cellHeight - 4
-
+                background: Rectangle {
+                    anchors.fill: parent
+                    border.color: selectedIndices.indexOf(index) !== -1 ? "blue" : "transparent"
+                }
                 contentItem: RowLayout {
                     spacing: 10
                     Text {
@@ -275,8 +279,35 @@ Window {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: {
-                        gridView.currentIndex = index
+                    onClicked: (mouse) => {
+                       if (mouse.modifiers & Qt.ShiftModifier && selectedIndices.length > 0) {
+                           // Выбор диапазона от последнего выбранного до текущего
+                           let start = selectedIndices[selectedIndices.length - 1];
+                           let end = index;
+                           let range = [];
+                           for (let i = Math.min(start, end); i <= Math.max(start, end); i++) {
+                               range.push(i);
+                           }
+                           selectedIndices = range;
+                       } else
+                        if (mouse.modifiers & Qt.ControlModifier) {
+                            // Режим мультивыбора (Ctrl)
+                            let temp = selectedIndices;
+                            let foundAt = temp.indexOf(index);
+
+                            if (foundAt !== -1) {
+                                temp.splice(foundAt, 1); // Убрать из выбора, если уже там
+                            } else {
+                                temp.push(index); // Добавить в выбор
+                            }
+                            selectedIndices = temp; // Обновляем массив для срабатывания Binding
+                        } else {
+                            // Одиночный выбор (без Ctrl)
+                            selectedIndices = [index];
+                        }
+
+                        // Устанавливаем currentIndex для GridView (визуальный фокус)
+                        gridView.currentIndex = index;
                     }
                     onDoubleClicked: {
                         acceptSelection(gridView)
@@ -301,7 +332,7 @@ Window {
                         // parent.currentItem = 0
                     } else {
                         console.log(currentSelectedPath);
-                        root.pathSelected(currentSelectedPath);
+                        root.openPathsSelected(currentSelectedPath);
                         root.close()
                     }
                 }
@@ -339,7 +370,7 @@ Window {
                     data = imageModel.get(1)
                     if(data.imagePath) console.log("storageModel.get(1)", data.imagePath)
                     ls.push(data.imagePath)
-                    root.writePathSelected(ls, currentSelectedPath);
+                    root.writePathsSelected(ls, currentSelectedPath);
                     root.close() }
                 background: Rectangle {
                     anchors.fill: parent
@@ -389,7 +420,9 @@ Window {
                     }
                 }
                 onClicked: {
-                    root.deletePathSelected(currentSelectedPath);
+                    console.log("delete onClicked")
+                    root.deletePathsSelected(indicesToPaths(selectedIndices));
+                    console.log("delete indicesToPaths(selectedIndices)", selectedIndices)
                     root.close()
                 }
             }
@@ -426,6 +459,30 @@ Window {
                     root.close()
                 }
             }
+            function indicesToPaths(selectedIndices){
+                if(selectedIndices){
+                    console.log("selectedIndices", selectedIndices)
+                    var selectedPaths = []
+                    for(let index of selectedIndices) {
+                        console.log("storageModel.get(index).path", storageModel.get(index).path)
+                        selectedPaths.push(storageModel.get(index).path)
+                    }
+                    //root.pathsSelected(selectedPaths);
+                    return selectedPaths;
+                }
+            }
+        }
+    }
+    function indicesToPaths(selectedIndices){
+        if(selectedIndices){
+            console.log("selectedIndices", selectedIndices)
+            var selectedPaths = []
+            for(let index of selectedIndices) {
+                console.log("storageModel.get(index).path", storageModel.get(index).path)
+                selectedPaths.push(storageModel.get(index).path)
+            }
+            //root.pathsSelected(selectedPaths);
+            return selectedPaths;
         }
     }
 //    onActiveFocusItemChanged: console.log("Фокус сейчас на: " + activeFocusItem)

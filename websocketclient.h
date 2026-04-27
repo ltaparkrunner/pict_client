@@ -23,6 +23,7 @@ public:
     QString lastReceivedPath() const;
     Q_INVOKABLE QStringList getBucketsListRequest() const;
     /*Q_INVOKABLE*/ void getImagesListfromBucketRequest(const QString &bucket, sourceReq sr);
+    Q_INVOKABLE int deleteImageFromBucketRequest(const QString &filePath);
 //    void getImagesListfromBucketRequest2(const QString &bucket) const;
 
 signals:

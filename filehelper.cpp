@@ -1,6 +1,6 @@
 #include "filehelper.h"
 
-FileHelper::FileHelper(QObject *parent) : QObject(parent) {}
+FileHelper::FileHelper(WebSocketClient *wsc, QObject *parent) : QObject(parent), wsclient(wsc) {}
 
 Q_INVOKABLE bool FileHelper::fileExists(const QString &path) {
     // Преобразуем QML URL (file:///...) в обычный путь, если нужно
@@ -180,5 +180,6 @@ Q_INVOKABLE int FileHelper::processDeleteFileLocal(const QString &filePath){
 
 Q_INVOKABLE int FileHelper::processDeleteFileMinio(const QString &path){
     qDebug() << "int processDeletePathMinio(const QString &path)";
+    wsclient->deleteImageFromBucketRequest(path);
     return 0;
 }

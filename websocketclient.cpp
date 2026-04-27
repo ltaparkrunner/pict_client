@@ -68,14 +68,43 @@ QString WebSocketClient::lastReceivedPath() const { return m_path; }
 Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
     pict_data::BaseMessage base;
     pict_data::BucketRequest message;
-//    message.setUserId("Ivon");
     message.setUserLogin("Ivon");
 
-    base.setUser(message);
+    base.setReqUserBuckets(message);
     QProtobufSerializer serializer;
     QByteArray data = base.serialize(&serializer);
     /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
     return {};
+}
+
+Q_INVOKABLE int WebSocketClient::deleteImageFromBucketRequest(const QString &filePath){
+    QUrl minioUrl(filePath);
+    QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    qDebug() << "Path: " << path;
+    if (path.startsWith('/')) {
+        path.remove(0, 1);
+    }
+
+    QStringList parts = path.split('/');
+    QString bucket = parts.takeFirst();
+    QString key = parts.join('/');
+
+    qDebug() << "Bucket:" << bucket; // "photos"
+    qDebug() << "Key:" << key;
+    pict_data::BaseMessage base;
+    pict_data::DeleteImageRequest message;
+    qDebug() << "deleteImageFromBucketRequest" << filePath;
+
+    message.setFilename(key);
+    message.setImageId("1111111");
+    message.setUserLogin("Ivon");
+    message.setBucketName(bucket);
+
+    base.setDeleteImage(message);
+    QProtobufSerializer serializer;
+    QByteArray data = base.serialize(&serializer);
+    /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
+    return m_webSocket->sendBinaryMessage(data);
 }
 
 /*Q_INVOKABLE*/ void WebSocketClient::getImagesListfromBucketRequest(const QString &bucket, sourceReq sr){
