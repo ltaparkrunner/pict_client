@@ -368,7 +368,7 @@ Window {
                             console.log("storageModel.get(index).path", storageModel.get(index).path)
                             selectedPaths.push(storageModel.get(index).path)
                         }
-                        root.pathsSelected(selectedPaths);
+                        root.openPathsSelected(selectedPaths);
                     }
                     else root.openPathsSelected([currentSelectedPath]);
                     root.close() }
@@ -378,10 +378,7 @@ Window {
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -3 // Рамка чуть шире самой кнопки
-                        // color: "transparent"
-                        // border.color: "#2196F3"
-                        // border.width: 2
-                        // radius: 6
+
                         color: btn_opn.enabled ? "transparent" : "#353535"
                         border.color: btn_opn.activeFocus ? "#21be2b" : "#bdbebf"
                         border.width: btn_opn.activeFocus ? 2 : 1

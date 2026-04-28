@@ -41,8 +41,10 @@ ApplicationWindow {
         }
         // root.writePathSelected(ls, currentSelectedPath)
         onWritePathsSelected:(ls, paths) => {
+            console.log("onWritePathsSelected paths: ", paths)
             if(paths){
                 for(var path of paths) {
+                    console.log("onWritePathsSelected path: ", path)
                     let type = FileHelper.checkPathType(path);
                     if(type === FileHelperType.LocalFolder){
                         ifFilesInFolder(ls, path)
@@ -114,8 +116,9 @@ ApplicationWindow {
         }
         // Check if the files are in the target folder
         function ifFilesInFolder(ls, path){
-            for(const [index, file] of ls.entries()){
-                const dir = file.substring(0, filePath.lastIndexOf("/"));
+            for(const [index, filePath] of ls.entries()){
+                const dir = filePath.substring(0, filePath.lastIndexOf("/"));
+                // console.log("dir = ", dir, "path = ", path)
                 if(dir === path) ls.splice(index, 1);
             }
         }

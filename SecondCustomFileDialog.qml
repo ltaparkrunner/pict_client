@@ -14,7 +14,7 @@ Window {
     property string currentSelectedPath: "."
 
     signal openPathsSelected(string path)
-    signal writePathsSelected(list<string> listPath, string destPath)
+    signal writePathsSelected(list<string> listPath, list<string> destPath)
     signal deletePathsSelected(list<string> paths)
     property int lastSelectedTab: 0
     property var selectedIndices: []
@@ -370,8 +370,10 @@ Window {
                     data = imageModel.get(1)
                     if(data.imagePath) console.log("storageModel.get(1)", data.imagePath)
                     ls.push(data.imagePath)
-                    root.writePathsSelected(ls, currentSelectedPath);
-                    root.close() }
+                    console.log("currentSelectedPath = ", currentSelectedPath)
+                    root.writePathsSelected(ls, [currentSelectedPath]);
+                    root.close()
+                }
                 background: Rectangle {
                     anchors.fill: parent
                     color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "#f0f0f0")   //"transparent")

@@ -36,6 +36,13 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
         }
         emit bucketsReceived(sl);
     }
+    if (base.contentField() == pict_data::BaseMessage::ContentFields::ServerResp) {
+        const auto &response = base.serverResp();
+        QStringList sl;
+        qDebug() << "filename" << response.filename() << "imageId" << response.imageId() <<
+            "userLogin" << response.content() << "status" << response.status();
+//        emit bucketsReceived(sl);
+    }
 }
 
 WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(parent)
@@ -89,8 +96,6 @@ Q_INVOKABLE int WebSocketClient::deleteImageFromBucketRequest(const QString &fil
     QString bucket = parts.takeFirst();
     QString key = parts.join('/');
 
-    qDebug() << "Bucket:" << bucket; // "photos"
-    qDebug() << "Key:" << key;
     pict_data::BaseMessage base;
     pict_data::DeleteImageRequest message;
     qDebug() << "deleteImageFromBucketRequest" << filePath;
@@ -142,3 +147,66 @@ void WebSocketClient::onError(QAbstractSocket::SocketError error) {
         m_reconnectTimer.start(RECONNECT_INTERVAL);
     }
 }
+
+Q_INVOKABLE int WebSocketClient::addImageRequest(const QString &filePath, const QString &minioPath){
+    qDebug() << "addImageRequest(const QStringList &filePath)" << filePath << "minioPath: " << minioPath;
+
+    QUrl minioUrl(minioPath);
+    QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    if (path.startsWith('/')) {
+        path.remove(0, 1);
+    }
+
+    pict_data::BaseMessage base;
+    pict_data::AddImageRequest message;
+
+    QStringList parts = path.split('/');
+    QString bucket = parts.takeFirst();
+
+    QString key = parts.join('/');
+    int sz = parts.size();
+    QString folder = "";
+    if(sz > 2) {
+        folder = parts.sliced(1, sz - 2).join("/");
+    }
+    qDebug() << "bucket: " << bucket << "folder" << folder;
+
+    QFile file(filePath);
+    QByteArray fileData = file.readAll();
+    message.setFilename(filePath);
+    message.setUserLogin("Ivon");
+    message.setBucketName(bucket);
+    message.setFolder(folder);
+    message.setInfo("jpg");
+    message.setData(fileData);
+
+    base.setAddImage(message);
+    QProtobufSerializer serializer;
+    QByteArray data = base.serialize(&serializer);
+    /*qint64 sz =*/ //  m_webSocket->sendBinaryMessage(data);
+    return m_webSocket->sendBinaryMessage(data);
+}
+/*
+
+    QFile file(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Cannot open file";
+        return;
+    }
+
+    QByteArray fileData = file.readAll();
+
+    pict_data::BaseMessage base;
+    pict_data::Picture message;
+    message.setFilename(fileInfo.fileName());
+    message.setEmailLogin("forever_young");
+    message.setData(fileData);
+    message.setContentType("image_1");
+    message.setTimestamp(QDateTime::currentMSecsSinceEpoch());
+
+    base.setPict(message);
+    QProtobufSerializer serializer;
+    QByteArray data = base.serialize(&serializer);
+    qint64 sz = m_webSocket->sendBinaryMessage(data);
+
+*/

@@ -25,7 +25,8 @@ public:
     /*Q_INVOKABLE*/ void getImagesListfromBucketRequest(const QString &bucket, sourceReq sr);
     Q_INVOKABLE int deleteImageFromBucketRequest(const QString &filePath);
 //    void getImagesListfromBucketRequest2(const QString &bucket) const;
-
+//    Q_INVOKABLE int addImageRequest(const QStringList &filePath);
+    Q_INVOKABLE int addImageRequest(const QString &filePath, const QString &path);
 signals:
     void pathReceived(const QString &path);
     void pathsReceived(const QList<QStringList> &paths);
