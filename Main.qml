@@ -322,11 +322,14 @@ ApplicationWindow {
         if(path) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
+                console.log("before grid.model.addFilePath(path)", path)
                 grid.model.addImagePath(path)
+                console.log("after grid.model.addFilePath(path)")
                 mainImageSource = grid.model.resolvePath(path)
+                console.log("after mainImageSource = grid.model.resolvePath(path)", path)
             } else if (type === FileHelperType.LocalFolder) {
 //                console.log("Это локальная папка");
-                mainImageSource = grid.model.addImagesFromFolder(path)
+                mainImageSource = grid.model.addFilesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
 //                console.log("Это бакет MinIO");
                 mainImageSource = grid.model.addImagesFromMinioBucket(path)
@@ -345,7 +348,7 @@ ApplicationWindow {
                 grid.model.addImagePath(path)
                 mainImageSource = grid.model.resolvePath(path)
             } else if (type === FileHelperType.LocalFolder) {
-                mainImageSource = grid.model.addImagesFromFolder(path)
+                mainImageSource = grid.model.addFilesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
 //                console.log("Это бакет MinIO");
                 mainImageSource = grid.model.addImagesFromMinioBucket(path)
@@ -364,7 +367,7 @@ ApplicationWindow {
                 grid.model.addImagePath(path)
                 mainImageSource = grid.model.resolvePath(path)
             } else if (type === FileHelperType.LocalFolder) {
-                mainImageSource = grid.model.addImagesFromFolder(path)
+                mainImageSource = grid.model.addFilesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
                 mainImageSource = grid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {

@@ -22,11 +22,11 @@ public:
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
     QString lastReceivedPath() const;
     Q_INVOKABLE QStringList getBucketsListRequest() const;
-    /*Q_INVOKABLE*/ void getImagesListfromBucketRequest(const QString &bucket, sourceReq sr);
-    Q_INVOKABLE int deleteImageFromBucketRequest(const QString &filePath);
-//    void getImagesListfromBucketRequest2(const QString &bucket) const;
-//    Q_INVOKABLE int addImageRequest(const QStringList &filePath);
-    Q_INVOKABLE int addImageRequest(const QString &filePath, const QString &path);
+    /*Q_INVOKABLE*/ void getFilesFoldersListfromBucketRequest(const QString &bucket, sourceReq sr);
+    Q_INVOKABLE int deleteFileFromBucketRequest(const QString &filePath);
+//    void getFilesListfromBucketRequest2(const QString &bucket) const;
+//    Q_INVOKABLE int addFileRequest(const QStringList &filePath);
+    Q_INVOKABLE int addFileRequest(const QString &filePath, const QString &path);
 signals:
     void pathReceived(const QString &path);
     void pathsReceived(const QList<QStringList> &paths);

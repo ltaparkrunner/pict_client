@@ -32,7 +32,7 @@ void UnifiedStorageModel::enterMinio(QString path) {
 
 void UnifiedStorageModel::enterMinioBucket(const QString &path) {
     connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-    wsclient->getImagesListfromBucketRequest(path, usmodel);
+    wsclient->getFilesFoldersListfromBucketRequest(path, usmodel);
 }
 
 // void UnifiedStorageModel::enterMinio2(const QString &path) {

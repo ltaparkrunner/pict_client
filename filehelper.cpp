@@ -110,7 +110,7 @@ Q_INVOKABLE int FileHelper::processWritePathsLocal(const QStringList &ls, const 
 Q_INVOKABLE int FileHelper::processWritePathsMinio(const QStringList &ls, const QString &path){
 //    qDebug() << "int processWritePathsMinio(const QStringList &ls, const QString &path)";
     for(const QString &file : ls){
-            wsclient->addImageRequest(file, path);
+            wsclient->addFileRequest(file, path);
     }
     return 0;
 }
@@ -183,6 +183,6 @@ Q_INVOKABLE int FileHelper::processDeleteFileLocal(const QString &filePath){
 
 Q_INVOKABLE int FileHelper::processDeleteFileMinio(const QString &path){
     qDebug() << "int processDeletePathMinio(const QString &path)";
-    wsclient->deleteImageFromBucketRequest(path);
+    wsclient->deleteFileFromBucketRequest(path);
     return 0;
 }

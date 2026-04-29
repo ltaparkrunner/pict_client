@@ -3,25 +3,16 @@
 #include <QFileInfo>
 #include <QtProtobuf/QProtobufSerializer>
 
-// void WebSocketClient::onBinaryMessage(const QByteArray &message) {
-//     // Десериализация Protobuf
-//     MyProtoMessage proto;
-//     if (proto.ParseFromArray(message.data(), message.size())) {
-//         m_path = QString::fromStdString(proto.path()); // Предположим, в прото есть поле 'path'
-//         emit pathReceived(m_path);
-//     }
-// }
-
 void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
-    //    qDebug() << "ImageClient::onBinaryMessageReceived(const QByteArray &data)";
+    //    qDebug() << "FileClient::onBinaryMessageReceived(const QByteArray &data)";
     pict_data::BaseMessage base;
     QProtobufSerializer serializer;
     if (!base.deserialize(&serializer, data)) return;
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ListResponse) {
         const auto &response = base.listResponse();
         QList<QStringList> sl;
-        for (const auto &info : response.images()) {
-            sl.append({info.filename(), info.url()});
+        for (const auto &info : response.files()) {
+            sl.append({info.fileName(), info.url()});
         }
         if(sreq == usmodel) emit pathsReceived(sl);
         else emit pathsReceived2(sl);
@@ -40,7 +31,7 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ServerResp) {
         const auto &response = base.serverResp();
         QStringList sl;
-        qDebug() << "filename" << response.filename() << "imageId" << response.imageId() <<
+        qDebug() << "filename" << response.filename() << "fileId" << response.fileId() <<
             "userLogin" << response.content() << "status" << response.status();
 //        emit bucketsReceived(sl);
     }
@@ -75,7 +66,7 @@ QString WebSocketClient::lastReceivedPath() const { return m_path; }
 
 Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
     pict_data::BaseMessage base;
-    pict_data::BucketRequest message;
+    pict_data::BucketsRequest message;
     message.setUserLogin("Ivon");
 
     base.setReqUserBuckets(message);
@@ -85,7 +76,7 @@ Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
     return {};
 }
 
-Q_INVOKABLE int WebSocketClient::deleteImageFromBucketRequest(const QString &filePath){
+Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &filePath){
     QUrl minioUrl(filePath);
     QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
     qDebug() << "Path: " << path;
@@ -98,24 +89,24 @@ Q_INVOKABLE int WebSocketClient::deleteImageFromBucketRequest(const QString &fil
     QString key = parts.join('/');
 
     pict_data::BaseMessage base;
-    pict_data::DeleteImageRequest message;
-    qDebug() << "deleteImageFromBucketRequest" << filePath;
+    pict_data::DeleteFileRequest message;
+    qDebug() << "deleteFileFromBucketRequest" << filePath;
 
     message.setFilename(key);
-    message.setImageId("1111111");
+    message.setFileId("1111111");
     message.setUserLogin("Ivon");
     message.setBucketName(bucket);
 
-    base.setDeleteImage(message);
+    base.setDeleteFile(message);
     QProtobufSerializer serializer;
     QByteArray data = base.serialize(&serializer);
     /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
     return m_webSocket->sendBinaryMessage(data);
 }
 
-/*Q_INVOKABLE*/ void WebSocketClient::getImagesListfromBucketRequest(const QString &bucket, sourceReq sr){
+/*Q_INVOKABLE*/ void WebSocketClient::getFilesFoldersListfromBucketRequest(const QString &bucket, sourceReq sr){
     pict_data::BaseMessage base;
-    pict_data::ImageListRequest message;
+    pict_data::FilesFoldersListRequest message;
     sreq = sr;
     message.setCount(6);
     message.setBucketName(bucket);
@@ -149,8 +140,8 @@ void WebSocketClient::onError(QAbstractSocket::SocketError error) {
     }
 }
 
-Q_INVOKABLE int WebSocketClient::addImageRequest(const QString &filePath, const QString &minioPath){
-    qDebug() << "addImageRequest(const QStringList &filePath)" << filePath << "minioPath: " << minioPath;
+Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const QString &minioPath){
+    qDebug() << "addFileRequest(const QStringList &filePath)" << filePath << "minioPath: " << minioPath;
     QString cleanPath = filePath;
     if (cleanPath.startsWith("file:///")) {
         cleanPath = QUrl(cleanPath).toLocalFile();
@@ -175,7 +166,7 @@ Q_INVOKABLE int WebSocketClient::addImageRequest(const QString &filePath, const 
     }
 
     pict_data::BaseMessage base;
-    pict_data::AddImageRequest message;
+    pict_data::AddFileRequest message;
 
     QStringList parts = path.split('/');
     QString bucket = parts.takeFirst();
@@ -206,7 +197,7 @@ Q_INVOKABLE int WebSocketClient::addImageRequest(const QString &filePath, const 
     message.setInfo("jpg");
     message.setData(fileData);
 
-    base.setAddImage(message);
+    base.setAddFile(message);
     QProtobufSerializer serializer;
     QByteArray data = base.serialize(&serializer);
     /*qint64 sz =*/ //  m_webSocket->sendBinaryMessage(data);
@@ -227,7 +218,7 @@ Q_INVOKABLE int WebSocketClient::addImageRequest(const QString &filePath, const 
     message.setFilename(fileInfo.fileName());
     message.setEmailLogin("forever_young");
     message.setData(fileData);
-    message.setContentType("image_1");
+    message.setContentType("file_1");
     message.setTimestamp(QDateTime::currentMSecsSinceEpoch());
 
     base.setPict(message);
