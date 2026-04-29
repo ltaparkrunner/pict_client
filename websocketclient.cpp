@@ -1,5 +1,6 @@
 #include "websocketclient.h"
 #include "pict_data/message.qpb.h"
+#include <QFileInfo>
 #include <QtProtobuf/QProtobufSerializer>
 
 // void WebSocketClient::onBinaryMessage(const QByteArray &message) {
@@ -150,6 +151,22 @@ void WebSocketClient::onError(QAbstractSocket::SocketError error) {
 
 Q_INVOKABLE int WebSocketClient::addImageRequest(const QString &filePath, const QString &minioPath){
     qDebug() << "addImageRequest(const QStringList &filePath)" << filePath << "minioPath: " << minioPath;
+    QString cleanPath = filePath;
+    if (cleanPath.startsWith("file:///")) {
+        cleanPath = QUrl(cleanPath).toLocalFile();
+    }
+
+    // QFile *fil = new QFile(cleanPath);
+    // if (!fil->open(QIODevice::ReadOnly)) {
+    //     qDebug() << "Could not open file:" << cleanPath;
+    //     delete fil;
+    //     return -1; // Ошибка открытия файла
+    // }
+    // else qDebug() << "Open file: " << cleanPath;
+
+    QFileInfo fileInfo(cleanPath);
+
+    QString fileName = fileInfo.fileName();
 
     QUrl minioUrl(minioPath);
     QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
@@ -162,18 +179,27 @@ Q_INVOKABLE int WebSocketClient::addImageRequest(const QString &filePath, const 
 
     QStringList parts = path.split('/');
     QString bucket = parts.takeFirst();
-
-    QString key = parts.join('/');
     int sz = parts.size();
     QString folder = "";
     if(sz > 2) {
         folder = parts.sliced(1, sz - 2).join("/");
     }
-    qDebug() << "bucket: " << bucket << "folder" << folder;
-
-    QFile file(filePath);
-    QByteArray fileData = file.readAll();
-    message.setFilename(filePath);
+    qDebug() << "bucket: " << bucket << " folder " << folder << "fileName" << fileName << "cleanPath" << cleanPath;
+//    QString localPath = QUrl(filePath).toLocalFile();
+    // QFile file(cleanPath);
+    // if(!file.isOpen()) {
+    //     qDebug() << "Error: File " << cleanPath << " is not open. The parameter filePath: " << filePath;
+    //     return -5;
+    // }
+    QFile *file = new QFile(cleanPath);
+    if (!file->open(QIODevice::ReadOnly)) {
+        qDebug() << "Could not open file:" << cleanPath;
+        delete file;
+        return -1; // Ошибка открытия файла
+    }
+    else qDebug() << "Open file: " << cleanPath;
+    QByteArray fileData = file->readAll();
+    message.setFilename(fileName);
     message.setUserLogin("Ivon");
     message.setBucketName(bucket);
     message.setFolder(folder);
