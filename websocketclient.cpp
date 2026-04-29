@@ -31,7 +31,7 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ServerResp) {
         const auto &response = base.serverResp();
         QStringList sl;
-        qDebug() << "filename" << response.filename() << "fileId" << response.fileId() <<
+        qDebug() << "fileName" << response.fileName() << "fileId" << response.fileId() <<
             "userLogin" << response.content() << "status" << response.status();
 //        emit bucketsReceived(sl);
     }
@@ -92,7 +92,7 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
     pict_data::DeleteFileRequest message;
     qDebug() << "deleteFileFromBucketRequest" << filePath;
 
-    message.setFilename(key);
+    message.setFileName(key);
     message.setFileId("1111111");
     message.setUserLogin("Ivon");
     message.setBucketName(bucket);
@@ -190,7 +190,7 @@ Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const Q
     }
     else qDebug() << "Open file: " << cleanPath;
     QByteArray fileData = file->readAll();
-    message.setFilename(fileName);
+    message.setFileName(fileName);
     message.setUserLogin("Ivon");
     message.setBucketName(bucket);
     message.setFolder(folder);
@@ -215,7 +215,7 @@ Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const Q
 
     pict_data::BaseMessage base;
     pict_data::Picture message;
-    message.setFilename(fileInfo.fileName());
+    message.setFileName(fileInfo.fileName());
     message.setEmailLogin("forever_young");
     message.setData(fileData);
     message.setContentType("file_1");

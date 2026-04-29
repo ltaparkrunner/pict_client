@@ -2,7 +2,7 @@ syntax = "proto3";
 package pict_data;
 
 message Picture {
-  string filename = 1;    // Имя файла в Minio
+  string fileName = 1;    // Имя файла в Minio
   string fileId = 2;     // ID документа в MongoDB
   string userLogin = 3;      // ID пользователя для проверки прав
   string bucketName = 4;  // Имя корзины (bucket)
@@ -12,7 +12,7 @@ message Picture {
 }
 
 message AddFileRequest{
-  string filename = 1;    // Имя файла в Minio
+  string fileName = 1;    // Имя файла в Minio
   string userLogin = 2;      // ID пользователя для проверки прав
   string bucketName = 3;  // Имя корзины (bucket)
   string folder = 4;
@@ -21,7 +21,7 @@ message AddFileRequest{
 }
 
 message AddFolderRequest{
-  string foldername = 1;    // Имя файла в Minio
+  string folderName = 1;    // Имя файла в Minio
   string userLogin = 2;      // ID пользователя для проверки прав
   string bucketName = 3;  // Имя корзины (bucket)
   string folder = 4;
@@ -32,7 +32,7 @@ message ServerResponse{ // to AddFileRequest
   string content = 1;
   string status = 2;
   string fileId = 3;
-  string filename = 4;
+  string fileName = 4;
 }
 
 message FilesFoldersListRequest {
@@ -70,7 +70,7 @@ message BucketsList {                 // respond to BucketsRequest
 }
 
 message DeleteFileRequest {
-    string filename = 1;    // Имя файла в Minio
+    string fileName = 1;    // Имя файла в Minio
     string fileId = 2;     // ID документа в MongoDB
     string userLogin = 3;      // ID пользователя для проверки прав
     string bucketName = 4;  // Имя корзины (bucket)
