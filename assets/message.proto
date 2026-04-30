@@ -21,10 +21,10 @@ message AddFileRequest{
 }
 
 message AddFolderRequest{
-  string folderName = 1;    // Имя файла в Minio
+  string newFolderName = 1;    // Имя файла в Minio
   string userLogin = 2;      // ID пользователя для проверки прав
   string bucketName = 3;  // Имя корзины (bucket)
-  string folder = 4;
+  string folderName = 4;
   string info = 5;
 }
 
@@ -36,8 +36,9 @@ message ServerResponse{ // to AddFileRequest
 }
 
 message FilesFoldersListRequest {
-  int32 count = 1; // Запрашиваем 6
-  string bucketName = 2;
+  string bucketName = 1;
+  string folderName = 2;
+  string userLogin = 3;
 }
 
 message FileInfo {

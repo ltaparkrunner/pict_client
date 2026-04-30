@@ -14,6 +14,9 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
         for (const auto &info : response.files()) {
             sl.append({info.fileName(), info.url()});
         }
+        for (const auto &info : response.folders()) {
+            sl.append({info.folderName(), info.url()});
+        }
         if(sreq == usmodel) emit pathsReceived(sl);
         else emit pathsReceived2(sl);
     }
@@ -108,8 +111,9 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
     pict_data::BaseMessage base;
     pict_data::FilesFoldersListRequest message;
     sreq = sr;
-    message.setCount(6);
+    message.setFolderName("");
     message.setBucketName(bucket);
+    message.setUserLogin("Ivon");
 
     base.setListRequest(message);
     QProtobufSerializer serializer;
