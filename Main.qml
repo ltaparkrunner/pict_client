@@ -42,48 +42,7 @@ ApplicationWindow {
         // root.writePathSelected(ls, currentSelectedPath)
         onWritePathsSelected:(ls, paths) => {
             console.log("onWritePathsSelected paths: ", paths)
-            if(paths){
-                for(var path of paths) {
-                    console.log("onWritePathsSelected path: ", path)
-                    let type = FileHelper.checkPathType(path);
-                    if(type === FileHelperType.LocalFolder){
-                        ifFilesInFolder(ls, path)
-                        if(ls){
-                            tf.text = path;
-                            FileHelper.processWritePathsLocal(ls, path)
-                            return
-                        }
-                    }
-                    else if(type === FileHelperType.MinioBucket){
-                        ifFilesInFolder(ls, path)
-                        if(ls){
-                            tf.text = path;
-                            FileHelper.processWritePathsMinio(ls, path)
-                            return
-                        }
-                    }
-                    else if(type === FileHelperType.LocalFile){
-                        const dir1 = path.substring(0, filePath.lastIndexOf("/"));
-                        ifFilesInFolder(ls, dir1);
-                        if(ls){
-                            tf.text = dir1;
-                            FileHelper.processWritePathsLocal(ls, dir1)
-                            return
-                        }
-                    }
-                    else if(type === FileHelperType.MinioFile){
-                        const dir1 = path.substring(0, filePath.lastIndexOf("/"));
-                        ifFilesInFolder(ls, dir1)
-                        if(ls){
-                            tf.text = dir1;
-                            FileHelper.processWritePathsMinio(ls, dir1)
-                            return
-                        }
-                    }
-                }
-            }
-            msgNothingToDo.text = "You must select a folder to save the images."
-            msgNothingToDo.open()
+            storageModel.writeToFolder(ls)
         }
 
         onDeletePathsSelected:(paths) => {

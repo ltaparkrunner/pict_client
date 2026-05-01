@@ -47,6 +47,8 @@ public:
     Q_INVOKABLE void enterSeverStore(QString path);        // Зайти в список бакетов MinIO
 //    Q_INVOKABLE void enterSeverStore2(const QString &path);        // Зайти в список бакетов MinIO
     Q_INVOKABLE void enterMinioBucket(const QString &path);
+    Q_INVOKABLE int enterFolder(int indx);
+    Q_INVOKABLE int writeToFolder(const QStringList &ls);
     Q_INVOKABLE void minioPathsToQML(const QList<QStringList> &paths);
     Q_INVOKABLE void minioBucketsToQML(const QStringList &paths);
     Q_INVOKABLE QVariantMap get(int row) const;

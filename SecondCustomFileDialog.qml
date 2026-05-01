@@ -376,24 +376,24 @@ Window {
                         gridView.currentIndex = index;
                     }
                     onDoubleClicked: {
-                        acceptSelection(gridView)
+                        acceptSelection(index)
                         //mouse.accepted = true;
                     }
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        acceptSelection(gridView); // Ваш метод подтверждения выбора
+                        acceptSelection(index); // Ваш метод подтверждения выбора
                         event.accepted = true; // Останавливаем дальнейшее распространение события
                     }
                 }
 
-                function acceptSelection(grid) {
+                function acceptSelection(index) {
                     root.currentSelectedPath = model.path
                     //root.
                     if (model.isDir) {
-                        if (model.isMinio) storageModel.enterMinioBucket(model.name)
-                        else storageModel.enterLocal(model.path)
-                        //  console.log("acceptSelection: ", grid)
+                        // if (model.isMinio) storageModel.enterMinioBucket(model.name)
+                        // else storageModel.enterLocal(model.path)
+                        storageModel.enterFolder(index)
                         grid.currentIndex = 0
                         // parent.currentItem = 0
                     } else {
