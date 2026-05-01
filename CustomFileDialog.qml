@@ -154,12 +154,12 @@ Window {
                 focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    storageModel.enterMinio("main-bucket")
+                    storageModel.enterSeverStore("main-bucket")
                     tb_minio.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        storageModel.enterMinio("main-bucket");
+                        storageModel.enterSeverStore("main-bucket");
                         root.lastSelectedTab=1
                     }
                 }

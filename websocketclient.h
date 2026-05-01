@@ -9,7 +9,7 @@
 #include <QFile>
 
 enum sourceReq{
-    model,
+    imodel,
     usmodel
 };
 
@@ -27,6 +27,8 @@ public:
 //    void getFilesListfromBucketRequest2(const QString &bucket) const;
 //    Q_INVOKABLE int addFileRequest(const QStringList &filePath);
     Q_INVOKABLE int addFileRequest(const QString &filePath, const QString &path);
+    void deleteMinioBucketsRequest(const QStringList &buckets);
+
 signals:
     void pathReceived(const QString &path);
     void pathsReceived(const QList<QStringList> &paths);
@@ -47,7 +49,11 @@ private:
     QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
-    sourceReq sreq;
+    sourceReq sreq; // What is it? What is for?
+    // it defines who is the source of request, and where we have to return the answer?
+    // to imodel(ImageModel) or to usmodel(unifiedstoragemodel)
+    // pathReceived2 oasses signal to ImageModel(listStringModel)
+    // pathsReceived passes signal to isModel(unifiedstoragemodel)
 
     const int RECONNECT_INTERVAL = 5000;
     const int PING_INTERVAL = 30000;

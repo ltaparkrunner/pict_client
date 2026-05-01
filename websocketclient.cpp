@@ -12,13 +12,21 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
         const auto &response = base.listResponse();
         QList<QStringList> sl;
         for (const auto &info : response.files()) {
-            sl.append({info.fileName(), info.url()});
+            sl.append({info.fileName(), info.url(), "file"});
+            qDebug() << "fileName: " << info.fileName() << "  url: " << info.url();
         }
         for (const auto &info : response.folders()) {
-            sl.append({info.folderName(), info.url()});
+            sl.append({info.folderName(), info.url(), "folder"});
+            qDebug() << "folderName: " << info.folderName() << "  url: " << info.url();
         }
-        if(sreq == usmodel) emit pathsReceived(sl);
-        else emit pathsReceived2(sl);
+        if(sreq == usmodel) {
+/*            qDebug() << "To usModel"*/;
+            emit pathsReceived(sl);
+        }
+        else {
+            // qDebug() << "To imodel";
+            emit pathsReceived2(sl);
+        }
     }
     if (base.contentField() == pict_data::BaseMessage::ContentFields::Buckets) {
         const auto &response = base.buckets();
@@ -34,7 +42,7 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ServerResp) {
         const auto &response = base.serverResp();
         QStringList sl;
-        qDebug() << "fileName" << response.fileName() << "fileId" << response.fileId() <<
+        qDebug() << "fileName" << response.fileName() << "uniqueName" << response.uniqueName() <<
             "userLogin" << response.content() << "status" << response.status();
 //        emit bucketsReceived(sl);
     }
@@ -231,3 +239,17 @@ Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const Q
     qint64 sz = m_webSocket->sendBinaryMessage(data);
 
 */
+
+void WebSocketClient::deleteMinioBucketsRequest(const QStringList &buckets){
+    pict_data::BaseMessage base;
+    pict_data::DeleteBucketRequest message;
+
+    for(const QString &bucket : buckets) {
+        qDebug() << "void WebSocketClient::deleteMinioBucketsRequest(const QStringList &buckets)" << bucket;
+        message.setBucketName(bucket);
+        base.setDeleteBucket(message);
+        QProtobufSerializer serializer;
+        QByteArray data = base.serialize(&serializer);
+        qint64 sz = m_webSocket->sendBinaryMessage(data);
+    }
+}

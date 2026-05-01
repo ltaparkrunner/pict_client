@@ -106,7 +106,7 @@ public:
     Q_INVOKABLE QStringList addImagesFromMinioBucket(const QString &path) {
         QString fileName = QUrl(path).fileName();
         connect(wsclient, &WebSocketClient::pathsReceived2, this, &ImageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(fileName, model);
+        wsclient->getFilesFoldersListfromBucketRequest(fileName, imodel);
         return {};
     }
 

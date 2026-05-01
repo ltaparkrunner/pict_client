@@ -195,6 +195,9 @@ ApplicationWindow {
                     text: "Write"
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
+                    onClicked: {
+                        FileHelper.deleteMinioBuckets(["pictures"])
+                    }
                 }
             }
             RowLayout{
@@ -204,7 +207,7 @@ ApplicationWindow {
                     Layout.preferredWidth: 1
                     onClicked: {
                         wsClient.connectToServer()
-                        storageModel.enterLocal("/");
+                        storageModel.enterLocal("/"); // TODO:??
                         customDialog.show();
                     }
                 }

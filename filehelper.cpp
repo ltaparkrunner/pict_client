@@ -186,3 +186,8 @@ Q_INVOKABLE int FileHelper::processDeleteFileMinio(const QString &path){
     wsclient->deleteFileFromBucketRequest(path);
     return 0;
 }
+
+Q_INVOKABLE int FileHelper::deleteMinioBuckets(const QStringList &paths) {
+    wsclient->deleteMinioBucketsRequest(paths);
+    return 0;
+}

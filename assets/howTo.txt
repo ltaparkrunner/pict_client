@@ -1,3 +1,7 @@
+server replied: Forbidden I have to process it.
+
+
+
 qrc:/qt/qml/pict_client/SecondCustomFileDialog.qml:333: ReferenceError: list is not defined
 
 
@@ -7,7 +11,7 @@ Enter MinIO on every focus is not good sense?
 
 To ask/request list from Minio make -> ImageListRequest
 Unified storage model ask websocket of connection and others.
-1. to connect in enterMinio
+1. to connect in enterSeverStore
 2. send request
 3. get respond
 4. get paths, show pictures

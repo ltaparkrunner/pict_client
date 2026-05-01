@@ -19,13 +19,13 @@ void UnifiedStorageModel::enterLocal(QString path) {
     QFileInfoList fullList = dirs + files;
 //    for (auto &info : dir.entryInfoList(QDir::AllEntries | QDir::NoDot)) {
     for (const QFileInfo &info : std::as_const(fullList)) {
-        m_items.append({info.fileName(), info.absoluteFilePath(), info.isDir(), false});
+        m_items.append({info.fileName(), info.absoluteFilePath(), info.isDir(), false, false, false});
     }
     endResetModel();
 }
 
-void UnifiedStorageModel::enterMinio(QString path) {
-//    qDebug() << "UnifiedStorageModel::enterMinio and request";
+void UnifiedStorageModel::enterSeverStore(QString path) {
+//    qDebug() << "UnifiedStorageModel::enterSeverStore and request";
     connect(wsclient, &WebSocketClient::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
     wsclient->getBucketsListRequest();
 }
@@ -35,7 +35,7 @@ void UnifiedStorageModel::enterMinioBucket(const QString &path) {
     wsclient->getFilesFoldersListfromBucketRequest(path, usmodel);
 }
 
-// void UnifiedStorageModel::enterMinio2(const QString &path) {
+// void UnifiedStorageModel::enterSeverStore2(const QString &path) {
 //     connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
 //     wsclient->getImagesListfromBucketRequest("images");
 // }
@@ -43,11 +43,9 @@ void UnifiedStorageModel::enterMinioBucket(const QString &path) {
 void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
     beginResetModel();
     m_items.clear();
-    // for (const QString &bucket : buckets) {
-    //     m_items.append({bucket, bucket, true, true});
-    // }
+
     for (int i = 0; i < buckets.size(); i += 2) {
-        m_items.append({buckets[i], buckets[i+1], true, true});
+        m_items.append({buckets[i], buckets[i+1], true, true, true, false});
     }
     endResetModel();
 }
@@ -55,8 +53,9 @@ void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
 void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
     beginResetModel();
     m_items.clear();
+    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths)";
     for (const QStringList& image : paths) {
-        m_items.append({image[0], image[1], false, true});
+        m_items.append({image[0], image[1], (image[2] == "folder")?true:false, true});
     }
     endResetModel();
 }
@@ -87,8 +86,10 @@ QVariant UnifiedStorageModel::data(const QModelIndex &index, int role) const {
         return item.isDirectory;
     case IsMinioRole:
         return item.isMinio;
-    case PathType:
-        return item.pt;
+    case IsMinioBucketRole:
+        return item.isMinioBucket;
+    case IsVirtualDirRole:
+        return item.isVirtualDir;
     default:
         return QVariant();
     }
@@ -101,6 +102,8 @@ QHash<int, QByteArray> UnifiedStorageModel::roleNames() const{
     roles[PathRole] = "path";
     roles[IsDirRole] = "isDir";
     roles[IsMinioRole] = "isMinio";
+    roles[IsMinioBucketRole] = "isMinioBucket";
+    roles[IsVirtualDirRole] = "isVirtualDir";
     return roles;
 }
 
@@ -109,8 +112,8 @@ void UnifiedStorageModel::loadRoot() {
     m_items.clear();
 
     // Добавляем две виртуальные "папки"
-    m_items.append({"Локальные файлы", "/", true, false});
-    m_items.append({"Облако MinIO", "minio_root", true, true});
+    m_items.append({"Локальные файлы", "/", true, false, false, false});
+    m_items.append({"Облако MinIO", "minio_root", true, true, true, false});
 
     endResetModel();
 }
@@ -129,6 +132,18 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::get(int row) const {
     res["path"] = item.path;
     res["isDir"] = item.isDirectory;
     res["isMinio"] = item.isMinio;
-//    res["PathType"] = item.pt;
+    res["isMinioBucket"] = item.isMinioBucket;
+    res["isVirtualDir"] = item.isVirtualDir;
     return res;
+}
+
+Q_INVOKABLE int UnifiedStorageModel::addVirtual(const QString &virtFolderName, const QString &currPath){
+    beginResetModel();
+
+    // Добавляем две виртуальные "папки"
+    m_items.append({virtFolderName, currPath+"/"+virtFolderName, true, true, false, true});
+
+    endResetModel();
+    qDebug() << "Создаем папку с именем:" << virtFolderName << "in the folder: " << currPath;
+    return 0;
 }

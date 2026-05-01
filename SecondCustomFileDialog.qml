@@ -12,17 +12,68 @@ Window {
 //    standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: "."
-
+    QtObject {
+        id: folderMetadata
+        property string name: ""
+        property string path
+        property bool isDir: false
+        property bool isMinio: false
+        property bool isMinioBucket: false
+        property bool isVirtualDir: false
+    }
     signal openPathsSelected(string path)
     signal writePathsSelected(list<string> listPath, list<string> destPath)
     signal deletePathsSelected(list<string> paths)
     property int lastSelectedTab: 0
     property var selectedIndices: []
 
+    property string currentBucket: "" // Если пусто — показываем список бакетов
+    property string currentPath: ""   // Путь внутри бакета (напр. "projects/docs")
+    property string viewMode: "buckets" // "buckets", "folders", или "files"
+
     onVisibleChanged: {
         if (visible) {
             lastSelectedTab = 0
             tabBar.forceActiveFocus()
+        }
+    }
+
+    Menu {
+        id: contextMenuGridView
+        MenuItem {
+            text: "create folder"
+            onTriggered: {
+                folderDialog.open()
+            }
+        }
+        MenuSeparator { }
+        MenuItem {
+            text: "Preferences"
+            onTriggered: console.log("Действие: Свойства")
+        }
+    }
+
+    Menu {
+        id: contextMenufilefolder
+        MenuItem {
+            text: "Open file"
+            onTriggered: console.log("Действие: Открыть")
+        }
+        MenuItem {
+            text: "delete file"
+            onTriggered: console.log("Действие: Удалить")
+        }
+        MenuSeparator { }
+        MenuItem {
+            text: "Preferences"
+            onTriggered: console.log("Действие: Свойства")
+        }
+    }
+
+    FolderDialog {
+        id: folderDialog
+        onFolderAccepted: (name) => {
+            storageModel.addVirtual(name, root.currentSelectedPath);
         }
     }
 
@@ -155,12 +206,12 @@ Window {
                 focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    storageModel.enterMinio("main-bucket")
+                    storageModel.enterSeverStore("main-bucket")
                     tb_minio.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        storageModel.enterMinio("main-bucket");
+                        storageModel.enterSeverStore("main-bucket");
                         root.lastSelectedTab=1
                     }
                 }
@@ -238,6 +289,11 @@ Window {
             cellWidth: 140  // Ширина колонки
             cellHeight: 60 // Высота строки
 
+            // model: {
+            //     if (currentBucket === "") return bucketModel; // Список бакетов из S3
+            //     return storageModel //contentModel; // Файлы и папки, отфильтрованные по bucket + path
+            // }
+
             model: storageModel // Объект UnifiedStorageModel из C++
             // Настройка ScrollBar (Полоса прокрутки)
             ScrollBar.vertical: ScrollBar {
@@ -248,7 +304,16 @@ Window {
             highlightMoveDuration: 0
             highlight: Rectangle { color: "gainsboro"; radius: 2} //; z:2 }
             highlightFollowsCurrentItem: true
-
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons:Qt.RightButton
+                onClicked: (mouse) => {
+                    if (mouse.button === Qt.RightButton) {
+                        // 3. Вызываем меню в координатах курсора
+                        contextMenuGridView.popup()
+                    }
+                }
+            }
             delegate: ItemDelegate {
                 width: gridView.cellWidth - 4
                 height: gridView.cellHeight - 4
@@ -279,6 +344,7 @@ Window {
                 }
                 MouseArea {
                     anchors.fill: parent
+//                    acceptedButtons: Qt.LeftButton | Qt.RightButton
                     onClicked: (mouse) => {
                        if (mouse.modifiers & Qt.ShiftModifier && selectedIndices.length > 0) {
                            // Выбор диапазона от последнего выбранного до текущего

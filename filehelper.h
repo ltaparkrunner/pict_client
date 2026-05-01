@@ -16,7 +16,8 @@ public:
         LocalFile,
         LocalFolder,
         MinioFile,
-        MinioBucket
+        MinioBucket,
+        MinioFolder
     };
     Q_ENUM(PathType) // Регистрируем enum в системе метаданных Qt
 
@@ -33,6 +34,8 @@ public:
     Q_INVOKABLE int processDeleteFolderMinio(const QString &path);
     Q_INVOKABLE int processDeleteFileLocal(const QString &path);
     Q_INVOKABLE int processDeleteFileMinio(const QString &path);
+
+    Q_INVOKABLE int deleteMinioBuckets(const QStringList &paths);
 
 private:
     WebSocketClient *wsclient;
