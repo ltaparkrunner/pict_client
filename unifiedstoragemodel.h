@@ -28,7 +28,7 @@ struct StorageItem {
     bool isMinio;               // Флаг для отличия локального от облачного
     bool isMinioBucket;
     bool isVirtualDir;
-    QString minioID;
+    QString mongoId;
 };
 
 class UnifiedStorageModel : public QAbstractListModel {
@@ -49,6 +49,7 @@ public:
 //    Q_INVOKABLE void enterSeverStore2(const QString &path);        // Зайти в список бакетов MinIO
     Q_INVOKABLE void enterMinioBucket(const QString &path);
     Q_INVOKABLE int enterFolder(int indx);
+    Q_INVOKABLE int deleteIndices(const QList<int> &indxs);
     Q_INVOKABLE int writeToFolder(const QStringList &ls);
     Q_INVOKABLE void minioPathsToQML(const QList<QStringList> &paths);
     Q_INVOKABLE void minioBucketsToQML(const QStringList &paths);
@@ -56,6 +57,7 @@ public:
 //    QString fileName = QUrl(urlString).fileName();
 //    Q_INVOKABLE int addVirtual(const QString &virtFolderName);
     Q_INVOKABLE int addVirtual(const QString &virtFolderName, const QString &currPath);
+    QStringList getBacketNameFromPath(const QString &path);
 private:
     QVector<StorageItem> m_items;
     StorageItem m_parentItem;

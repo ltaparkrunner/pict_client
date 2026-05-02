@@ -56,7 +56,7 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
     m_items.clear();
     qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths)";
     for (const QStringList& image : paths) {
-        m_items.append({image[0], image[1], (image[2] == "folder")?true:false, true});
+        m_items.append({image[0], image[1], (image[2] == "folder")?true:false, true, false, false, image[3]});
     }
     endResetModel();
 }
@@ -206,4 +206,36 @@ Q_INVOKABLE int UnifiedStorageModel::writeToFolder(const QStringList &ls){
         return 0;
     }
     return 0;
+}
+
+Q_INVOKABLE int UnifiedStorageModel::deleteIndices(const QList<int> &indxs){
+    qDebug() << "int UnifiedStorageModel::writeToFolder";
+    for(int indx : indxs){
+        if(m_items[indx].isMinio && !m_items[indx].isDirectory){
+            QStringList sl;
+            sl.append(m_items[indx].name);
+
+            QUrl minioUrl(m_items[indx].path);
+            QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+            qDebug() << "Path: " << path;
+            if (path.startsWith('/')) {
+                path.remove(0, 1);
+            }
+
+            QStringList parts = path.split('/');
+            QString bucket = parts.takeFirst();
+
+            sl.append(bucket);
+            sl.append(m_items[indx].mongoId);
+            sl.append("Ivon");
+            qDebug() << " name: " << m_items[indx].name << "  bucket: " << bucket << " mongoId: " << m_items[indx].mongoId;
+            wsclient->deleteFileFromServerRequest(sl);
+        }
+    }
+    return 0;
+}
+
+QStringList UnifiedStorageModel::getBacketNameFromPath(const QString &path){
+    qDebug() << "getBacketNameFromPath(const QString &path)" << path;
+    return {};
 }

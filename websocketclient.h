@@ -28,6 +28,7 @@ public:
 //    Q_INVOKABLE int addFileRequest(const QStringList &filePath);
     Q_INVOKABLE int addFileRequest(const QString &filePath, const QString &path);
     void deleteMinioBucketsRequest(const QStringList &buckets);
+    int deleteFileFromServerRequest(const QStringList &fileData);
 
 signals:
     void pathReceived(const QString &path);

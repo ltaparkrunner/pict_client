@@ -45,33 +45,17 @@ ApplicationWindow {
             storageModel.writeToFolder(ls)
         }
 
-        onDeletePathsSelected:(paths) => {
-            console.log("onDeletePathsSelected:(paths)", paths)
-            if(paths){
-                for(var path of paths) {
-                    console.log("onDeletePathsSelected:(paths)", path)
-                    let type = FileHelper.checkPathType(path);
-                    if(type === FileHelperType.LocalFolder){
-                        FileHelper.processDeleteFolderLocal(path)
-                    }
-                    else if(type === FileHelperType.MinioBucket){
-                        FileHelper.processDeleteFolderMinio(path)
-                    }
-                    else if(type === FileHelperType.LocalFile){
-                        console.log("FileHelper.processDeleteFileLocal(path)")
-                        FileHelper.processDeleteFileLocal(path)
-                    }
-                    else if(type === FileHelperType.MinioFile){
-                        console.log("FileHelper.processDeleteFileMinio(path)")
-                        FileHelper.processDeleteFileMinio(path)
-                    }
-                }
-                tf.text = path;
+        onDeletePathsSelected:(indices) => {
+            if(indices){
+                console.log("onDeletePathsSelected:(paths)", indices[0])
+                storageModel.deleteIndices(indices)
             }
             else {
                 msgNothingToDo.text = "You must select a folder to save the images."
                 msgNothingToDo.open()
             }
+            tf.text = currentSelectedPath
+            processPath(currentSelectedPath)
         }
         // Check if the files are in the target folder
         function ifFilesInFolder(ls, path){

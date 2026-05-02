@@ -23,7 +23,7 @@ Window {
     }
     signal openPathsSelected(string path)
     signal writePathsSelected(list<string> listPath, list<string> destPath)
-    signal deletePathsSelected(list<string> paths)
+    signal deletePathsSelected(list<int> indices)
     property int lastSelectedTab: 0
     property var selectedIndices: []
 
@@ -489,7 +489,7 @@ Window {
                 }
                 onClicked: {
                     console.log("delete onClicked")
-                    root.deletePathsSelected(indicesToPaths(selectedIndices));
+                    root.deletePathsSelected(selectedIndices);
                     console.log("delete indicesToPaths(selectedIndices)", selectedIndices)
                     root.close()
                 }
