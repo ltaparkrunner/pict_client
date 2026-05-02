@@ -28,6 +28,7 @@ struct StorageItem {
     bool isMinio;               // Флаг для отличия локального от облачного
     bool isMinioBucket;
     bool isVirtualDir;
+    QString minioID;
 };
 
 class UnifiedStorageModel : public QAbstractListModel {

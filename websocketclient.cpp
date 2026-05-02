@@ -12,21 +12,21 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
         const auto &response = base.listResponse();
         QList<QStringList> sl;
         for (const auto &info : response.files()) {
-            sl.append({info.fileName(), info.url(), "file"});
+            sl.append({info.fileName(), info.url(), "file", info.mongoId()});
             qDebug() << "fileName: " << info.fileName() << "  url: " << info.url();
         }
         for (const auto &info : response.folders()) {
-            sl.append({info.folderName(), info.url(), "folder"});
+            sl.append({info.folderName(), info.url(), "folder", ""});
             qDebug() << "folderName: " << info.folderName() << "  url: " << info.url();
         }
-        if(sreq == usmodel) {
+//        if(sreq == usmodel) {
 /*            qDebug() << "To usModel"*/;
             emit pathsReceived(sl);
-        }
-        else {
-            // qDebug() << "To imodel";
-            emit pathsReceived2(sl);
-        }
+        // }
+        // else {
+        //     // qDebug() << "To imodel";
+        //     emit pathsReceived2(sl);
+        // }
     }
     if (base.contentField() == pict_data::BaseMessage::ContentFields::Buckets) {
         const auto &response = base.buckets();
@@ -42,8 +42,7 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ServerResp) {
         const auto &response = base.serverResp();
         QStringList sl;
-        qDebug() << "fileName" << response.fileName() << "uniqueName" << response.uniqueName() <<
-            "userLogin" << response.content() << "status" << response.status();
+        qDebug() << "fileName" << "response content" << response.content() << "status" << response.status();
 //        emit bucketsReceived(sl);
     }
 }
@@ -87,7 +86,7 @@ Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
     return {};
 }
 
-Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &filePath){
+Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &filePath, const QString &mongoID){
     QUrl minioUrl(filePath);
     QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
     qDebug() << "Path: " << path;
@@ -101,10 +100,10 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 
     pict_data::BaseMessage base;
     pict_data::DeleteFileRequest message;
-    qDebug() << "deleteFileFromBucketRequest" << filePath;
+    qDebug() << "deleteFileFromBucketRequest" << filePath << "bucket" << bucket;
 
     message.setFileName(key);
-    message.setFileId("1111111");
+    message.setMongoId("1111111");
     message.setUserLogin("Ivon");
     message.setBucketName(bucket);
 
@@ -115,11 +114,26 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
     return m_webSocket->sendBinaryMessage(data);
 }
 
-/*Q_INVOKABLE*/ void WebSocketClient::getFilesFoldersListfromBucketRequest(const QString &bucket, sourceReq sr){
+/*Q_INVOKABLE*/ void WebSocketClient::getFilesFoldersListfromBucketRequest(const QString &minioPath){
+    qDebug() << "getFilesFoldersListfromBucketRequest(const QString &minioPath)" << minioPath;
+    QUrl minioUrl(minioPath);
+    QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    if (path.startsWith('/')) {
+        path.remove(0, 1);
+    }
+
+    QStringList parts = path.split('/');
+    QString bucket = parts.takeFirst();
+    int sz = parts.size();
+    QString folder = "";
+    if(sz > 2) {
+        folder = parts.sliced(1, sz - 2).join("/");
+    }
+    qDebug() << "bucket: " << bucket << " folder " << folder;
+
     pict_data::BaseMessage base;
     pict_data::FilesFoldersListRequest message;
-    sreq = sr;
-    message.setFolderName("");
+    message.setFolderName(folder);
     message.setBucketName(bucket);
     message.setUserLogin("Ivon");
 
@@ -158,15 +172,6 @@ Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const Q
     if (cleanPath.startsWith("file:///")) {
         cleanPath = QUrl(cleanPath).toLocalFile();
     }
-
-    // QFile *fil = new QFile(cleanPath);
-    // if (!fil->open(QIODevice::ReadOnly)) {
-    //     qDebug() << "Could not open file:" << cleanPath;
-    //     delete fil;
-    //     return -1; // Ошибка открытия файла
-    // }
-    // else qDebug() << "Open file: " << cleanPath;
-
     QFileInfo fileInfo(cleanPath);
 
     QString fileName = fileInfo.fileName();
@@ -250,6 +255,6 @@ void WebSocketClient::deleteMinioBucketsRequest(const QStringList &buckets){
         base.setDeleteBucket(message);
         QProtobufSerializer serializer;
         QByteArray data = base.serialize(&serializer);
-        qint64 sz = m_webSocket->sendBinaryMessage(data);
+        /*qint64 sz = */ m_webSocket->sendBinaryMessage(data);
     }
 }

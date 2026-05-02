@@ -31,8 +31,6 @@ message AddFolderRequest{
 message ServerResponse{ // to AddFileRequest
   string content = 1;
   string status = 2;
-  string uniqueName = 3;
-  string fileName = 4;
 }
 
 message FilesFoldersListRequest {
@@ -43,8 +41,9 @@ message FilesFoldersListRequest {
 
 message FileInfo {
   string fileName = 1;
-  string url = 2;
-  int64 size = 3;
+  string mongoId = 2;
+  string url = 3;
+  int64 size = 4;
 }
 
 message FolderInfo {
@@ -72,12 +71,12 @@ message BucketsList {                 // respond to BucketsRequest
 
 message DeleteFileRequest {
     string fileName = 1;    // Имя файла в Minio
-    string fileId = 2;     // ID документа в MongoDB
+    string mongoId = 2;     // ID документа в MongoDB
     string userLogin = 3;      // ID пользователя для проверки прав
     string bucketName = 4;  // Имя корзины (bucket)
 }
 
-message DeleteFolderRequest {
+message DeleteFolderRequest { // What is it? Is it a request To Delete all files in the folder?
     string folderName = 1;    // Имя файла в Minio
     string fileId = 2;     // ID документа в MongoDB
     string userLogin = 3;      // ID пользователя для проверки прав

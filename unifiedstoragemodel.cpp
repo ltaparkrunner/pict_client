@@ -33,7 +33,7 @@ void UnifiedStorageModel::enterSeverStore(QString path) {
 void UnifiedStorageModel::enterMinioBucket(const QString &path) {
     qDebug() << "UnifiedStorageModel::enterMinioBucket and request";
     connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-    wsclient->getFilesFoldersListfromBucketRequest(path, usmodel);
+    wsclient->getFilesFoldersListfromBucketRequest(path/*, usmodel*/);
 }
 
 // void UnifiedStorageModel::enterSeverStore2(const QString &path) {
@@ -176,12 +176,12 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){
     else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) {
         qDebug() << " m_parentItem: " << m_parentItem.path;
         connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name, usmodel);
+        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name /*, usmodel*/);
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory) {
         connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path, usmodel);
+        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
         return 0;
     }
     return 0;
