@@ -21,7 +21,8 @@ Window {
         property bool isMinioBucket: false
         property bool isVirtualDir: false
     }
-    signal openPathsSelected(string path)
+//    signal openPathsSelected(string path)
+    signal openIndexSelected(int index)
     signal writePathsSelected(list<string> listPath, list<string> destPath)
     signal deletePathsSelected(list<int> indices)
     property int lastSelectedTab: 0
@@ -398,7 +399,8 @@ Window {
                         // parent.currentItem = 0
                     } else {
                         console.log(currentSelectedPath);
-                        root.openPathsSelected(currentSelectedPath);
+//                        root.openPathsSelected(currentSelectedPath);
+                        root.openIndexSelected(index)
                         root.close()
                     }
                 }

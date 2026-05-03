@@ -35,9 +35,13 @@ ApplicationWindow {
 
     SecondCustomFileDialog {
         id: secondCustomDialog
-        onOpenPathsSelected:(paths) => {
-            tf.text = currentSelectedPath
-            processPath(currentSelectedPath)
+        // onOpenPathsSelected:(paths) => {
+        //     tf.text = currentSelectedPath
+        //     processPath(currentSelectedPath)
+        // }
+
+        onOpenIndexSelected:(index) => {
+            processImageIndex(index)
         }
         // root.writePathSelected(ls, currentSelectedPath)
         onWritePathsSelected:(ls, paths) => {
@@ -210,7 +214,7 @@ ApplicationWindow {
                                 Image {
                                     anchors.fill: parent
                                     anchors.margins: 2
-                                    source: model.imagePath // Данные из C++
+                                    source: model.path // Данные из C++
                                     fillMode: Image.PreserveAspectCrop // Чтобы не искажать пропорции
                                     clip: true
                                 }
@@ -289,7 +293,7 @@ ApplicationWindow {
     }
     function processImageIndex(indx){
         if(indx){
-            mainImageSource = grid.model.resolveImageIndex(indx)
+            mainImageSource = storageModel.resolveImageIndex(indx)
         }
         else console.log("Путь не распознан или не существует");
     }

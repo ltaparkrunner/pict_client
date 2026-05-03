@@ -251,6 +251,7 @@ QString UnifiedStorageModel::resolveImageIndex(int indx) {
     if(indx < m_items.size()){
         StorageItem item = m_items[indx];
         udsmToIm(item.name, item.path, item.isMinio, item.isDirectory, item.mongoId);
+        qDebug() << "udsmToIm name: " << item.name << "  path: " << item.path;
         return item.path;
     }
     return "";

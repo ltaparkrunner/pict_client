@@ -171,11 +171,13 @@ public:
     }
 
     void getImageFromUdsm(QString name, QString path, bool isNet, bool isDir, QString mongoID) {
+        qDebug() << "getImageFromUdsm";
         if(isNet && !isDir){
             QUrl url = QUrl::fromUserInput(path);
             QString pathForQml = url.toString();
             beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
             m_imageItems.append({name, pathForQml, isNet, isDir, mongoID});
+            qDebug() << "m_imageItems.append isNet name: " << name << "  path: " << path;
             endInsertRows(); // This triggers the QML view update
             return;
         }
@@ -184,6 +186,7 @@ public:
             QString pathForQml = url.toString();
             beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
             m_imageItems.append({name, pathForQml, isNet, isDir, mongoID});
+            qDebug() << "m_imageItems.append name: " << name << "  path: " << path;
             endInsertRows(); // This triggers the QML view update
             return;
         }
