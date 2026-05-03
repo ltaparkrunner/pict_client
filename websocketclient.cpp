@@ -20,14 +20,17 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
             sl.append({info.folderName(), info.url(), "folder", ""});
             qDebug() << "folderName: " << info.folderName() << "  url: " << info.url();
         }
-//        if(sreq == usmodel) {
-/*            qDebug() << "To usModel"*/;
             emit pathsReceived(sl);
-        // }
-        // else {
-        //     // qDebug() << "To imodel";
-        //     emit pathsReceived2(sl);
-        // }
+    }
+    if (base.contentField() == pict_data::BaseMessage::ContentFields::FilesListResponse) {
+        const auto &response = base.filesListResponse();
+        QList<QStringList> sl;
+        for (const auto &info : response.files()) {
+            sl.append({info.fileName(), info.url(), "file", info.mongoId()});
+            qDebug() << "fileName: " << info.fileName() << "  url: " << info.url() <<
+                "  mongoId: " << info.mongoId() << "  ";
+        }
+        emit filesReceived(sl);
     }
     if (base.contentField() == pict_data::BaseMessage::ContentFields::Buckets) {
         const auto &response = base.buckets();
@@ -44,7 +47,6 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
         const auto &response = base.serverResp();
         QStringList sl;
         qDebug() << "fileName" << "response content" << response.content() << "status" << response.status();
-//        emit bucketsReceived(sl);
     }
 }
 
@@ -274,5 +276,35 @@ int WebSocketClient::deleteFileFromServerRequest(const QStringList &fileData){
         QByteArray data = base.serialize(&serializer);
         /*qint64 sz = */ m_webSocket->sendBinaryMessage(data);
     }
+    return 0;
+}
+
+int WebSocketClient::getFilesOnlyListfromBucketRequest(const QString &minioPath) {
+    qDebug() << "getFilesOnlyListfromBucketRequest(const QString &minioPath)" << minioPath;
+    QUrl minioUrl(minioPath);
+    QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    if (path.startsWith('/')) {
+        path.remove(0, 1);
+    }
+
+    QStringList parts = path.split('/');
+    QString bucket = parts.takeFirst();
+    int sz = parts.size();
+    QString folder = "";
+    if(sz > 2) {
+        folder = parts.sliced(1, sz - 2).join("/");
+    }
+    qDebug() << "bucket: " << bucket << " folder " << folder;
+
+    pict_data::BaseMessage base;
+    pict_data::FilesOnlyListRequest message;
+    message.setFolderName(folder);
+    message.setBucketName(bucket);
+    message.setUserLogin("Ivon");
+
+    base.setFilesListRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = base.serialize(&serializer);
+    /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
     return 0;
 }

@@ -428,8 +428,7 @@ Window {
                 onClicked: {
 //                    var p = storageModel.data(0, path)
                     let ls = []
-//                    console.log("storageModel.data(0, PathRole))", storageModel.data(0, storageModel.PathRole))
-                    console.log("storageModel.get(0).path", imageModel.get(0))
+
                     var data = imageModel.get(0)
                     ls.push(data.imagePath)
                     if(data) console.log("storageModel.get(0)", data.imagePath)

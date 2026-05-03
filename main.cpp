@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
+    QObject::connect(&usModel, &UnifiedStorageModel::udsmToIm, &imodel, &ImageModel::getImageFromUdsm);
     engine.rootContext()->setContextProperty("wsClient", &wsClient);
     engine.rootContext()->setContextProperty("imageModel", &imodel);
     engine.rootContext()->setContextProperty("FileHelper", &fileHlp);

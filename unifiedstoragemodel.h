@@ -58,6 +58,9 @@ public:
 //    Q_INVOKABLE int addVirtual(const QString &virtFolderName);
     Q_INVOKABLE int addVirtual(const QString &virtFolderName, const QString &currPath);
     QStringList getBacketNameFromPath(const QString &path);
+    Q_INVOKABLE QString resolveImageIndex(int indx);
+signals:
+    void udsmToIm(QString, QString, bool, bool, QString);
 private:
     QVector<StorageItem> m_items;
     StorageItem m_parentItem;

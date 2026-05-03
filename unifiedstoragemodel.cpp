@@ -142,7 +142,7 @@ Q_INVOKABLE int UnifiedStorageModel::addVirtual(const QString &virtFolderName, c
     beginResetModel();
 
     // Добавляем две виртуальные "папки"
-    m_items.append({virtFolderName, currPath+"/"+virtFolderName, true, true, false, true});
+    m_items.append({virtFolderName, currPath+"/"+virtFolderName, true, true, false, true, ""});
 
     endResetModel();
     qDebug() << "Создаем папку с именем:" << virtFolderName << "in the folder: " << currPath;
@@ -154,7 +154,7 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){
     if(indx < m_items.size()) m_parentItem = m_items[indx];
     else return -1;
     qDebug() << " m_parentItem: " << m_parentItem.path << "  isMinioBucket: " << m_parentItem.isMinioBucket;
-    if(!m_parentItem.isMinio && m_parentItem.isDirectory){
+    if(!m_parentItem.isMinio && m_parentItem.isDirectory){ // Local Directory
         beginResetModel();
         m_items.clear();
         QDir dir(m_parentItem.path);
@@ -173,16 +173,23 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){
         endResetModel();
         return 0;
     }
-    else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) {
+    else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) { // Minio Bucket
         qDebug() << " m_parentItem: " << m_parentItem.path;
         connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
         wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name /*, usmodel*/);
         return 0;
     }
-    else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory) {
+    else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
         connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
         wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
-        return 0;
+        return 0;               // Minio simple folder
+    }
+    else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && m_parentItem.isVirtualDir) {
+        qDebug() << "Virtual Minio Folder path: " << m_parentItem.path << "  name: " << m_parentItem.name;
+        beginResetModel();
+        m_items.clear();
+        endResetModel();
+        return 0;   // Minio simple folder
     }
     return 0;
 }
@@ -238,4 +245,13 @@ Q_INVOKABLE int UnifiedStorageModel::deleteIndices(const QList<int> &indxs){
 QStringList UnifiedStorageModel::getBacketNameFromPath(const QString &path){
     qDebug() << "getBacketNameFromPath(const QString &path)" << path;
     return {};
+}
+
+QString UnifiedStorageModel::resolveImageIndex(int indx) {
+    if(indx < m_items.size()){
+        StorageItem item = m_items[indx];
+        udsmToIm(item.name, item.path, item.isMinio, item.isDirectory, item.mongoId);
+        return item.path;
+    }
+    return "";
 }

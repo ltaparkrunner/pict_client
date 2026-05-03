@@ -287,6 +287,13 @@ ApplicationWindow {
             }
         }
     }
+    function processImageIndex(indx){
+        if(indx){
+            mainImageSource = grid.model.resolveImageIndex(indx)
+        }
+        else console.log("Путь не распознан или не существует");
+    }
+
     function processWritePaths(ls, paths) {
         if(paths) {
             let type = FileHelper.checkPathType(path);

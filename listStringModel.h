@@ -9,36 +9,63 @@
 
 #include "websocketclient.h"
 
+struct ImageItem {
+    QString name;
+    QString path;
+    bool isNetwork;               // Флаг для отличия локального от облачного
+    bool isDir;
+    QString mongoId;
+};
+
 class ImageModel : public QAbstractListModel {
     Q_OBJECT
 public:
     enum ImageRoles {
-        PathRole = Qt::UserRole + 1
+        ImageNameRole = Qt::UserRole + 16, ImagePathRole, ImageIsNetworkRole, ImageIsDirRole, ImageMongoIdRole
     };
 
     explicit ImageModel(WebSocketClient *wsc, QObject *parent = nullptr) : QAbstractListModel(parent), wsclient (wsc) {}
 
     // 1. Return number of items
     int rowCount(const QModelIndex &parent = QModelIndex()) const override {
-        return m_imagePaths.count();
+        return m_imageItems.count();
     }
 
     // 2. Provide data for a specific row and "role"
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override {
-        if (!index.isValid() || index.row() < 0 || index.row() >= m_imagePaths.count())
+        if (!index.isValid() || index.row() < 0 || index.row() >= m_imageItems.count())
             return QVariant();
 
-        if (role == PathRole)
-            return m_imagePaths.at(index.row());
+        // if (role == ImagePathRole)
+        //     return m_imageItems.at(index.row());
 
-        return QVariant();
+        // return QVariant();
+        const ImageItem &item = m_imageItems.at(index.row());
+        switch (role) {
+        case ImageNameRole:
+            return item.name;
+        case ImagePathRole:
+            return item.path;
+        case ImageIsNetworkRole:
+            return item.isNetwork;
+        case ImageIsDirRole:
+            return item.isDir;
+        case ImageMongoIdRole:
+            return item.mongoId;
+        default:
+            return QVariant();
+        }
     }
 
     // 3. Map integer roles to string names used in QML
 protected:
     QHash<int, QByteArray> roleNames() const override {
         QHash<int, QByteArray> roles;
-        roles[PathRole] = "imagePath";
+        roles[ImageNameRole] = "name";
+        roles[ImagePathRole] = "path";
+        roles[ImageIsNetworkRole] = "isNetwork";
+        roles[ImageIsDirRole] = "isDir";
+        roles[ImageMongoIdRole] = "mongoId";
         return roles;
     }
 
@@ -47,18 +74,20 @@ public:
     Q_INVOKABLE void addImagePath(const QString &path) {
         QUrl url = QUrl::fromLocalFile(path);
         QString pathForQml = url.toString();
-        beginInsertRows(QModelIndex(), m_imagePaths.count(), m_imagePaths.count());
-        m_imagePaths.append(pathForQml);
+        QFileInfo fileInfo(pathForQml);
+        QString fileName = fileInfo.fileName();
+        beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+        m_imageItems.append({fileName, pathForQml, false, false, ""});
         endInsertRows(); // This triggers the QML view update
     }
 
-    Q_INVOKABLE void addImageMinioPath(const QString &path) {
-        QUrl url = QUrl::fromUserInput(path);
-        QString pathForQml = url.toString();
-        beginInsertRows(QModelIndex(), m_imagePaths.count(), m_imagePaths.count());
-        m_imagePaths.append(pathForQml);
-        endInsertRows(); // This triggers the QML view update
-    }
+    // Q_INVOKABLE void addImageMinioPath(const QString &path) {
+    //     QUrl url = QUrl::fromUserInput(path);
+    //     QString pathForQml = url.toString();
+    //     beginInsertRows(QModelIndex(), m_imageItems.count(),m_imageItems.count());
+    //     m_imageItems.append(pathForQml);
+    //     endInsertRows(); // This triggers the QML view update
+    // }
 
     Q_INVOKABLE QString resolvePath(const QString &path) {
         QUrl url = QUrl::fromLocalFile(path);
@@ -97,25 +126,30 @@ public:
     Q_INVOKABLE QString addMinioImagePath(const QString &path) {
         QUrl url = QUrl::fromUserInput(path);
         QString pathForQml = url.toString();
-        beginInsertRows(QModelIndex(), m_imagePaths.count(), m_imagePaths.count());
-        m_imagePaths.append(pathForQml);
+        beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+        m_imageItems.append({"img1", pathForQml, true, false, ""});  // TODO:
         endInsertRows(); // This triggers the QML view update
         return pathForQml;
     }
 
     Q_INVOKABLE QStringList addImagesFromMinioBucket(const QString &path) {
         QString fileName = QUrl(path).fileName();
-        connect(wsclient, &WebSocketClient::pathsReceived2, this, &ImageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(fileName/*, imodel*/);
+        connect(wsclient, &WebSocketClient::filesReceived, this, &ImageModel::minioPathsToQML);
+        wsclient->getFilesOnlyListfromBucketRequest(fileName/*, imodel*/);
         return {};
     }
 
-    Q_INVOKABLE QString  minioPathsToQML(const QList<QStringList> &paths) {
-        for (const auto &image : std::as_const(paths)) {
-            addImageMinioPath(image[1]);
+    Q_INVOKABLE QString  minioPathsToQML(const QList<QStringList> &files) {
+        for (const QStringList &image : std::as_const(files)) {
+//            addImageMinioPath(image[1]);
+            QUrl url = QUrl::fromUserInput(image.at(1));
+            QString pathForQml = url.toString();
+            beginInsertRows(QModelIndex(), m_imageItems.count(),m_imageItems.count());
+            m_imageItems.append({image.at(0), pathForQml, true, false, image.at(3)});
+            endInsertRows(); // This triggers the QML view update
         }
-        if(!paths.isEmpty()) {
-            QUrl url = QUrl::fromUserInput(paths.first()[1]);
+        if(!files.isEmpty()) {
+            QUrl url = QUrl::fromUserInput(files.first()[1]);
             minioImageToQML(url.toString());
             return url.toString();
         }
@@ -124,22 +158,43 @@ public:
 
     Q_INVOKABLE QVariantMap get(int row) const {
         // Проверка границ, чтобы избежать падения
-        if (row < 0 || row >= m_imagePaths.count()) {
+        if (row < 0 || row >= m_imageItems.count()) {
             return QVariantMap();
         }
 
-        const QString &item = m_imagePaths.at(row);
+//        const QString &item = m_imageItems.at(row);
+        const ImageItem &item = m_imageItems.at(row);
         QVariantMap res;
 
-        res["imagePath"] = item;
+        res["imagePath"] = item.path;
         return res;
     }
 
+    void getImageFromUdsm(QString name, QString path, bool isNet, bool isDir, QString mongoID) {
+        if(isNet && !isDir){
+            QUrl url = QUrl::fromUserInput(path);
+            QString pathForQml = url.toString();
+            beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+            m_imageItems.append({name, pathForQml, isNet, isDir, mongoID});
+            endInsertRows(); // This triggers the QML view update
+            return;
+        }
+        if(!isNet && !isDir){
+            QUrl url = QUrl::fromUserInput(path);
+            QString pathForQml = url.toString();
+            beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+            m_imageItems.append({name, pathForQml, isNet, isDir, mongoID});
+            endInsertRows(); // This triggers the QML view update
+            return;
+        }
+
+    }
 signals:
     void minioImageToQML(const QString &path);
 
 private:
-    QStringList m_imagePaths;
+//    QStringList m_imagePaths;
+    QVector<ImageItem> m_imageItems;
     WebSocketClient *wsclient;
 };
 

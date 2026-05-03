@@ -23,6 +23,7 @@ public:
     QString lastReceivedPath() const;
     Q_INVOKABLE QStringList getBucketsListRequest() const;
     /*Q_INVOKABLE*/ void getFilesFoldersListfromBucketRequest(const QString &path);
+    int getFilesOnlyListfromBucketRequest(const QString &path);
     Q_INVOKABLE int deleteFileFromBucketRequest(const QString &filePath);
 //    void getFilesListfromBucketRequest2(const QString &bucket) const;
 //    Q_INVOKABLE int addFileRequest(const QStringList &filePath);
@@ -35,6 +36,7 @@ signals:
     void pathsReceived(const QList<QStringList> &paths);
     void pathsReceived2(const QList<QStringList> &paths);
     void bucketsReceived(const QStringList &buckets);
+    void filesReceived(const QList<QStringList> &paths);
 
 private slots:
     void onConnected();
