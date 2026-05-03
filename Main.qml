@@ -41,7 +41,21 @@ ApplicationWindow {
         // }
 
         onOpenIndexSelected:(index) => {
-            processImageIndex(index)
+            if(index && index<storageModel.rowCount()){
+                let img = storageModel.get(index);
+                let imgPath = img.path;
+                let prefix = "file:///";
+                if(!img.isMinio && !imgPath.startsWith(prefix)){
+                    mainImageSource = prefix + imgPath
+                }
+                else mainImageSource = imgPath
+                console.log("onOpenIndexSelected: ", imgPath);
+                // mainImageSource = "file:///C:/wrk/Qt_projs/pict_client/assets/pictures/img23.jpg"
+                let data = storageModel.getData(index);
+                console.log("onOpenIndexSelected: ", index);
+                imageModel.insertImage(data);
+            }
+            else console.log("Путь не распознан или не существует");
         }
         // root.writePathSelected(ls, currentSelectedPath)
         onWritePathsSelected:(ls, paths) => {
@@ -290,12 +304,6 @@ ApplicationWindow {
                 console.log("Путь не распознан или не существует");
             }
         }
-    }
-    function processImageIndex(indx){
-        if(indx){
-            mainImageSource = storageModel.resolveImageIndex(indx)
-        }
-        else console.log("Путь не распознан или не существует");
     }
 
     function processWritePaths(ls, paths) {

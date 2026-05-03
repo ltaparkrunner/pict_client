@@ -147,7 +147,7 @@ Window {
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        gridView.forceActiveFocus()
+                        gridView2.forceActiveFocus()
                         event.accepted = true
                     }
                     if (event.key === Qt.Key_Left) {
@@ -159,7 +159,7 @@ Window {
                 }
                 KeyNavigation.right: tb_minio
                 Keys.onDownPressed: {
-                    gridView.forceActiveFocus()
+                    gridView2.forceActiveFocus()
                 }
                 contentItem: Text {
                     text: parent.text
@@ -218,7 +218,7 @@ Window {
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        gridView.forceActiveFocus()
+                        gridView2.forceActiveFocus()
                         event.accepted = true
                     }
                     if (event.key === Qt.Key_Right) {
@@ -230,7 +230,7 @@ Window {
                 }
                 KeyNavigation.left: tb_local
                 Keys.onDownPressed: {
-                    gridView.forceActiveFocus()
+                    gridView2.forceActiveFocus()
                 }
                 contentItem: Text {
                     text: parent.text
@@ -280,7 +280,7 @@ Window {
 
         // Список файлов и папок
         GridView{
-            id: gridView
+            id: gridView2
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true // clip what is it?
@@ -316,8 +316,8 @@ Window {
                 }
             }
             delegate: ItemDelegate {
-                width: gridView.cellWidth - 4
-                height: gridView.cellHeight - 4
+                width: gridView2.cellWidth - 4
+                height: gridView2.cellHeight - 4
                 background: Rectangle {
                     anchors.fill: parent
                     border.color: selectedIndices.indexOf(index) !== -1 ? "blue" : "transparent"
@@ -374,7 +374,7 @@ Window {
                         }
 
                         // Устанавливаем currentIndex для GridView (визуальный фокус)
-                        gridView.currentIndex = index;
+                        gridView2.currentIndex = index;
                     }
                     onDoubleClicked: {
                         acceptSelection(index)
@@ -387,7 +387,6 @@ Window {
                         event.accepted = true; // Останавливаем дальнейшее распространение события
                     }
                 }
-
                 function acceptSelection(index) {
                     root.currentSelectedPath = model.path
                     //root.
@@ -395,11 +394,13 @@ Window {
                         // if (model.isMinio) storageModel.enterMinioBucket(model.name)
                         // else storageModel.enterLocal(model.path)
                         storageModel.enterFolder(index)
-                        grid.currentIndex = 0
+                        //gridView2.currentIndex = 0
+                        // currentIndex = 0
                         // parent.currentItem = 0
+                        GridView.view.currentIndex = 0;
                     } else {
                         console.log(currentSelectedPath);
-//                        root.openPathsSelected(currentSelectedPath);
+    //                        root.openPathsSelected(currentSelectedPath);
                         root.openIndexSelected(index)
                         root.close()
                     }

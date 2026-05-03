@@ -91,6 +91,8 @@ QVariant UnifiedStorageModel::data(const QModelIndex &index, int role) const {
         return item.isMinioBucket;
     case IsVirtualDirRole:
         return item.isVirtualDir;
+    case MongoIdRole:
+        return item.mongoId;
     default:
         return QVariant();
     }
@@ -105,6 +107,7 @@ QHash<int, QByteArray> UnifiedStorageModel::roleNames() const{
     roles[IsMinioRole] = "isMinio";
     roles[IsMinioBucketRole] = "isMinioBucket";
     roles[IsVirtualDirRole] = "isVirtualDir";
+    roles[MongoIdRole] = "mongoId";
     return roles;
 }
 
@@ -135,6 +138,7 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::get(int row) const {
     res["isMinio"] = item.isMinio;
     res["isMinioBucket"] = item.isMinioBucket;
     res["isVirtualDir"] = item.isVirtualDir;
+    res["mongoId"] = item.mongoId;
     return res;
 }
 
@@ -255,4 +259,15 @@ QString UnifiedStorageModel::resolveImageIndex(int indx) {
         return item.path;
     }
     return "";
+}
+
+Q_INVOKABLE QVariantMap UnifiedStorageModel::getData(int indx){
+    QVariantMap map;
+    StorageItem item = m_items[indx];
+    map["name"] = item.name;
+    map["path"] = item.path;
+    map["mongoId"] = item.mongoId;
+    map["isNetwork"] = item.isMinio;
+    map["isDir"] = item.isDirectory;
+    return map;
 }

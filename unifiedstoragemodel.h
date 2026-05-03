@@ -34,13 +34,14 @@ struct StorageItem {
 class UnifiedStorageModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    enum Roles { NameRole = Qt::UserRole + 2, PathRole, IsDirRole, IsMinioRole,  IsMinioBucketRole, IsVirtualDirRole };
+    enum Roles { NameRole = Qt::UserRole + 2, PathRole, IsDirRole, IsMinioRole,  IsMinioBucketRole, IsVirtualDirRole, MongoIdRole};
 
     explicit UnifiedStorageModel(WebSocketClient *wsc, QObject *parent = nullptr);
     // Основные методы модели
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
+    Q_INVOKABLE QVariantMap getData(int indx);
 
     // Логика навигации
     Q_INVOKABLE void loadRoot();          // Показать выбор: "Local" и "MinIO"

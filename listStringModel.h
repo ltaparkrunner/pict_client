@@ -192,6 +192,30 @@ public:
         }
 
     }
+    Q_INVOKABLE int insertImage(const QVariantMap &map) {
+        qDebug() << "insertImage(const QVariantMap &map)";
+        bool isDir = map["isDir"].toBool();
+        bool isNetwork = map["isNetwork"].toBool();
+        if(isNetwork && !isDir){
+            QUrl url = QUrl::fromUserInput(map["path"].toString());
+            QString pathForQml = url.toString();
+            beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+            m_imageItems.append({map["name"].toString(), pathForQml, isNetwork, isDir, map["mongoId"].toString()});
+            qDebug() << "m_imageItems.append isNet name: " << map["name"].toString() << "  pathForQml: " << pathForQml;
+            endInsertRows(); // This triggers the QML view update
+            return 0;
+        }
+        if(!isNetwork && !isDir){
+            QUrl url = QUrl::fromUserInput(map["path"].toString());
+            QString pathForQml = url.toString();
+            beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+            m_imageItems.append({map["name"].toString(), pathForQml, isNetwork, isDir, map["mongoId"].toString()});
+            qDebug() << "m_imageItems.append name: " << map["name"].toString() << "  pathForQml: " << pathForQml;
+            endInsertRows(); // This triggers the QML view update
+            return 0;
+        }
+        return 0;
+    }
 signals:
     void minioImageToQML(const QString &path);
 
