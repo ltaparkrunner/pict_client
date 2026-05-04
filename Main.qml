@@ -41,7 +41,8 @@ ApplicationWindow {
         // }
 
         onOpenIndexSelected:(index) => {
-            if(index && index<storageModel.rowCount()){
+            console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
+            if(index>=0 && index<storageModel.rowCount()){
                 let img = storageModel.get(index);
                 let imgPath = img.path;
                 let prefix = "file:///";
@@ -55,7 +56,7 @@ ApplicationWindow {
                 console.log("onOpenIndexSelected: ", index);
                 imageModel.insertImage(data);
             }
-            else console.log("Путь не распознан или не существует");
+            else console.log("Путь не распознан или не существует 1");
         }
         // root.writePathSelected(ls, currentSelectedPath)
         onWritePathsSelected:(ls, paths) => {
@@ -217,6 +218,8 @@ ApplicationWindow {
                         delegate: Item {
                             width: grid.cellWidth
                             height: grid.cellHeight
+                            id: dlgt
+                            readonly property GridView parentView: GridView.view
 
                             Rectangle {
                                 anchors.fill: parent
@@ -234,10 +237,63 @@ ApplicationWindow {
                                 }
                             }
                             MouseArea {
+                                id: hoverArea
                                 anchors.fill: parent
+                                hoverEnabled: true // Важно для отслеживания наведения
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
                                 onDoubleClicked: {
-//                                    console.log("delegate onDoubleClicked: ", model.imagePath)
-                                    mainImageSource = model.imagePath
+                                    let img = imageModel.get(index)
+                                    console.log("delegate onDoubleClicked: ", index, "  ", JSON.stringify(img))
+                                    mainImageSource = img.path
+                                }
+                                onClicked: (mouse) => {
+                                    if (mouse.button === Qt.RightButton) {
+                                        contextMenu.popup() // Открываем меню
+                                    } else {
+                                    //    GridView.view.currentIndex = index // Выбор левой кнопкой
+                                        dlgt.parentView.currentIndex = index;
+
+                                    }
+                                }
+                            }
+                            Menu {
+                                id: contextMenu
+                                MenuItem {
+                                    text: "Скопировать путь"
+                                    onTriggered: console.log("Путь скопирован: " + filePath)
+                                }
+                                MenuItem {
+                                    text: "Удалить"
+                                    onTriggered: { /* ваша логика */ }
+                                }
+                            }
+                            Rectangle {
+                                z: 10
+                                // anchors.bottom: parent.bottom
+                                //  anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.left: parent.left
+                                width: grid.width
+                                height: popupText.implicitHeight + 10
+                                color: "#CC000000" // Полупрозрачный черный
+                                visible: hoverArea.containsMouse // Показываем только когда мышь над элементом
+
+                                anchors.bottom: (dlgt.y + dlgt.height + 100 > grid.height)
+                                                ? parent.top
+                                                : undefined
+                                anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
+
+                                Text {
+                                    id:popupText
+                                    anchors.centerIn: parent
+                                    color: "white"
+                                    font.pixelSize: 11
+                                    text: {
+                                        let img = imageModel.get(index)
+                                        return img.path
+                                    }//filePath // Переменная из вашей модели (путь к файлу)
+                                    //elide: Text.ElideMiddle // Обрезает середину, если путь длинный
+                                    width: parent.width
+                                    wrapMode: Text.WrapAnywhere
                                 }
                             }
                         }

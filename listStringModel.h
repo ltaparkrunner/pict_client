@@ -166,7 +166,11 @@ public:
         const ImageItem &item = m_imageItems.at(row);
         QVariantMap res;
 
-        res["imagePath"] = item.path;
+        res["name"] = item.name;
+        res["path"] = item.path;
+        res["isNetwork"] = item.isNetwork;
+        res["isDir"] = item.isDir;
+        res["mongoId"] = item.mongoId;
         return res;
     }
 
