@@ -185,32 +185,6 @@ ApplicationWindow {
                     }
                 }
             }
-            TextField {
-                id: tf2
-                property string fullPath: ""
-                placeholderText: "Open/Write file/folder"
-                Layout.fillWidth: true
-                Layout.preferredWidth: 4
-//                text: shortenPath(fullPath, 40) //""//folderDialog.folder
-                text: activeFocus ? fullPath : shortenPath(fullPath, 40)
-                background: Rectangle {
-                    implicitWidth: 200
-                    implicitHeight: 40
-                    color: tf.enabled ? "transparent" : "#353535"
-                    border.color: tf.activeFocus ? "#21be2b" : "#bdbebf"
-                    border.width: tf.activeFocus ? 2 : 1
-                    radius: 4
-                }
-                function shortenPath(path, limit) {
-                    if (path.length <= limit) return path;
-                    let partSize = Math.floor(limit / 2) - 2;
-                    return path.substring(0, partSize) + "..." + path.substring(path.length - partSize);
-                }
-                // При фокусе можно показывать полный путь для копирования
-                // onActiveFocusChanged: {
-                //     text = activeFocus ? fullPath : shortenPath(fullPath, 40)
-                // }
-            }
         }
 
         RowLayout {
@@ -232,7 +206,7 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     GridView {
-                        property string lastClickedPath: ""
+                        //  property string lastClickedPath: ""
                         id: grid
                         anchors.fill: parent
                         anchors.margins: 10
@@ -250,7 +224,7 @@ ApplicationWindow {
                             id: dlgt
                             readonly property GridView parentView: GridView.view
                             readonly property int limit1: 40
-                            //focusPolicy: Qt.ClickFocus
+                            //  focusPolicy: Qt.ClickFocus
                             Rectangle {
                                 anchors.fill: parent
                                 anchors.margins: 5 // Отступы между картинками
@@ -280,14 +254,6 @@ ApplicationWindow {
                                     if (mouse.button === Qt.RightButton) {
                                         contextMenu.popup() // Открываем меню
                                     } else {
-                                    //    GridView.view.currentIndex = index // Выбор левой кнопкой
-                                        let img = imageModel.get(index)
-                                        let path = ""
-                                        if(img.isNetwork) grid.lastClickedPath = img.path.split('?')[0]
-                                        else grid.lastClickedPath = img.path
-                                        //tf.text = grid.lastClickedPath
-                                        tf.text = grid.lastClickedPath
-                                        tf2.fullPath = grid.lastClickedPath
                                         dlgt.parentView.currentIndex = index;
                                     }
                                 }
@@ -299,10 +265,7 @@ ApplicationWindow {
                                 }
                                 onExited: {
                                     nameTimer.stop()
-                                    //nameTimer2.start()
-//                                    tf.text = grid.lastClickedPath
-                                    tf.text = grid.lastClickedPath
-                                    tf2.fullPath = grid.lastClickedPath
+                                    tf.text = "" //grid.lastClickedPath
                                 }
                                 Timer {
                                     id: nameTimer
@@ -314,18 +277,9 @@ ApplicationWindow {
                                         if(img.isNetwork) {path = img.path.split('?')[0]}
                                         else {path = img.path}
                                         tf.text = shortenPath(path, limit1)
-                                        console.log("Timer path: ", path)
-                                        tf2.fullPath = path
+                                        //  console.log("Timer path: ", path)
                                     }
                                 }
-                                // Timer {
-                                //     id: nameTimer2
-                                //     interval: 100
-                                //     onTriggered: {
-                                //         tf.text = grid.lastClickedPath
-                                //         tf2.fullPath = grid.lastClickedPath
-                                //     }
-                                // }
                             }
                             Menu {
                                 id: contextMenu
