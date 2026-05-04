@@ -308,6 +308,8 @@ Window {
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons:Qt.RightButton
+                // Важно: не блокируем прокрутку GridView
+                //  acceptedButtons: Qt.NoButton
                 onClicked: (mouse) => {
                     if (mouse.button === Qt.RightButton) {
                         // 3. Вызываем меню в координатах курсора
@@ -433,11 +435,11 @@ Window {
                     let ls = []
 
                     var data = imageModel.get(0)
-                    ls.push(data.imagePath)
-                    if(data) console.log("storageModel.get(0)", data.imagePath)
+                    ls.push(data.path)
+                    if(data) console.log("storageModel.get(0)", data.path)
                     data = imageModel.get(1)
-                    if(data.imagePath) console.log("storageModel.get(1)", data.imagePath)
-                    ls.push(data.imagePath)
+                    if(data.path) console.log("storageModel.get(1)", data.path)
+                    ls.push(data.path)
                     console.log("currentSelectedPath = ", currentSelectedPath)
                     root.writePathsSelected(ls, [currentSelectedPath]);
                     root.close()

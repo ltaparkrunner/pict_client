@@ -26,7 +26,7 @@ ApplicationWindow {
         id: customDialog
         onOpenPathsSelected:(paths) => {
             if(paths){
-                tf.text = paths[0]
+                tf.content = paths[0]
                 for(var path of paths)
                     processPath(path)
             }
@@ -36,7 +36,7 @@ ApplicationWindow {
     SecondCustomFileDialog {
         id: secondCustomDialog
         // onOpenPathsSelected:(paths) => {
-        //     tf.text = currentSelectedPath
+        //     tf.content = currentSelectedPath
         //     processPath(currentSelectedPath)
         // }
 
@@ -73,7 +73,7 @@ ApplicationWindow {
                 msgNothingToDo.text = "You must select a folder to save the images."
                 msgNothingToDo.open()
             }
-            tf.text = currentSelectedPath
+            tf.content = currentSelectedPath
             processPath(currentSelectedPath)
         }
         // Check if the files are in the target folder
@@ -110,6 +110,7 @@ ApplicationWindow {
 
     property string mainImageSource: ""
     property list<string> myImages: ["", "", "", "", "", ""]
+    property string largeImgPath: ""
     // Основной горизонтальный контейнер
     ColumnLayout{
         anchors.fill: parent
@@ -119,11 +120,12 @@ ApplicationWindow {
             RowLayout{
                 TextField {
                     id: tf
-//                    property string fullPath: ""
+                    property string content: ""
                     placeholderText: "Open/Write file/folder"
                     Layout.fillWidth: true
                     Layout.preferredWidth: 4
-                    text: ""
+                    //  text: content
+                    text: content
                     background: Rectangle {
                         implicitWidth: 200
                         implicitHeight: 40
@@ -206,7 +208,7 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     GridView {
-                        //  property string lastClickedPath: ""
+                        property string lastDoubleClickedPath: ""
                         id: grid
                         anchors.fill: parent
                         anchors.margins: 10
@@ -216,7 +218,12 @@ ApplicationWindow {
                         cellHeight: 100
 
                         model: imageModel
-
+                        // MouseArea {
+                        //     anchors.fill: parent
+                        //     acceptedButtons:Qt.NoButton
+                        //     hoverEnabled: true
+                        //     onExited: tf.content = "forever young"
+                        // }
 //                        delegate: Item {
                         delegate: ItemDelegate {
                             width: grid.cellWidth
@@ -249,6 +256,7 @@ ApplicationWindow {
                                     let img = imageModel.get(index)
                                     console.log("delegate onDoubleClicked: ", index, "  ", JSON.stringify(img))
                                     mainImageSource = img.path
+                                    //grid.lastDoubleClickedPath = img.path
                                 }
                                 onClicked: (mouse) => {
                                     if (mouse.button === Qt.RightButton) {
@@ -259,24 +267,24 @@ ApplicationWindow {
                                 }
                                 onEntered: {
                                     // let img = imageModel.get(index)
-                                    // tf.text = img.name
+                                    // tf.content = img.name
                                     // nameTimer2.stop()
                                     nameTimer.start()
                                 }
                                 onExited: {
                                     nameTimer.stop()
-                                    tf.text = "" //grid.lastClickedPath
+                                    tf.content = "" //grid.lastDoubleClickedPath //grid.lastClickedPath
                                 }
                                 Timer {
                                     id: nameTimer
                                     interval: 100
                                     onTriggered: {
                                         let img = imageModel.get(index)
-                                        // tf.text = img.name // Показываем имя временно
+                                        // tf.content = img.name // Показываем имя временно
                                         let path = ""
                                         if(img.isNetwork) {path = img.path.split('?')[0]}
                                         else {path = img.path}
-                                        tf.text = shortenPath(path, limit1)
+                                        tf.content = shortenPath(path, limit1)
                                         //  console.log("Timer path: ", path)
                                     }
                                 }
@@ -299,6 +307,7 @@ ApplicationWindow {
                             }
                         }
                         ScrollBar.vertical: ScrollBar {}
+                        // onActiveFocusChanged: if (!activeFocus) tf.content = mainImageSource
                     }
                 }
             }
@@ -307,6 +316,8 @@ ApplicationWindow {
             ColumnLayout{
                 Layout.preferredWidth: (parent.width - 330 < 300) ? parent.width / 2 : parent.width - 330
                 Rectangle {
+                    id: largeImgRect
+                    property string savedString: ""
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.preferredWidth: (parent.width - 330 < 300) ? parent.width / 2 : parent.width - 330
@@ -315,6 +326,7 @@ ApplicationWindow {
                     border.color: "#222"    //"#333"
 
                     Image {
+                        id: largeImg
                         anchors.fill: parent
                         source: mainImageSource //"https://placeholder.com" // Замените на свое фото
                         fillMode: Image.PreserveAspectFit
@@ -331,6 +343,16 @@ ApplicationWindow {
                         color: "white"
                         font.pixelSize: 18
                         visible: mainImageSource === ""
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: {  largeImgRect.savedString = tf.content
+                            tf.content = mainImageSource
+                        }
+                        // onExited: {
+                        //     tf.content = largeImgRect.savedString
+                        // }
                     }
                 }
             }
