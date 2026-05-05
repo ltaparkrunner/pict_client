@@ -209,7 +209,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     GridView {
                         property string lastDoubleClickedPath: ""
-                        id: grid
+                        id: imageGrid
                         anchors.fill: parent
                         anchors.margins: 10
                         clip: true
@@ -226,8 +226,8 @@ ApplicationWindow {
                         // }
 //                        delegate: Item {
                         delegate: ItemDelegate {
-                            width: grid.cellWidth
-                            height: grid.cellHeight
+                            width: imageGrid.cellWidth
+                            height: imageGrid.cellHeight
                             id: dlgt
                             readonly property GridView parentView: GridView.view
                             readonly property int limit1: 40
@@ -256,7 +256,7 @@ ApplicationWindow {
                                     let img = imageModel.get(index)
                                     console.log("delegate onDoubleClicked: ", index, "  ", JSON.stringify(img))
                                     mainImageSource = img.path
-                                    //grid.lastDoubleClickedPath = img.path
+                                    //imageGrid.lastDoubleClickedPath = img.path
                                 }
                                 onClicked: (mouse) => {
                                     if (mouse.button === Qt.RightButton) {
@@ -273,7 +273,7 @@ ApplicationWindow {
                                 }
                                 onExited: {
                                     nameTimer.stop()
-                                    tf.content = "" //grid.lastDoubleClickedPath //grid.lastClickedPath
+                                    tf.content = "" //imageGrid.lastDoubleClickedPath //imageGrid.lastClickedPath
                                 }
                                 Timer {
                                     id: nameTimer
@@ -350,9 +350,6 @@ ApplicationWindow {
                         onEntered: {  largeImgRect.savedString = tf.content
                             tf.content = mainImageSource
                         }
-                        // onExited: {
-                        //     tf.content = largeImgRect.savedString
-                        // }
                     }
                 }
             }
@@ -365,20 +362,20 @@ ApplicationWindow {
         if(path) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
-                console.log("before grid.model.addFilePath(path)", path)
-                grid.model.addImagePath(path)
-                console.log("after grid.model.addFilePath(path)")
-                mainImageSource = grid.model.resolvePath(path)
-                console.log("after mainImageSource = grid.model.resolvePath(path)", path)
+                console.log("before imageGrid.model.addFilePath(path)", path)
+                imageGrid.model.addImagePath(path)
+                console.log("after imageGrid.model.addFilePath(path)")
+                mainImageSource = imageGrid.model.resolvePath(path)
+                console.log("after mainImageSource = imageGrid.model.resolvePath(path)", path)
             } else if (type === FileHelperType.LocalFolder) {
 //                console.log("Это локальная папка");
-                mainImageSource = grid.model.addFilesFromFolder(path)
+                mainImageSource = imageGrid.model.addFilesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
 //                console.log("Это бакет MinIO");
-                mainImageSource = grid.model.addImagesFromMinioBucket(path)
+                mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {
                 console.log("Это объект (файл) в MinIO", path);
-                mainImageSource = grid.model.addMinioImagePath(path)
+                mainImageSource = imageGrid.model.addMinioImagePath(path)
             } else {
                 console.log("Путь не распознан или не существует");
             }
@@ -389,16 +386,16 @@ ApplicationWindow {
         if(paths) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
-                grid.model.addImagePath(path)
-                mainImageSource = grid.model.resolvePath(path)
+                imageGrid.model.addImagePath(path)
+                mainImageSource = imageGrid.model.resolvePath(path)
             } else if (type === FileHelperType.LocalFolder) {
-                mainImageSource = grid.model.addFilesFromFolder(path)
+                mainImageSource = imageGrid.model.addFilesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
 //                console.log("Это бакет MinIO");
-                mainImageSource = grid.model.addImagesFromMinioBucket(path)
+                mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {
                 console.log("Это объект (файл) в MinIO", path);
-                mainImageSource = grid.model.addMinioImagePath(path)
+                mainImageSource = imageGrid.model.addMinioImagePath(path)
             } else {
                 console.log("Путь не распознан или не существует");
             }
@@ -408,15 +405,15 @@ ApplicationWindow {
         if(path) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
-                grid.model.addImagePath(path)
-                mainImageSource = grid.model.resolvePath(path)
+                imageGrid.model.addImagePath(path)
+                mainImageSource = imageGrid.model.resolvePath(path)
             } else if (type === FileHelperType.LocalFolder) {
-                mainImageSource = grid.model.addFilesFromFolder(path)
+                mainImageSource = imageGrid.model.addFilesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
-                mainImageSource = grid.model.addImagesFromMinioBucket(path)
+                mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {
                 console.log("Это объект (файл) в MinIO", path);
-                mainImageSource = grid.model.addMinioImagePath(path)
+                mainImageSource = imageGrid.model.addMinioImagePath(path)
             } else {
                 console.log("Путь не распознан или не существует");
             }
