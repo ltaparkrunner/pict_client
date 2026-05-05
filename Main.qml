@@ -228,7 +228,8 @@ ApplicationWindow {
                         delegate: ItemDelegate {
                             width: imageGrid.cellWidth
                             height: imageGrid.cellHeight
-                            id: dlgt
+                            id: imageDelegate
+                            z: mouseArea.containsMouse ? 100 : 1
                             readonly property GridView parentView: GridView.view
                             readonly property int limit1: 40
                             //  focusPolicy: Qt.ClickFocus
@@ -248,52 +249,120 @@ ApplicationWindow {
                                 }
                             }
                             MouseArea {
-                                id: hoverArea
+                                id: mouseArea
                                 anchors.fill: parent
-                                hoverEnabled: true // Важно для отслеживания наведения
+                                hoverEnabled: true
                                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                                 onDoubleClicked: {
                                     let img = imageModel.get(index)
-                                    console.log("delegate onDoubleClicked: ", index, "  ", JSON.stringify(img))
+                                    //  console.log("delegate onDoubleClicked: ", index, "  ", JSON.stringify(img))
                                     mainImageSource = img.path
-                                    //imageGrid.lastDoubleClickedPath = img.path
+                                    tf.content = img.cleanPath
+                                    // tf.content = mainImageSource
+                                    //  imageGrid.lastDoubleClickedPath = img.path
                                 }
                                 onClicked: (mouse) => {
                                     if (mouse.button === Qt.RightButton) {
                                         contextMenu.popup() // Открываем меню
-                                    } else {
+                                    } /*else {
                                         dlgt.parentView.currentIndex = index;
-                                    }
+                                    }*/
                                 }
-                                onEntered: {
-                                    // let img = imageModel.get(index)
-                                    // tf.content = img.name
-                                    // nameTimer2.stop()
-                                    nameTimer.start()
-                                }
-                                onExited: {
-                                    nameTimer.stop()
-                                    tf.content = "" //imageGrid.lastDoubleClickedPath //imageGrid.lastClickedPath
-                                }
-                                Timer {
-                                    id: nameTimer
-                                    interval: 100
-                                    onTriggered: {
-                                        let img = imageModel.get(index)
-                                        // tf.content = img.name // Показываем имя временно
-                                        let path = ""
-                                        if(img.isNetwork) {path = img.path.split('?')[0]}
-                                        else {path = img.path}
-                                        tf.content = shortenPath(path, limit1)
-                                        //  console.log("Timer path: ", path)
-                                    }
+                            }
+                            // MouseArea {
+                            //     id: hoverArea
+                            //     anchors.fill: parent
+                            //     hoverEnabled: true // Важно для отслеживания наведения
+                            //     acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            //     onDoubleClicked: {
+                            //         let img = imageModel.get(index)
+                            //         console.log("delegate onDoubleClicked: ", index, "  ", JSON.stringify(img))
+                            //         mainImageSource = img.path
+                            //         //imageGrid.lastDoubleClickedPath = img.path
+                            //     }
+                            //     onClicked: (mouse) => {
+                            //         if (mouse.button === Qt.RightButton) {
+                            //             contextMenu.popup() // Открываем меню
+                            //         } else {
+                            //             dlgt.parentView.currentIndex = index;
+                            //         }
+                            //     }
+                            //     onEntered: {
+                            //         // let img = imageModel.get(index)
+                            //         // tf.content = img.name
+                            //         // nameTimer2.stop()
+                            //         nameTimer.start()
+                            //     }
+                            //     onExited: {
+                            //         nameTimer.stop()
+                            //         tf.content = "" //imageGrid.lastDoubleClickedPath //imageGrid.lastClickedPath
+                            //     }
+                            //     Timer {
+                            //         id: nameTimer
+                            //         interval: 100
+                            //         onTriggered: {
+                            //             let img = imageModel.get(index)
+                            //             // tf.content = img.name // Показываем имя временно
+                            //             let path = ""
+                            //             if(img.isNetwork) {path = img.path.split('?')[0]}
+                            //             else {path = img.path}
+                            //             tf.content = shortenPath(path, limit1)
+                            //             //  console.log("Timer path: ", path)
+                            //         }
+                            //     }
+                            // }
+                            // Информационная панель
+                            Rectangle {
+                                id: infoPanel
+                                // Ширина равна ширине всей сетки
+                                width: imageGrid.width
+                                // Высота подстраивается под текст, но не более 3 строк
+                                height: infoText.implicitHeight + 10
+                                // {
+                                //     console.log("infoText.implicitHeight: ", infoText.implicitHeight,
+                                //         "infoText.lineHeight: ", infoText.lineHeight, "infoText linecount", infoText.lineCount)
+                                //     return  Math.min(infoText.implicitHeight + 10, infoText.lineHeight * 3 + 10)
+                                // }
+
+                                color: "#E6000000" // Темный полупрозрачный
+                                visible: mouseArea.containsMouse
+
+                                // Перемещаем панель так, чтобы она всегда начиналась от левого края GridView
+                                x: -imageDelegate.x
+
+                                // ЛОГИКА ПОЛОЖЕНИЯ (Сверху или Снизу):
+                                // Если под элементом меньше 80 пикселей — показываем над элементом
+                                // anchors.bottom: {
+                                //     console.log(" imageDelegate.y: ", imageDelegate.y, "  imageDelegate.height: ",
+                                //         imageDelegate.height, "  imageGrid.height: ", imageGrid.height)
+                                //     return (imageDelegate.y + imageDelegate.height + 80 > imageGrid.height)
+                                //                 ? parent.top
+                                //                 : undefined}
+                                // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
+                                anchors.top:parent.bottom
+                                Text {
+                                    id: infoText
+                                    anchors.fill: parent
+                                    anchors.margins: 5
+                                    color: "white"
+                                    font.pixelSize: 12
+
+                                    text: model.cleanPath
+                                    // Настройки текста:
+                                    wrapMode: Text.WrapAnywhere
+                                    maximumLineCount: 3        // Максимум 3 строки
+                                    elide: Text.ElideMiddle    // Сокращаем середину, если не влезло в 3 строки
+                                    horizontalAlignment: Text.AlignLeft
+                                    verticalAlignment: Text.AlignVCenter
                                 }
                             }
                             Menu {
                                 id: contextMenu
                                 MenuItem {
                                     text: "Скопировать путь"
-                                    onTriggered: console.log("Путь скопирован: " + filePath)
+                                    onTriggered: {
+                                        let img = imageModel.get(index)
+                                        console.log("Путь скопирован: " + img.path)}
                                 }
                                 MenuItem {
                                     text: "Удалить"
@@ -344,13 +413,13 @@ ApplicationWindow {
                         font.pixelSize: 18
                         visible: mainImageSource === ""
                     }
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onEntered: {  largeImgRect.savedString = tf.content
-                            tf.content = mainImageSource
-                        }
-                    }
+                    // MouseArea {
+                    //     anchors.fill: parent
+                    //     hoverEnabled: true
+                    //     onEntered: {  largeImgRect.savedString = tf.content
+                    //         tf.content = mainImageSource
+                    //     }
+                    // }
                 }
             }
         }

@@ -28,6 +28,8 @@ qt_add_qml_module(pict_client
         QML_FILES SecondCustomFileDialog.qml
         QML_FILES FolderDialog.qml
         SOURCES foldermodel.h
+        SOURCES auxilary.h
+        SOURCES auxilary.cpp
 )
 
 qt_add_protobuf(PictSerializer
@@ -38,7 +40,6 @@ qt_add_protobuf(PictSerializer
 
 target_sources(PictSerializer
   PRIVATE
-
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTifIER automatically since Qt 6.1.
