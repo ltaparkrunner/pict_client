@@ -269,54 +269,78 @@ ApplicationWindow {
                                         console.log("imageDelegate.y: ", imageDelegate.y,  "  imageDelegate.height: ", imageDelegate.height , "  imageGrid.height: ", imageGrid.height)
                                     }
                                 }
-                            }
-                            Rectangle {
-                                id: infoPanel
-                                width: imageGrid.width
-                                height: infoText.implicitHeight + 10
-                                readonly property bool isBottomRow: (imageDelegate.y + imageDelegate.height + 10 >= imageGrid.height)
-                                // {
-                                //     console.log("infoText.implicitHeight: ", infoText.implicitHeight,
-                                //         "infoText.lineHeight: ", infoText.lineHeight, "infoText linecount", infoText.lineCount)
-                                //     return  Math.min(infoText.implicitHeight + 10, infoText.lineHeight * 3 + 10)
-                                // }
+                                onEntered: {
+                                    floatingInfo.targetItem = imageDelegate;
+                                    infoText.text = model.cleanPath; // Передаем путь из модели
+                                    floatingInfo.updatePosition();
+                                }
 
-                                color: "#E6000000" // Темный полупрозрачный
-                                visible: mouseArea.containsMouse
-
-                                // Перемещаем панель так, чтобы она всегда начиналась от левого края GridView
-                                x: -imageDelegate.x
-
-                                // ЛОГИКА ПОЛОЖЕНИЯ (Сверху или Снизу):
-                                // // Если под элементом меньше 80 пикселей — показываем над элементом
-                                // anchors.bottom: (imageDelegate.y + imageDelegate.height + 80 > imageGrid.height) ? parent.top : undefined
-                                // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
-
-
-                                // anchors.top:parent.bottom
-                                // anchors.bottom:(imageDelegate.y + imageDelegate.height + 10 >= imageGrid.height) ? parent.top : undefined
-                                // //anchors.top:(imageDelegate.y + imageDelegate.height + 10 < imageGrid.height) ? parent.bottom : undefined
-                                // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
-                                anchors.top: isBottomRow ? undefined : parent.bottom
-                                anchors.bottom: isBottomRow ? parent.top : undefined
-
-
-                                Text {
-                                    id: infoText
-                                    anchors.fill: parent
-                                    anchors.margins: 5
-                                    color: "white"
-                                    font.pixelSize: 12
-
-                                    text: model.cleanPath
-                                    // Настройки текста:
-                                    wrapMode: Text.WrapAnywhere
-                                    maximumLineCount: 3        // Максимум 3 строки
-                                    elide: Text.ElideMiddle    // Сокращаем середину, если не влезло в 3 строки
-                                    horizontalAlignment: Text.AlignLeft
-                                    verticalAlignment: Text.AlignVCenter
+                                onExited: {
+                                    floatingInfo.visible = false;
+                                    floatingInfo.targetItem = null;
                                 }
                             }
+                            // Rectangle {
+                            //     id: infoPanel
+                            //     width: imageGrid.width
+                            //     height: infoText.implicitHeight + 10
+                            //     readonly property bool isTooCloseToBottom: {
+                            //         // Получаем Y-координату нижнего края ячейки относительно ГРАНИЦ imageGrid
+                            //         let mappedY = imageDelegate.mapToItem(imageGrid, 0, imageDelegate.height).y;
+                            //         console.log("mappedY: ", mappedY, "imageGrid.height", imageGrid.height)
+                            //         // Если от нижнего края ячейки до края окна меньше 100 пикселей
+                            //         return (mappedY + 100) > imageGrid.height;
+                            //     }
+                            //     // readonly property bool isBottomRow: (imageDelegate.y + imageDelegate.height + 10 >= imageGrid.height)
+                            //     // {
+                            //     //     console.log("infoText.implicitHeight: ", infoText.implicitHeight,
+                            //     //         "infoText.lineHeight: ", infoText.lineHeight, "infoText linecount", infoText.lineCount)
+                            //     //     return  Math.min(infoText.implicitHeight + 10, infoText.lineHeight * 3 + 10)
+                            //     // }
+
+                            //     color: "#E6000000" // Темный полупрозрачный
+                            //     visible: mouseArea.containsMouse
+
+                            //     // Перемещаем панель так, чтобы она всегда начиналась от левого края GridView
+                            //     x: -imageDelegate.x
+
+                            //     // ЛОГИКА ПОЛОЖЕНИЯ (Сверху или Снизу):
+                            //     // // Если под элементом меньше 80 пикселей — показываем над элементом
+                            //     // anchors.bottom: (imageDelegate.y + imageDelegate.height + 80 > imageGrid.height) ? parent.top : undefined
+                            //     // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
+
+
+                            //     // anchors.top:parent.bottom
+                            //     // anchors.bottom:(imageDelegate.y + imageDelegate.height + 10 >= imageGrid.height) ? parent.top : undefined
+                            //     // //anchors.top:(imageDelegate.y + imageDelegate.height + 10 < imageGrid.height) ? parent.bottom : undefined
+                            //     // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
+                            //     anchors.top: isTooCloseToBottom ? undefined : parent.bottom
+                            //     anchors.bottom: isTooCloseToBottom ? parent.top : undefined
+
+
+                            //     Text {
+                            //         id: infoText
+                            //         anchors.fill: parent
+                            //         anchors.margins: 5
+                            //         color: "white"
+                            //         font.pixelSize: 12
+
+                            //         text: model.cleanPath
+                            //         // Настройки текста:
+                            //         wrapMode: Text.WrapAnywhere
+                            //         maximumLineCount: 3        // Максимум 3 строки
+                            //         elide: Text.ElideMiddle    // Сокращаем середину, если не влезло в 3 строки
+                            //         horizontalAlignment: Text.AlignLeft
+                            //         verticalAlignment: Text.AlignVCenter
+                            //     }
+                            //     Connections {
+                            //         target: imageGrid
+                            //         function onHeightChanged() {
+                            //             // Это заставит QML перепроверить условие isTooCloseToBottom
+                            //             infoPanel.visible = infoPanel.visible
+                            //         }
+                            //     }
+                            // }
                             Menu {
                                 id: contextMenu
                                 MenuItem {
@@ -339,6 +363,41 @@ ApplicationWindow {
                         }
                         ScrollBar.vertical: ScrollBar {}
                         // onActiveFocusChanged: if (!activeFocus) tf.content = mainImageSource
+                    }
+                    Rectangle {
+                        id: floatingInfo
+                        width: imageGrid.width
+                        height: Math.min(infoText.implicitHeight + 10, infoText.lineHeight * 3 + 10)
+                        color: "#E6000000"
+                        visible: false
+                        z: 999 // Всегда поверх всего
+
+                        property var targetItem: null // Ссылка на делегат, над которым мышь
+
+                        Text {
+                            id: infoText
+                            anchors.fill: parent; anchors.margins: 5
+                            color: "white"; wrapMode: Text.WrapAnywhere
+                            maximumLineCount: 3; elide: Text.ElideMiddle
+                        }
+
+                        // Функция динамического пересчета позиции
+                        function updatePosition() {
+                            if (!targetItem) return;
+
+                            // Получаем глобальные координаты делегата относительно окна/сетки
+                            let pos = targetItem.mapToItem(imageGrid, 0, 0);
+
+                            // Решаем: сверху или снизу
+                            let spaceBelow = imageGrid.height - (pos.y + targetItem.height);
+                            if (spaceBelow < height + 20) {
+                                y = pos.y - height; // Показываем НАД
+                            } else {
+                                y = pos.y + targetItem.height; // Показываем ПОД
+                            }
+
+                            visible = true;
+                        }
                     }
                 }
             }
