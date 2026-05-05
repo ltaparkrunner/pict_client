@@ -264,60 +264,17 @@ ApplicationWindow {
                                 onClicked: (mouse) => {
                                     if (mouse.button === Qt.RightButton) {
                                         contextMenu.popup() // Открываем меню
-                                    } /*else {
-                                        dlgt.parentView.currentIndex = index;
-                                    }*/
+                                    } else {
+                                        //  dlgt.parentView.currentIndex = index;
+                                        console.log("imageDelegate.y: ", imageDelegate.y,  "  imageDelegate.height: ", imageDelegate.height , "  imageGrid.height: ", imageGrid.height)
+                                    }
                                 }
                             }
-                            // MouseArea {
-                            //     id: hoverArea
-                            //     anchors.fill: parent
-                            //     hoverEnabled: true // Важно для отслеживания наведения
-                            //     acceptedButtons: Qt.LeftButton | Qt.RightButton
-                            //     onDoubleClicked: {
-                            //         let img = imageModel.get(index)
-                            //         console.log("delegate onDoubleClicked: ", index, "  ", JSON.stringify(img))
-                            //         mainImageSource = img.path
-                            //         //imageGrid.lastDoubleClickedPath = img.path
-                            //     }
-                            //     onClicked: (mouse) => {
-                            //         if (mouse.button === Qt.RightButton) {
-                            //             contextMenu.popup() // Открываем меню
-                            //         } else {
-                            //             dlgt.parentView.currentIndex = index;
-                            //         }
-                            //     }
-                            //     onEntered: {
-                            //         // let img = imageModel.get(index)
-                            //         // tf.content = img.name
-                            //         // nameTimer2.stop()
-                            //         nameTimer.start()
-                            //     }
-                            //     onExited: {
-                            //         nameTimer.stop()
-                            //         tf.content = "" //imageGrid.lastDoubleClickedPath //imageGrid.lastClickedPath
-                            //     }
-                            //     Timer {
-                            //         id: nameTimer
-                            //         interval: 100
-                            //         onTriggered: {
-                            //             let img = imageModel.get(index)
-                            //             // tf.content = img.name // Показываем имя временно
-                            //             let path = ""
-                            //             if(img.isNetwork) {path = img.path.split('?')[0]}
-                            //             else {path = img.path}
-                            //             tf.content = shortenPath(path, limit1)
-                            //             //  console.log("Timer path: ", path)
-                            //         }
-                            //     }
-                            // }
-                            // Информационная панель
                             Rectangle {
                                 id: infoPanel
-                                // Ширина равна ширине всей сетки
                                 width: imageGrid.width
-                                // Высота подстраивается под текст, но не более 3 строк
                                 height: infoText.implicitHeight + 10
+                                readonly property bool isBottomRow: (imageDelegate.y + imageDelegate.height + 10 >= imageGrid.height)
                                 // {
                                 //     console.log("infoText.implicitHeight: ", infoText.implicitHeight,
                                 //         "infoText.lineHeight: ", infoText.lineHeight, "infoText linecount", infoText.lineCount)
@@ -331,15 +288,19 @@ ApplicationWindow {
                                 x: -imageDelegate.x
 
                                 // ЛОГИКА ПОЛОЖЕНИЯ (Сверху или Снизу):
-                                // Если под элементом меньше 80 пикселей — показываем над элементом
-                                // anchors.bottom: {
-                                //     console.log(" imageDelegate.y: ", imageDelegate.y, "  imageDelegate.height: ",
-                                //         imageDelegate.height, "  imageGrid.height: ", imageGrid.height)
-                                //     return (imageDelegate.y + imageDelegate.height + 80 > imageGrid.height)
-                                //                 ? parent.top
-                                //                 : undefined}
+                                // // Если под элементом меньше 80 пикселей — показываем над элементом
+                                // anchors.bottom: (imageDelegate.y + imageDelegate.height + 80 > imageGrid.height) ? parent.top : undefined
                                 // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
-                                anchors.top:parent.bottom
+
+
+                                // anchors.top:parent.bottom
+                                // anchors.bottom:(imageDelegate.y + imageDelegate.height + 10 >= imageGrid.height) ? parent.top : undefined
+                                // //anchors.top:(imageDelegate.y + imageDelegate.height + 10 < imageGrid.height) ? parent.bottom : undefined
+                                // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
+                                anchors.top: isBottomRow ? undefined : parent.bottom
+                                anchors.bottom: isBottomRow ? parent.top : undefined
+
+
                                 Text {
                                     id: infoText
                                     anchors.fill: parent
@@ -362,11 +323,12 @@ ApplicationWindow {
                                     text: "Скопировать путь"
                                     onTriggered: {
                                         let img = imageModel.get(index)
-                                        console.log("Путь скопирован: " + img.path)}
+                                        imageModel.copyToClipboard(model.cleanPath)
+                                        console.log("Путь скопирован: " + model.cleanPath)}
                                 }
                                 MenuItem {
                                     text: "Удалить"
-                                    onTriggered: { /* ваша логика */ }
+                                    onTriggered: { imageModel.removeItem(index) }
                                 }
                             }
                             function shortenPath(path, limit) {

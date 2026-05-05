@@ -6,6 +6,8 @@
 #include <QStringList>
 #include <QUrl>
 #include <QDir>
+#include <QGuiApplication>
+#include <QClipboard>
 
 #include "websocketclient.h"
 #include "auxilary.h"
@@ -183,6 +185,16 @@ public:
         return res;
     }
 
+    Q_INVOKABLE bool removeItem(int index) {
+        if (index < 0 || index >= m_imageItems.count()) {
+            return false;
+        }
+        beginRemoveRows(QModelIndex(), index, index);
+        m_imageItems.removeAt(index);
+        endRemoveRows();
+        return true;
+    }
+
     void getImageFromUdsm(QString name, QString path, bool isNet, bool isDir, QString mongoID) {
         qDebug() << "getImageFromUdsm";
         if(isNet && !isDir){
@@ -232,6 +244,9 @@ public:
             return 0;
         }
         return 0;
+    }
+    Q_INVOKABLE void copyToClipboard(const QString &text) {
+        QGuiApplication::clipboard()->setText(text);
     }
 signals:
     void minioImageToQML(const QString &path);
