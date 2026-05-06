@@ -367,7 +367,8 @@ ApplicationWindow {
                     Rectangle {
                         id: floatingInfo
                         width: imageGrid.width
-                        height: Math.min(infoText.implicitHeight + 10, infoText.lineHeight * 3 + 10)
+                        //height: Math.min(infoText.implicitHeight + 10, infoText.lineHeight * 3 + 10)
+                        height: infoText.implicitHeight + 10
                         color: "#E6000000"
                         visible: false
                         z: 999 // Всегда поверх всего
@@ -390,10 +391,10 @@ ApplicationWindow {
 
                             // Решаем: сверху или снизу
                             let spaceBelow = imageGrid.height - (pos.y + targetItem.height);
-                            if (spaceBelow < height + 20) {
-                                y = pos.y - height; // Показываем НАД
+                            if (spaceBelow < height + 40) {
+                                y = pos.y - height + 10; // Показываем НАД
                             } else {
-                                y = pos.y + targetItem.height; // Показываем ПОД
+                                y = pos.y + targetItem.height + 10; // Показываем ПОД
                             }
 
                             visible = true;
