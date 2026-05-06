@@ -30,6 +30,12 @@ qt_add_qml_module(pict_client
         SOURCES foldermodel.h
         SOURCES auxilary.h
         SOURCES auxilary.cpp
+        RESOURCES icons/login.svg icons/logout.svg icons/user.svg
+        QML_FILES
+        SOURCES
+        SOURCES
+        RESOURCES icons/userMask.svg
+        QML_FILES UserLogin.qml
 )
 
 qt_add_protobuf(PictSerializer

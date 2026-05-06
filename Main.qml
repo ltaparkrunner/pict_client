@@ -5,8 +5,11 @@ import Qt.labs.platform 1.1
 import com.myapp.helpers 1.0
 import QtQuick.Controls.Basic
 import QtQuick.Dialogs
+import QtQuick.Effects
+import QtQuick.Shapes
 
 ApplicationWindow {
+    id: rootWnd
     visible: true
     width: 1000
     height: 600
@@ -50,17 +53,16 @@ ApplicationWindow {
                     mainImageSource = prefix + imgPath
                 }
                 else mainImageSource = imgPath
-                console.log("onOpenIndexSelected: ", imgPath);
-                // mainImageSource = "file:///C:/wrk/Qt_projs/pict_client/assets/pictures/img23.jpg"
+                //  console.log("onOpenIndexSelected: ", imgPath);
                 let data = storageModel.getData(index);
-                console.log("onOpenIndexSelected: ", index);
+                //  console.log("onOpenIndexSelected: ", index);
                 imageModel.insertImage(data);
             }
             else console.log("Путь не распознан или не существует 1");
         }
         // root.writePathSelected(ls, currentSelectedPath)
         onWritePathsSelected:(ls, paths) => {
-            console.log("onWritePathsSelected paths: ", paths)
+            //  console.log("onWritePathsSelected paths: ", paths)
             storageModel.writeToFolder(ls)
         }
 
@@ -84,6 +86,10 @@ ApplicationWindow {
                 if(dir === path) ls.splice(index, 1);
             }
         }
+    }
+
+    UserLogin {
+        id: userLogin
     }
 
     MessageDialog {
@@ -135,6 +141,98 @@ ApplicationWindow {
                         radius: 4
                     }
                 }
+                AbstractButton {
+                    id: loginButton
+                    Layout.preferredWidth: 25
+                    Layout.preferredHeight: 25
+                    Item {
+                        id: userImageCliped
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 25
+                        height: 25
+
+                        Image {
+                            id: userImage
+                            anchors.fill: parent
+                            source: getCurrentUserImage()
+                            visible: false
+
+                            function getCurrentUserImage() {
+                                //if (!rootWnd.loginService.loggedIn)
+                                    return "icons/user.svg";
+                                // for (let i = 0; i < users.data.length; i++) {
+                                //     if (users.data[i].email === loginService.user)
+                                //         return users.data[i].avatar;
+                                // }
+                            }
+                        }
+
+                        Image {
+                            id: userMask
+                            source: "icons/userMask.svg"
+                            anchors.fill: userImage
+                            anchors.margins: 4
+                            visible: false
+                        }
+
+                        MultiEffect {
+                            source: userImage
+                            anchors.fill: userImage
+                            maskSource: userMask
+                            maskEnabled: true
+                        }
+                    }
+
+                    onClicked: {
+                        userLogin.open()
+                        // var pos = mapToGlobal(Qt.point(x, y))
+                        // pos = userMenu.parent.mapFromGlobal(pos)
+                        // userMenu.x = x - userMenu.width + 25 + 3
+                        // userMenu.y = y + 25 + 3
+                    }
+
+                    Shape {
+                       id: bubble
+                       x: -text.width - 25
+                       anchors.margins: 3
+
+                       preferredRendererType: Shape.CurveRenderer
+
+                       // visible: !rootWnd.loginService.loggedIn
+
+                       ShapePath {
+                           strokeWidth: 0
+                           fillColor: "#667085"
+                           startX: 5; startY: 0
+                           PathLine { x: 5 + text.width + 6; y: 0 }
+                           PathArc { x: 10 + text.width + 6; y: 5; radiusX: 5; radiusY: 5}
+                           // arrow
+                           PathLine { x: 10 + text.width + 6; y: 8 + text.height / 2 - 6 }
+                           PathLine { x: 10 + text.width + 6 + 6; y: 8 + text.height / 2 }
+                           PathLine { x: 10 + text.width + 6; y: 8 + text.height / 2 + 6}
+                           PathLine { x: 10 + text.width + 6; y: 5 + text.height + 6 }
+                           // end arrow
+                           PathArc { x: 5 + text.width + 6; y: 10 + text.height + 6 ; radiusX: 5; radiusY: 5}
+                           PathLine { x: 5; y: 10 + text.height + 6 }
+                           PathArc { x: 0; y: 5 + text.height + 6 ; radiusX: 5; radiusY: 5}
+                           PathLine { x: 0; y: 5 }
+                           PathArc { x: 5; y: 0 ; radiusX: 5; radiusY: 5}
+                       }
+                       Text {
+                           x: 8
+                           y: 8
+                           id: text
+                           color: "white"
+                           text: qsTr("Log in to edit")
+                           font.bold: true
+                           horizontalAlignment: Qt.AlignHCenter
+                           verticalAlignment: Qt.AlignVCenter
+                       }
+                   }
+                }
+            }
+            RowLayout{
                 Button {
                     text: "Open"
                     Layout.fillWidth: true
@@ -164,8 +262,6 @@ ApplicationWindow {
                         FileHelper.deleteMinioBuckets(["pictures"])
                     }
                 }
-            }
-            RowLayout{
                 Button {
                     text: "Open file/folder"
                     Layout.fillWidth: true
@@ -176,31 +272,24 @@ ApplicationWindow {
                         customDialog.show();
                     }
                 }
-                Button {
-                    text: "Write file/folder"
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
-                    onClicked: {
-                        wsClient.connectToServer()
-                        storageModel.enterLocal("/");
-                        secondCustomDialog.show();
-                    }
-                }
+                // Button {
+                //     text: "Write file/folder"
+                //     Layout.fillWidth: true
+                //     Layout.preferredWidth: 1
+                //     onClicked: {
+                //         wsClient.connectToServer()
+                //         storageModel.enterLocal("/");
+                //         secondCustomDialog.show();
+                //     }
+                // }
             }
         }
 
         RowLayout {
            Layout.fillHeight: true
            width: parent.width
-//           Layout.fillWidth: parent.width
-//            anchors.fill: parent
-            // anchors.margins: 5//10
-            // spacing: 5//20
-
             // ЛЕВАЯ ЧАСТЬ (Поля ввода и сетка)
             ColumnLayout {
-                // id: cl1
-                // Рассчитываем ширину: 2 колонки по 150px + отступы (например, 10px spacing + 20px margins)
                 Layout.fillHeight: true
                 Layout.preferredWidth: (parent.width - 330 < 300) ? parent.width / 2 : 330
                 spacing: 5//10
@@ -218,12 +307,6 @@ ApplicationWindow {
                         cellHeight: 100
 
                         model: imageModel
-                        // MouseArea {
-                        //     anchors.fill: parent
-                        //     acceptedButtons:Qt.NoButton
-                        //     hoverEnabled: true
-                        //     onExited: tf.content = "forever young"
-                        // }
 //                        delegate: Item {
                         delegate: ItemDelegate {
                             width: imageGrid.cellWidth
@@ -255,11 +338,8 @@ ApplicationWindow {
                                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                                 onDoubleClicked: {
                                     let img = imageModel.get(index)
-                                    //  console.log("delegate onDoubleClicked: ", index, "  ", JSON.stringify(img))
                                     mainImageSource = img.path
                                     tf.content = img.cleanPath
-                                    // tf.content = mainImageSource
-                                    //  imageGrid.lastDoubleClickedPath = img.path
                                 }
                                 onClicked: (mouse) => {
                                     if (mouse.button === Qt.RightButton) {
@@ -280,67 +360,6 @@ ApplicationWindow {
                                     floatingInfo.targetItem = null;
                                 }
                             }
-                            // Rectangle {
-                            //     id: infoPanel
-                            //     width: imageGrid.width
-                            //     height: infoText.implicitHeight + 10
-                            //     readonly property bool isTooCloseToBottom: {
-                            //         // Получаем Y-координату нижнего края ячейки относительно ГРАНИЦ imageGrid
-                            //         let mappedY = imageDelegate.mapToItem(imageGrid, 0, imageDelegate.height).y;
-                            //         console.log("mappedY: ", mappedY, "imageGrid.height", imageGrid.height)
-                            //         // Если от нижнего края ячейки до края окна меньше 100 пикселей
-                            //         return (mappedY + 100) > imageGrid.height;
-                            //     }
-                            //     // readonly property bool isBottomRow: (imageDelegate.y + imageDelegate.height + 10 >= imageGrid.height)
-                            //     // {
-                            //     //     console.log("infoText.implicitHeight: ", infoText.implicitHeight,
-                            //     //         "infoText.lineHeight: ", infoText.lineHeight, "infoText linecount", infoText.lineCount)
-                            //     //     return  Math.min(infoText.implicitHeight + 10, infoText.lineHeight * 3 + 10)
-                            //     // }
-
-                            //     color: "#E6000000" // Темный полупрозрачный
-                            //     visible: mouseArea.containsMouse
-
-                            //     // Перемещаем панель так, чтобы она всегда начиналась от левого края GridView
-                            //     x: -imageDelegate.x
-
-                            //     // ЛОГИКА ПОЛОЖЕНИЯ (Сверху или Снизу):
-                            //     // // Если под элементом меньше 80 пикселей — показываем над элементом
-                            //     // anchors.bottom: (imageDelegate.y + imageDelegate.height + 80 > imageGrid.height) ? parent.top : undefined
-                            //     // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
-
-
-                            //     // anchors.top:parent.bottom
-                            //     // anchors.bottom:(imageDelegate.y + imageDelegate.height + 10 >= imageGrid.height) ? parent.top : undefined
-                            //     // //anchors.top:(imageDelegate.y + imageDelegate.height + 10 < imageGrid.height) ? parent.bottom : undefined
-                            //     // anchors.top: (anchors.bottom === undefined) ? parent.bottom : undefined
-                            //     anchors.top: isTooCloseToBottom ? undefined : parent.bottom
-                            //     anchors.bottom: isTooCloseToBottom ? parent.top : undefined
-
-
-                            //     Text {
-                            //         id: infoText
-                            //         anchors.fill: parent
-                            //         anchors.margins: 5
-                            //         color: "white"
-                            //         font.pixelSize: 12
-
-                            //         text: model.cleanPath
-                            //         // Настройки текста:
-                            //         wrapMode: Text.WrapAnywhere
-                            //         maximumLineCount: 3        // Максимум 3 строки
-                            //         elide: Text.ElideMiddle    // Сокращаем середину, если не влезло в 3 строки
-                            //         horizontalAlignment: Text.AlignLeft
-                            //         verticalAlignment: Text.AlignVCenter
-                            //     }
-                            //     Connections {
-                            //         target: imageGrid
-                            //         function onHeightChanged() {
-                            //             // Это заставит QML перепроверить условие isTooCloseToBottom
-                            //             infoPanel.visible = infoPanel.visible
-                            //         }
-                            //     }
-                            // }
                             Menu {
                                 id: contextMenu
                                 MenuItem {

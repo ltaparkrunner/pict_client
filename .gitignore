@@ -57,3 +57,5 @@ compile_commands.json
 build_dbg/
 .qtcreator/
 assets/pictures/
+
+#icons/userMask.svg
