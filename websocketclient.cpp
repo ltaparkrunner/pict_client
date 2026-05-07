@@ -63,7 +63,7 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
     QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
     m_webSocket->setSslConfiguration(sslConf);
 
-    connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebSocketClient::onBinaryMessageReceived);
+    connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebSocketClient::onBinaryMessageReceived2);
     connect(m_webSocket, &QWebSocket::connected, this, &WebSocketClient::onConnected);
     connect(m_webSocket, &QWebSocket::disconnected, this, &WebSocketClient::onDisconnected);
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &WebSocketClient::onTextMessageReceived);
@@ -313,18 +313,22 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
     // 1. Parse the wrapper message
     pict_data::ServerEnvelope envelope;
     QProtobufSerializer serializer;
-    if (!envelope.deserialize(&serializer, rawBytes)) return;
-
+    if (!envelope.deserialize(&serializer, rawBytes)) {
+        qDebug() << "onBinaryMessageReceived2 -> onBinaryMessageReceived";
+        onBinaryMessageReceived(rawBytes);
+        return;
+    }
     // 2. Route the inner payload to the correct signal based on the type
     switch (envelope.type()) {
-    case pict_data::ServerEnvelope::Type::AUTH_RESPONSE   : {
+    case pict_data::ServerEnvelope::Type::AUTH_RESPONSE:{
+        qDebug() << "onBinaryMessageReceived2 -> AUTH_RESPONSE";
         if (envelope.hasAuthResponse()) {
             emit authResponseReceived(envelope.authResponse());
         }
         break;
     }
     case pict_data::ServerEnvelope::Type::SERVER_MESSAGE: {
-//       if (envelope.hasServerMessage())
+        qDebug() << "onBinaryMessageReceived2 -> SERVER_MESSAGE";
         if (envelope.hasServerResp())
         {
             emit serverMessageReceived(envelope);
@@ -332,7 +336,8 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
         break;
     }
     default:
-        qWarning() << "Unknown message type received";
+        qWarning() << "onBinaryMessageReceived2 ->Unknown message type received";
+        onBinaryMessageReceived(rawBytes);
         break;
     }
 }
