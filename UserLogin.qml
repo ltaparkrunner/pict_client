@@ -7,6 +7,7 @@ Dialog {
     id: authDialog
     title: isLoginMode ? "Login": "Registration"
     // standardButtons: Dialog.Ok | Dialog.Cancel
+    objectName: "myAuthDialog"
     anchors.centerIn: parent
     modal: true
     width: 300
@@ -16,6 +17,9 @@ Dialog {
     // Сигналы для C++ части
     signal loginRequested(string email, string password)
     signal registerRequested(string email, string password)
+
+    // onLoginRequested: (email, password) => authHandler.login(email, password)
+    // onRegisterRequested: (email, password) => authHandler.registerUser(email, password)
 
     ColumnLayout {
         spacing: 15
@@ -131,6 +135,15 @@ Dialog {
             text: "Cancel"
             DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
+    }
+
+    onAboutToShow: {
+        emailField.text = ""
+        passwordField.text = ""
+
+        // Опционально: убираем фокус с полей, чтобы не подсвечивались рамки
+        emailField.focus = false
+        passwordField.focus = false
     }
 
     // Обработка нажатия кнопки "ОК"

@@ -7,11 +7,12 @@
 #include <QNetworkRequest>
 #include <QSslConfiguration>
 #include <QFile>
+#include "pict_data/message.qpb.h"
 
-enum sourceReq{
-    imodel,
-    usmodel
-};
+// enum sourceReq{
+//     imodel,
+//     usmodel
+// };
 
 class WebSocketClient : public QObject
 {
@@ -31,6 +32,8 @@ public:
     void deleteMinioBucketsRequest(const QStringList &buckets);
     int deleteFileFromServerRequest(const QStringList &fileData);
 
+    void sendBinaryMessage(const QByteArray &data);
+
 signals:
     void pathReceived(const QString &path);
     void pathsReceived(const QList<QStringList> &paths);
@@ -38,12 +41,17 @@ signals:
     void bucketsReceived(const QStringList &buckets);
     void filesReceived(const QList<QStringList> &paths);
 
+    void authResponseReceived(const pict_data::AuthResponse &response);
+    void serverMessageReceived(const pict_data::ServerEnvelope &message);
+
 private slots:
     void onConnected();
     void onDisconnected();
     void onTextMessageReceived(const QString &message);
     void onBinaryMessageReceived(const QByteArray &message);
     void onError(QAbstractSocket::SocketError error);
+
+    void onBinaryMessageReceived2(const QByteArray &rawBytes);
 
 public:
     QWebSocket *m_webSocket;

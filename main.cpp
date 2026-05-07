@@ -6,6 +6,7 @@
 #include "filehelper.h"
 #include "websocketclient.h"
 #include "unifiedstoragemodel.h"
+#include "authhandler.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,17 +15,14 @@ int main(int argc, char *argv[])
 
     FileHelper fileHlp(&wsClient);
     ImageModel imodel(&wsClient);
-    // for(int i=0; i<5; i++){
-    //     model.addImagePath("file:///C:/Windows/WinSxS/amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7/img23.jpg");
-    //     model.addImagePath("file:///C:/Windows/WinSxS/amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7/img20.jpg");
-    //     model.addImagePath("file:///C:/Windows/WinSxS/amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7/img21.jpg");
-    //     model.addImagePath("file:///C:/Windows/WinSxS/amd64_microsoft-windows-shell-wallpaper-themea_31bf3856ad364e35_10.0.22621.1_none_386b894098b0f0c7/img22.jpg");
-    // }
     UnifiedStorageModel usModel(&wsClient);
 
     QQmlApplicationEngine engine;
 
-    QObject::connect(&usModel, &UnifiedStorageModel::udsmToIm, &imodel, &ImageModel::getImageFromUdsm);
+    //  QObject::connect(&usModel, &UnifiedStorageModel::udsmToIm, &imodel, &ImageModel::getImageFromUdsm);
+    //  AuthHandler authHandler;
+    // Expose the instance to QML context
+    //  engine.rootContext()->setContextProperty("authHandler", &authHandler);
     engine.rootContext()->setContextProperty("wsClient", &wsClient);
     engine.rootContext()->setContextProperty("imageModel", &imodel);
     engine.rootContext()->setContextProperty("FileHelper", &fileHlp);
@@ -38,5 +36,18 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     engine.loadFromModule("pict_client", "Main");
 
+    QObject *rootObject = engine.rootObjects().first();
+    QObject *authDialog = rootObject->findChild<QObject*>("myAuthDialog");
+    AuthHandler authHandler(&wsClient);
+
+    if (authDialog) {
+        // 3. Connect loginRequested signal to C++ slot
+        QObject::connect(authDialog, SIGNAL(loginRequested(QString,QString)),
+                         &authHandler, SLOT(login(QString,QString)));
+
+        // 4. Connect registerRequested signal to C++ slot
+        QObject::connect(authDialog, SIGNAL(registerRequested(QString,QString)),
+                         &authHandler, SLOT(registerUser(QString,QString)));
+    }
     return app.exec();
 }

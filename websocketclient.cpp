@@ -308,3 +308,32 @@ int WebSocketClient::getFilesOnlyListfromBucketRequest(const QString &minioPath)
     /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
     return 0;
 }
+
+void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
+    // 1. Parse the wrapper message
+    pict_data::ServerEnvelope envelope;
+    QProtobufSerializer serializer;
+    if (!envelope.deserialize(&serializer, rawBytes)) return;
+
+    // 2. Route the inner payload to the correct signal based on the type
+    switch (envelope.type()) {
+    case pict_data::ServerEnvelope::Type::AUTH_RESPONSE   : {
+        if (envelope.hasAuthResponse()) {
+            emit authResponseReceived(envelope.authResponse());
+        }
+        break;
+    }
+    case pict_data::ServerEnvelope::Type::SERVER_MESSAGE: {
+//       if (envelope.hasServerMessage())
+        if (envelope.hasServerResp())
+        {
+            emit serverMessageReceived(envelope);
+        }
+        break;
+    }
+    default:
+        qWarning() << "Unknown message type received";
+        break;
+    }
+}
+
