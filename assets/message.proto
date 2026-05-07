@@ -97,6 +97,23 @@ message DeleteBucketRequest {
     string bucketName = 1;
 }
 
+
+message RegisterRequest {
+  string userLogin = 1;
+  string password = 2;
+  string full_name = 3; // Доп. поле только для регистрации
+}
+
+message AuthRequest {
+  string userLogin = 1;
+  string password = 2;
+}
+
+message AuthResponse {
+  string token = 1;
+  string error = 2;
+}
+
 message BaseMessage {
   oneof content {
     Picture pict = 1;
@@ -115,6 +132,9 @@ message BaseMessage {
     DeleteFileRequest deleteFile = 14;
     DeleteFolderRequest deleteFolder = 15;
     DeleteBucketRequest deleteBucket = 16;
+    RegisterRequest regRequest = 17;
+    AuthRequest authRequest = 18;
+    AuthResponse authResponse = 19;
   }
 }
 

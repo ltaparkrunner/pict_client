@@ -92,6 +92,10 @@ ApplicationWindow {
         id: userLogin
     }
 
+    // LoginDialog {
+    //     id: userLogin
+    // }
+
     MessageDialog {
         id: msgNothingToDo
         title: "Nothing To Do"  // "Подтверждение"

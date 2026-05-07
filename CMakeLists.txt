@@ -36,6 +36,7 @@ qt_add_qml_module(pict_client
         SOURCES
         RESOURCES icons/userMask.svg
         QML_FILES UserLogin.qml
+        QML_FILES LoginDialog.qml
 )
 
 qt_add_protobuf(PictSerializer

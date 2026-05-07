@@ -1,13 +1,15 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Controls.Basic
 
 Dialog {
     id: authDialog
-    title: isLoginMode ? "Вход" : "Регистрация"
-    standardButtons: Dialog.Ok | Dialog.Cancel
+    title: isLoginMode ? "Login": "Registration"
+    // standardButtons: Dialog.Ok | Dialog.Cancel
     anchors.centerIn: parent
     modal: true
+    width: 300
 
     property bool isLoginMode: true
 
@@ -21,7 +23,7 @@ Dialog {
         anchors.margins: 10
 
         Label {
-            text: isLoginMode ? "Войдите в аккаунт" : "Создать новый аккаунт"
+            text: isLoginMode ? "Log in to your account": "Create a new account"
             font.pixelSize: 16
             font.bold: true
             Layout.alignment: Qt.AlignHCenter
@@ -29,22 +31,84 @@ Dialog {
 
         TextField {
             id: emailField
-            placeholderText: "Email (например, eve.holt@reqres.in)"
+            placeholderText: "Email (name@example.com)"
             Layout.fillWidth: true
             inputMethodHints: Qt.ImhEmailCharactersOnly
+
+            // Разрешает нажимать "ОК" только если введен валидный email
+            validator: RegularExpressionValidator {
+                regularExpression: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+            }
+
+            background: Rectangle {
+                implicitHeight: 45
+                radius: 8
+                // Если текст введен, но некорректен — подсвечиваем рамку красным
+                border.color: !emailField.acceptableInput && emailField.text !== "" ? "#D32F2F" :
+                              (emailField.activeFocus ? "#2196F3" : "#bdbdbd")
+                border.width: emailField.activeFocus || (!emailField.acceptableInput && emailField.text !== "") ? 2 : 1
+            }
+        }
+
+        Label{
+            text: "The password must be at least eight characters
+    long, contain uppercase and lowercase
+    letters, numbers, and at least one of
+    the symbols @, _, -, and nothing else."
+            font.pixelSize: 10
+            font.bold: false
+            Layout.alignment: Qt.AlignHCenter
         }
 
         TextField {
             id: passwordField
-            placeholderText: "Пароль"
-            echoMode: TextInput.Password
+            placeholderText: "Password"
+            //echoMode: TextInput.Password
+            echoMode: showPasswordButton.checked ? TextInput.Normal : TextInput.Password
             Layout.fillWidth: true
+            leftPadding: 10
+            rightPadding: 40
+
+
+            validator: RegularExpressionValidator {
+                // Проверяет: строчные, прописные, цифры, спецсимволы (_-@), от 8 символов, без пробелов
+                regularExpression: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_@\-])[A-Za-z\d_@\-]{8,}$/
+            }
+
+            background: Rectangle {
+                implicitHeight: 45
+                radius: 8
+                // Подсветка красным, если пароль начали вводить, но он не соответствует правилам
+                border.color: !passwordField.acceptableInput && passwordField.text !== "" ? "#D32F2F" :
+                              (passwordField.activeFocus ? "#2196F3" : "#bdbdbd")
+                border.width: passwordField.activeFocus || (!passwordField.acceptableInput && passwordField.text !== "") ? 2 : 1
+            }
+            Button {
+                id: showPasswordButton
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: 5
+                width: 30
+                height: 30
+                flat: true
+                checkable: true // Кнопка работает как переключатель (вкл/выкл)
+
+                // Текстовая иконка (Unicode символы глаза)
+                contentItem: Text {
+                    text: showPasswordButton.checked ? "👁️" : "🙈"
+                    font.pixelSize: 16
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                background: Rectangle { color: "transparent" }
+            }
         }
 
         // Переключатель между режимами
         Button {
             flat: true
-            text: isLoginMode ? "Нет аккаунта? Зарегистрироваться" : "Уже есть аккаунт? Войти"
+            text: isLoginMode ? "Don't have an account? Sign up" : "Already have an account? Log in"
             Layout.alignment: Qt.AlignRight
             onClicked: isLoginMode = !isLoginMode
         }
@@ -52,8 +116,20 @@ Dialog {
         Label {
             id: errorLabel
             color: "red"
-            text: "Пожалуйста, заполните поля"
+            text: "Please fill in the fields."
             visible: false
+        }
+    }
+
+    footer: DialogButtonBox {
+        Button {
+            text: "OK"
+            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+            enabled: emailField.acceptableInput && passwordField.acceptableInput
+        }
+        Button {
+            text: "Cancel"
+            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
         }
     }
 
