@@ -337,3 +337,8 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
     }
 }
 
+void WebSocketClient::sendBinaryMessage(const QByteArray &data) {
+    if (m_webSocket && m_webSocket->isValid()) {
+        m_webSocket->sendBinaryMessage(data);
+    }
+}

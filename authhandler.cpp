@@ -34,20 +34,32 @@ void AuthHandler::handleIncomingNetworkData(const QByteArray &data) {
 //    else qDebug() << "Response error";
 }
 
-Q_INVOKABLE void AuthHandler::login(const QString &email, const QString &password) {
-    qDebug() << "Login attempt:" << email << " password: " << password;
-    // pict_data::BaseMessage base;
-    // pict_data::BucketsRequest message;
-    // message.setUserLogin("Ivon");
+Q_INVOKABLE void AuthHandler::registerUser(const QString &login, const QString &password) {
+    qDebug() << "Register attempt:" << login << " password: " << password;
+    pict_data::ClientEnvelope cenv;
+    pict_data::RegisterRequest message;
+    message.setUserLogin(login);
+    message.setPassword(password);
 
-    // base.setReqUserBuckets(message);
-    // QProtobufSerializer serializer;
-    // QByteArray data = base.serialize(&serializer);
-    // /*qint64 sz =*/ m_client->sendBinaryMessage(data);
+    cenv.setType(pict_data::ClientEnvelope::Type::LOGIN_REQUEST);
+    cenv.setRegRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = cenv.serialize(&serializer);
+    /*qint64 sz =*/ m_client->sendBinaryMessage(data);
     return;
 }
 
+Q_INVOKABLE void AuthHandler::login(const QString &login, const QString &password) {
+    qDebug() << "Login attempt:" << login << " password: " << password;
+    pict_data::ClientEnvelope cenv;
+    pict_data::AuthRequest message;
+    message.setUserLogin(login);
+    message.setPassword(password);
 
-Q_INVOKABLE void AuthHandler::registerUser(const QString &email, const QString &password) {
-    qDebug() << "Register attempt:" << email << " password: " << password;
+    cenv.setType(pict_data::ClientEnvelope::Type::LOGIN_REQUEST);
+    cenv.setAuthRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = cenv.serialize(&serializer);
+    /*qint64 sz =*/ m_client->sendBinaryMessage(data);
+    return;
 }
