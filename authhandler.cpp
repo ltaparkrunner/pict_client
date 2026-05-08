@@ -24,16 +24,8 @@ void AuthHandler::handleIncomingNetworkData(const pict_data::AuthResponse &data)
         // 2. Check if this specific response is an Auth message
         QString err = data.error();
         QString token = data.token();
-        // if (response.setError()  .has_status()) {
-        //     if (response.status() == pict_data::AuthResponse::SUCCESS) {
-        //         emit loginSuccess();
-        //     } else {
-        //         emit loginFailed(QString::fromStdString(response.error_message()));
-        //     }
-        // }
         qDebug() << "handleIncomingNetworkData  Token: " << token << "Response error" << err;
     }
-//    else qDebug() << "Response error";
 }
 
 Q_INVOKABLE void AuthHandler::registerUser(const QString &login, const QString &password) {
