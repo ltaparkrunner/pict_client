@@ -16,7 +16,8 @@ public:
     Q_INVOKABLE void registerUser(const QString &email, const QString &password);
 
 private slots:
-    void handleIncomingNetworkData(const QByteArray &data);
+    // void handleIncomingNetworkData(const QByteArray &data);
+    void handleIncomingNetworkData(const pict_data::AuthResponse &data);
 private:
     WebSocketClient *m_client;
     QString token;

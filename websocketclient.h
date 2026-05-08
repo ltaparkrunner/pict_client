@@ -42,6 +42,8 @@ signals:
     void filesReceived(const QList<QStringList> &paths);
 
     void authResponseReceived(const pict_data::AuthResponse &response);
+    void authResponseReceived2(const QByteArray &response);
+//    void authResponseReceived(const pict_data::AuthResponse &response);
     void serverMessageReceived(const pict_data::ServerEnvelope &message);
 
 private slots:

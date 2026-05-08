@@ -5,23 +5,25 @@ AuthHandler::AuthHandler(WebSocketClient *client, QObject *parent)
     : QObject(parent), m_client(client)
 {
     // Listen to all incoming raw traffic from the websocket client
-    // connect(m_client, &WebSocketClient::authResponseReceived,
-    //         this, &AuthHandler::handleIncomingNetworkData);
+    connect(m_client, &WebSocketClient::authResponseReceived,
+            this, &AuthHandler::handleIncomingNetworkData);
 }
 
-void AuthHandler::handleIncomingNetworkData(const QByteArray &data) {
+//void AuthHandler::handleIncomingNetworkData(const QByteArray &data) {
+void AuthHandler::handleIncomingNetworkData(const pict_data::AuthResponse &data) {
     // 1. Parse incoming data using Protobuf
     pict_data::AuthResponse response;
     QProtobufSerializer serializer;
-    if (!response.deserialize(&serializer, data)) {
-        qDebug() << "handleIncomingNetworkData Response error";
-        return;
-    }
+
+    // if (!response.deserialize(&serializer, data)) {
+    //     qDebug() << "handleIncomingNetworkData Response error";
+    //     return;
+    // }
     /* if (response.ParseFromArray(data.constData(), data.size()))*/ {
 
         // 2. Check if this specific response is an Auth message
-        QString err = response.error();
-        QString token = response.token();
+        QString err = data.error();
+        QString token = data.token();
         // if (response.setError()  .has_status()) {
         //     if (response.status() == pict_data::AuthResponse::SUCCESS) {
         //         emit loginSuccess();
@@ -41,7 +43,7 @@ Q_INVOKABLE void AuthHandler::registerUser(const QString &login, const QString &
     message.setUserLogin(login);
     message.setPassword(password);
 
-    cenv.setType(pict_data::ClientEnvelope::Type::LOGIN_REQUEST);
+    cenv.setType(pict_data::ClientEnvelope::Type::AUTH_REQUEST);
     cenv.setRegRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = cenv.serialize(&serializer);
@@ -56,7 +58,7 @@ Q_INVOKABLE void AuthHandler::login(const QString &login, const QString &passwor
     message.setUserLogin(login);
     message.setPassword(password);
 
-    cenv.setType(pict_data::ClientEnvelope::Type::LOGIN_REQUEST);
+    cenv.setType(pict_data::ClientEnvelope::Type::AUTH_REQUEST);
     cenv.setAuthRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = cenv.serialize(&serializer);
