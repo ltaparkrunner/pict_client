@@ -55,6 +55,7 @@ compile_commands.json
 
 # build folder
 build_dbg/
+buildDbg/
 .qtcreator/
 assets/pictures/
 

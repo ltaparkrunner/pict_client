@@ -61,6 +61,7 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
         if (m_webSocket->state() == QAbstractSocket::ConnectedState) m_webSocket->ping();
     });
     QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
+    sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
     m_webSocket->setSslConfiguration(sslConf);
 
     connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebSocketClient::onBinaryMessageReceived2);

@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(pict_client VERSION 0.1 LANGUAGES CXX)
+project(pict_client_app VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick WebSockets Protobuf)
 
-qt_standard_project_setup(REQUIRES 6.8)
+qt_standard_project_setup(REQUIRES 6.6)
 
-qt_add_executable(pict_client
+qt_add_executable(pict_client_app #${PROJECT_NAME}
     assets/message.proto
     assets/howTo.txt
     vcpkg.json
     main.cpp
 )
 
-qt_add_qml_module(pict_client
+qt_add_qml_module(${PROJECT_NAME}
     URI pict_client
     QML_FILES
         Main.qml
@@ -54,7 +54,7 @@ target_sources(PictSerializer
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTifIER automatically since Qt 6.1.
 # if you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
-set_target_properties(pict_client PROPERTIES
+set_target_properties(${PROJECT_NAME}  PROPERTIES
 #    MACOSX_BUNDLE_GUI_IDENTifIER com.example.pict_client
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -62,7 +62,7 @@ set_target_properties(pict_client PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-target_link_libraries(pict_client
+target_link_libraries(${PROJECT_NAME}
     PRIVATE Qt6::Quick
     Qt6::WebSockets
     Qt6::Protobuf
@@ -70,7 +70,7 @@ target_link_libraries(pict_client
 )
 
 include(GNUInstallDirs)
-install(TARGETS pict_client
+install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

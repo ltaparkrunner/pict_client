@@ -11,7 +11,9 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    WebSocketClient wsClient(QUrl("wss://localhost:8080"));
+    WebSocketClient wsClient(QUrl("wss://localhost:8081"));
+//    WebSocketClient wsClient(QUrl("ws://0.0.0.0:8081"));
+
 
     FileHelper fileHlp(&wsClient);
     ImageModel imodel(&wsClient);
