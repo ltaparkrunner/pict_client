@@ -7,7 +7,7 @@ Dialog {
     id: authDialog
     title: isLoginMode ? "Login": "Registration"
     // standardButtons: Dialog.Ok | Dialog.Cancel
-    objectName: "myAuthDialog"
+    objectName: "authDialog"
     anchors.centerIn: parent
     modal: true
     width: 300

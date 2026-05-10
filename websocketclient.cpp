@@ -54,6 +54,7 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
     , m_webSocket (new QWebSocket())
     , m_url(url)
     , m_path("")
+    , token("")
 {
     // m_reconnectTimer.setSingleShot(true);
     connect(&m_reconnectTimer, &QTimer::timeout, this, &WebSocketClient::connectToServer);
@@ -72,10 +73,10 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
 }
 
 Q_INVOKABLE void WebSocketClient::connectToServer(/*const QString &url*/) {
+    qDebug() << "WebSocketClient::connectToServer";
     m_reconnectTimer.setSingleShot(true);
     m_webSocket->open(m_url);
 }
-
 QString WebSocketClient::lastReceivedPath() const { return m_path; }
 
 Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
@@ -351,4 +352,23 @@ void WebSocketClient::sendBinaryMessage(const QByteArray &data) {
     if (m_webSocket && m_webSocket->isValid()) {
         m_webSocket->sendBinaryMessage(data);
     }
+}
+
+void WebSocketClient::wsConnect(QString authToken){
+/*
+    m_reconnectTimer.setSingleShot(true);
+    m_webSocket->open(m_url);
+
+
+// Создаем запрос
+В Qt при открытии WebSocket вы можете передать объект QNetworkRequest,
+в который можно добавить любой стандартный или кастомный заголовок.
+ */
+    token = authToken;
+    QNetworkRequest request(m_url);
+    request.setRawHeader("Authorization", "Bearer " + token.toUtf8());
+
+    // Открываем сокет с этим запросом
+    qDebug() << "WebSocketClient::wsConnect: Bearer " + token.toUtf8();
+    m_webSocket->open(request);
 }

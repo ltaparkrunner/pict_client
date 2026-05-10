@@ -11,9 +11,7 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    WebSocketClient wsClient(QUrl("wss://localhost:8081"));
-//    WebSocketClient wsClient(QUrl("ws://0.0.0.0:8081"));
-
+    WebSocketClient wsClient(QUrl("wss://localhost:8082"));
 
     FileHelper fileHlp(&wsClient);
     ImageModel imodel(&wsClient);
@@ -39,17 +37,18 @@ int main(int argc, char *argv[])
     engine.loadFromModule("pict_client", "Main");
 
     QObject *rootObject = engine.rootObjects().first();
-    QObject *authDialog = rootObject->findChild<QObject*>("myAuthDialog");
+    QObject *authDialog = rootObject->findChild<QObject*>("authDialog");
     AuthHandler authHandler(&wsClient);
 
     if (authDialog) {
         // 3. Connect loginRequested signal to C++ slot
         QObject::connect(authDialog, SIGNAL(loginRequested(QString,QString)),
-                         &authHandler, SLOT(login(QString,QString)));
+                         &authHandler, SLOT(sendLogin(QString,QString)));
 
         // 4. Connect registerRequested signal to C++ slot
         QObject::connect(authDialog, SIGNAL(registerRequested(QString,QString)),
-                         &authHandler, SLOT(registerUser(QString,QString)));
+                         &authHandler, SLOT(sendRegister(QString,QString)));
     }
+    QObject::connect(&authHandler, &AuthHandler::startWebSocket, &wsClient, &WebSocketClient::wsConnect);
     return app.exec();
 }

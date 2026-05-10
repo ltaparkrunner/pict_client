@@ -33,6 +33,8 @@ public:
     int deleteFileFromServerRequest(const QStringList &fileData);
 
     void sendBinaryMessage(const QByteArray &data);
+    void wsConnect(QString token);
+
 
 signals:
     void pathReceived(const QString &path);
@@ -62,6 +64,7 @@ private:
     QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
+    QString token;
 //    sourceReq sreq; // What is it? What is for?
     // it defines who is the source of request, and where we have to return the answer?
     // to imodel(ImageModel) or to usmodel(unifiedstoragemodel)

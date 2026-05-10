@@ -1,5 +1,9 @@
 #include "authhandler.h"
 #include "pict_data/message.qpb.h"
+#include <QNetworkAccessManager>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QNetworkReply>
 
 AuthHandler::AuthHandler(WebSocketClient *client, QObject *parent)
     : QObject(parent), m_client(client)
@@ -56,4 +60,39 @@ Q_INVOKABLE void AuthHandler::login(const QString &login, const QString &passwor
     QByteArray data = cenv.serialize(&serializer);
     /*qint64 sz =*/ m_client->sendBinaryMessage(data);
     return;
+}
+
+//  "http://localhost:8081/login"
+Q_INVOKABLE void AuthHandler::sendLogin(QString user, QString pass) {
+    qDebug() << "AuthHandler::sendLogin" << user << "  " << pass;
+    sendAuth(user, pass, "http://localhost:8081/auth/login");
+}
+
+//  "http://localhost:8081/register"
+Q_INVOKABLE void AuthHandler::sendRegister(QString user, QString pass) {
+    qDebug() << "AuthHandler::sendRegister" << user << "  " << pass;
+    sendAuth(user, pass, "http://localhost:8081/auth/register");
+    sendAuth(user, pass, "http://localhost:8081/register");
+}
+
+Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path) {
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    QUrl url(path);
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject json;
+    json["username"] = user;
+    json["password"] = pass;
+
+    QNetworkReply* reply = manager->post(request, QJsonDocument(json).toJson());
+
+    connect(reply, &QNetworkReply::finished, this, [=]() {
+        if (reply->error() == QNetworkReply::NoError) {
+            QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+            token = doc.object().value("token").toString();
+            emit startWebSocket(token);
+        }
+        reply->deleteLater();
+    });
 }
