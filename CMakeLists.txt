@@ -12,33 +12,33 @@ qt_add_executable(pict_client_app #${PROJECT_NAME}
     assets/message.proto
     assets/howTo.txt
     vcpkg.json
-    main.cpp
+    src/main.cpp
 )
 
 qt_add_qml_module(${PROJECT_NAME}
     URI pict_client
     QML_FILES
-        Main.qml
-        SOURCES listStringModel.h
-        SOURCES filehelper.h filehelper.cpp
-        SOURCES websocketclient.h websocketclient.cpp
-        SOURCES unifiedstoragemodel.h unifiedstoragemodel.cpp
-        QML_FILES CustomFileDialog.qml
+        qml/Main.qml
+        SOURCES inc/listStringModel.h
+        SOURCES inc/filehelper.h src/filehelper.cpp
+        SOURCES inc/websocketclient.h src/websocketclient.cpp
+        SOURCES inc/unifiedstoragemodel.h src/unifiedstoragemodel.cpp
+        QML_FILES qml/CustomFileDialog.qml
         QML_FILES
-        QML_FILES SecondCustomFileDialog.qml
-        QML_FILES FolderDialog.qml
-        SOURCES foldermodel.h
-        SOURCES auxilary.h
-        SOURCES auxilary.cpp
+        QML_FILES qml/SecondCustomFileDialog.qml
+        QML_FILES qml/FolderDialog.qml
+        SOURCES inc/foldermodel.h
+        SOURCES inc/auxilary.h
+        SOURCES src/auxilary.cpp
         RESOURCES icons/login.svg icons/logout.svg icons/user.svg
         QML_FILES
         SOURCES
         SOURCES
         RESOURCES icons/userMask.svg
-        QML_FILES UserLogin.qml
-        QML_FILES LoginDialog.qml
-        SOURCES authhandler.h
-        SOURCES authhandler.cpp
+        QML_FILES qml/UserLogin.qml
+        QML_FILES qml/LoginDialog.qml
+        SOURCES inc/authhandler.h
+        SOURCES src/authhandler.cpp
 )
 
 qt_add_protobuf(PictSerializer
@@ -46,6 +46,7 @@ qt_add_protobuf(PictSerializer
     PROTO_FILES
         assets/message.proto
 )
+target_include_directories(${PROJECT_NAME} PRIVATE "inc")
 
 target_sources(PictSerializer
   PRIVATE

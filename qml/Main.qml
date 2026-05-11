@@ -164,7 +164,7 @@ ApplicationWindow {
 
                             function getCurrentUserImage() {
                                 //if (!rootWnd.loginService.loggedIn)
-                                    return "icons/user.svg";
+                                    return "../icons/user.svg";
                                 // for (let i = 0; i < users.data.length; i++) {
                                 //     if (users.data[i].email === loginService.user)
                                 //         return users.data[i].avatar;
@@ -174,7 +174,7 @@ ApplicationWindow {
 
                         Image {
                             id: userMask
-                            source: "icons/userMask.svg"
+                            source: "../icons/userMask.svg"
                             anchors.fill: userImage
                             anchors.margins: 4
                             visible: false
