@@ -10,25 +10,18 @@ AuthHandler::AuthHandler(WebSocketClient *client, QObject *parent)
 {
     // Listen to all incoming raw traffic from the websocket client
     connect(m_client, &WebSocketClient::authResponseReceived,
-            this, &AuthHandler::handleIncomingNetworkData);
+            this, &AuthHandler::handleIncomingAuthData);
 }
 
-//void AuthHandler::handleIncomingNetworkData(const QByteArray &data) {
-void AuthHandler::handleIncomingNetworkData(const pict_data::AuthResponse &data) {
+void AuthHandler::handleIncomingAuthData(const pict_data::AuthResponse &data) {
     // 1. Parse incoming data using Protobuf
     pict_data::AuthResponse response;
     QProtobufSerializer serializer;
 
-    // if (!response.deserialize(&serializer, data)) {
-    //     qDebug() << "handleIncomingNetworkData Response error";
-    //     return;
-    // }
-    /* if (response.ParseFromArray(data.constData(), data.size()))*/ {
-
-        // 2. Check if this specific response is an Auth message
+    {
         QString err = data.error();
         QString token = data.token();
-        qDebug() << "handleIncomingNetworkData  Token: " << token << "Response error" << err;
+        qDebug() << "handleIncomingAuthData  Token: " << token << "Response error" << err;
     }
 }
 

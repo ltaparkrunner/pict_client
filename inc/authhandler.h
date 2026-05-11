@@ -21,8 +21,7 @@ public:
 signals:
     void startWebSocket(QString token);
 private slots:
-    // void handleIncomingNetworkData(const QByteArray &data);
-    void handleIncomingNetworkData(const pict_data::AuthResponse &data);
+    void handleIncomingAuthData(const pict_data::AuthResponse &data);
 private:
     WebSocketClient *m_client;
     QString token;

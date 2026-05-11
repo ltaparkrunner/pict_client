@@ -37,7 +37,6 @@ public:
     void wsTokenConnect(QString token);
     void wsConnect();
 
-
 signals:
     void pathReceived(const QString &path);
     void pathsReceived(const QList<QStringList> &paths);
@@ -45,6 +44,7 @@ signals:
     void bucketsReceived(const QStringList &buckets);
     void filesReceived(const QList<QStringList> &paths);
 
+    void serverResponseReceived(const pict_data::ServerEnvelope &response);
     void authResponseReceived(const pict_data::AuthResponse &response);
     void authResponseReceived2(const QByteArray &response);
 //    void authResponseReceived(const pict_data::AuthResponse &response);
