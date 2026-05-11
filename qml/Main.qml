@@ -24,6 +24,17 @@ ApplicationWindow {
             //console.log("Получено из C++:", url)
         }
     }
+    Connections {
+        target: wsClient
+        function onShowLoginRequired(){
+            console.log("function onShowLoginRequired()")
+            loginWarn.open()
+        }
+    }
+
+    WarnDialog{
+        id: loginWarn
+    }
 
     CustomFileDialog {
         id: customDialog

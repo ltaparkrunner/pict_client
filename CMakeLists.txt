@@ -37,6 +37,7 @@ qt_add_qml_module(${PROJECT_NAME}
         RESOURCES icons/userMask.svg
         QML_FILES qml/UserLogin.qml
         QML_FILES qml/LoginDialog.qml
+        QML_FILES qml/WarnDialog.qml
         SOURCES inc/authhandler.h
         SOURCES src/authhandler.cpp
 )

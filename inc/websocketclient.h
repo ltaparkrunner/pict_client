@@ -7,6 +7,7 @@
 #include <QNetworkRequest>
 #include <QSslConfiguration>
 #include <QFile>
+#include <QAuthenticator>
 #include "pict_data/message.qpb.h"
 
 // enum sourceReq{
@@ -33,7 +34,8 @@ public:
     int deleteFileFromServerRequest(const QStringList &fileData);
 
     void sendBinaryMessage(const QByteArray &data);
-    void wsConnect(QString token);
+    void wsTokenConnect(QString token);
+    void wsConnect();
 
 
 signals:
@@ -47,6 +49,7 @@ signals:
     void authResponseReceived2(const QByteArray &response);
 //    void authResponseReceived(const pict_data::AuthResponse &response);
     void serverMessageReceived(const pict_data::ServerEnvelope &message);
+    void showLoginRequired();
 
 private slots:
     void onConnected();
@@ -56,12 +59,12 @@ private slots:
     void onError(QAbstractSocket::SocketError error);
 
     void onBinaryMessageReceived2(const QByteArray &rawBytes);
-
+    void onAuthRequired(QAuthenticator *authenticator);
 public:
     QWebSocket *m_webSocket;
 private:
     QUrl m_url;
-    QTimer m_reconnectTimer;
+//    QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
     QString token;

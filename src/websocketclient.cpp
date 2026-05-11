@@ -45,7 +45,7 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     }
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ServerResp) {
         const auto &response = base.serverResp();
-        QStringList sl;
+        //QStringList sl;
         qDebug() << "fileName" << "response content" << response.content() << "status" << response.status();
     }
 }
@@ -57,8 +57,8 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
     , token("")
 {
     // m_reconnectTimer.setSingleShot(true);
-    connect(&m_reconnectTimer, &QTimer::timeout, this, &WebSocketClient::connectToServer);
-    connect(&m_pingTimer, &QTimer::timeout, [&]() {
+//    connect(&m_reconnectTimer, &QTimer::timeout, this, &WebSocketClient::connectToServer);
+    connect(&m_pingTimer, &QTimer::timeout, this, [&]() {
         if (m_webSocket->state() == QAbstractSocket::ConnectedState) m_webSocket->ping();
     });
     QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
@@ -70,12 +70,16 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
     connect(m_webSocket, &QWebSocket::disconnected, this, &WebSocketClient::onDisconnected);
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &WebSocketClient::onTextMessageReceived);
     connect(m_webSocket, &QWebSocket::errorOccurred, this, &WebSocketClient::onError);
+//    authenticationRequired(QAuthenticator *authenticator)
+    connect(m_webSocket, &QWebSocket::authenticationRequired, this, &WebSocketClient::onAuthRequired);
+    connectToServer();
 }
 
 Q_INVOKABLE void WebSocketClient::connectToServer(/*const QString &url*/) {
     qDebug() << "WebSocketClient::connectToServer";
-    m_reconnectTimer.setSingleShot(true);
-    m_webSocket->open(m_url);
+//    m_reconnectTimer.setSingleShot(true);
+//    m_webSocket->open(m_url);
+    wsConnect();
 }
 QString WebSocketClient::lastReceivedPath() const { return m_path; }
 
@@ -150,13 +154,15 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 
 void WebSocketClient::onConnected() {
     qDebug() << "Connected. Heartbeat has started.";
-    m_reconnectTimer.stop();
+//    m_reconnectTimer.stop();
     m_pingTimer.start(PING_INTERVAL);
 }
 
 void WebSocketClient::onDisconnected() {
-    qDebug() << "Connection is lost. Waiting for reconnection...";
+//    qDebug() << "Connection is lost. Waiting for reconnection...";
+
     m_pingTimer.stop();
+    emit showLoginRequired();
 //    m_reconnectTimer.start(RECONNECT_INTERVAL);
 }
 
@@ -166,9 +172,9 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
 
 void WebSocketClient::onError(QAbstractSocket::SocketError error) {
     qDebug() << "Error:" << m_webSocket->errorString();
-    if (m_webSocket->state() != QAbstractSocket::ConnectedState && !m_reconnectTimer.isActive()) {
-        m_reconnectTimer.start(RECONNECT_INTERVAL);
-    }
+    // if (m_webSocket->state() != QAbstractSocket::ConnectedState && !m_reconnectTimer.isActive()) {
+    //     m_reconnectTimer.start(RECONNECT_INTERVAL);
+    // }
 }
 
 Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const QString &minioPath){
@@ -354,21 +360,19 @@ void WebSocketClient::sendBinaryMessage(const QByteArray &data) {
     }
 }
 
-void WebSocketClient::wsConnect(QString authToken){
-/*
-    m_reconnectTimer.setSingleShot(true);
-    m_webSocket->open(m_url);
-
-
-// Создаем запрос
-В Qt при открытии WebSocket вы можете передать объект QNetworkRequest,
-в который можно добавить любой стандартный или кастомный заголовок.
- */
+void WebSocketClient::wsTokenConnect(QString authToken){
     token = authToken;
+    wsConnect();
+}
+
+void WebSocketClient::wsConnect(){
     QNetworkRequest request(m_url);
     request.setRawHeader("Authorization", "Bearer " + token.toUtf8());
 
-    // Открываем сокет с этим запросом
     qDebug() << "WebSocketClient::wsConnect: Bearer " + token.toUtf8();
     m_webSocket->open(request);
+}
+
+void WebSocketClient::onAuthRequired(QAuthenticator *authenticator){
+    qDebug() << "onAuthRequired(QAuthenticator): " << authenticator->realm() << authenticator->user();
 }
