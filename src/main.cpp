@@ -12,6 +12,10 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+    app.setOrganizationName("Alex@Co");
+    app.setOrganizationDomain("Alex@Co");
+    app.setApplicationName("Alex@Co");
+
     WebSocketClient wsClient(QUrl("wss://localhost:8082"));
 
     FileHelper fileHlp(&wsClient);

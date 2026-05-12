@@ -2,6 +2,7 @@
 #include "pict_data/message.qpb.h"
 #include <QFileInfo>
 #include <QtProtobuf/QProtobufSerializer>
+#include <QSettings>
 
 void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     //    qDebug() << "FileClient::onBinaryMessageReceived(const QByteArray &data)";
@@ -54,8 +55,10 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
     , m_webSocket (new QWebSocket())
     , m_url(url)
     , m_path("")
-    , token("")
+    , settings("Alex@Co", "Alex@Co")
+    , token(settings.value("Auth/accessToken", "").toString())
 {
+    qDebug() << "WebSocketClient::WebSocketClient  token: " << token;
     // m_reconnectTimer.setSingleShot(true);
 //    connect(&m_reconnectTimer, &QTimer::timeout, this, &WebSocketClient::connectToServer);
     connect(&m_pingTimer, &QTimer::timeout, this, [&]() {
@@ -364,6 +367,9 @@ void WebSocketClient::sendBinaryMessage(const QByteArray &data) {
 
 void WebSocketClient::wsTokenConnect(QString authToken){
     token = authToken;
+    settings.beginGroup("Auth");
+    settings.setValue("accessToken", token);
+    settings.endGroup();
     wsConnect();
 }
 

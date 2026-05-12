@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QAuthenticator>
 #include "pict_data/message.qpb.h"
+#include <QSettings>
 
 // enum sourceReq{
 //     imodel,
@@ -67,6 +68,7 @@ private:
 //    QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
+    QSettings settings;
     QString token;
 //    sourceReq sreq; // What is it? What is for?
     // it defines who is the source of request, and where we have to return the answer?

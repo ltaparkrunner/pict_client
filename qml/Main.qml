@@ -287,16 +287,16 @@ ApplicationWindow {
                         customDialog.show();
                     }
                 }
-                // Button {
-                //     text: "Write file/folder"
-                //     Layout.fillWidth: true
-                //     Layout.preferredWidth: 1
-                //     onClicked: {
-                //         wsClient.connectToServer()
-                //         storageModel.enterLocal("/");
-                //         secondCustomDialog.show();
-                //     }
-                // }
+                Button {
+                    text: "Write file/folder"
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                    onClicked: {
+                        wsClient.connectToServer()
+                        storageModel.enterLocal("/");
+                        secondCustomDialog.show();
+                    }
+                }
             }
         }
 
