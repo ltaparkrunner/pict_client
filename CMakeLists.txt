@@ -23,7 +23,7 @@ qt_add_qml_module(${PROJECT_NAME}
         SOURCES inc/filehelper.h src/filehelper.cpp
         SOURCES inc/websocketclient.h src/websocketclient.cpp
         SOURCES inc/unifiedstoragemodel.h src/unifiedstoragemodel.cpp
-        SOURCES inc/serverHandler.h src/serverHandler.cpp
+        SOURCES inc/serverhandler.h src/serverhandler.cpp
         QML_FILES qml/CustomFileDialog.qml
         QML_FILES
         QML_FILES qml/SecondCustomFileDialog.qml

@@ -7,6 +7,7 @@
 #include "websocketclient.h"
 #include "unifiedstoragemodel.h"
 #include "authhandler.h"
+#include "serverhandler.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,7 +16,8 @@ int main(int argc, char *argv[])
 
     FileHelper fileHlp(&wsClient);
     ImageModel imodel(&wsClient);
-    UnifiedStorageModel usModel(&wsClient);
+    ServerHandler serverHandler(&wsClient);
+    UnifiedStorageModel usModel(&wsClient, &serverHandler);
 
     QQmlApplicationEngine engine;
 
@@ -27,6 +29,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("imageModel", &imodel);
     engine.rootContext()->setContextProperty("FileHelper", &fileHlp);
     engine.rootContext()->setContextProperty("storageModel", &usModel);
+    engine.rootContext()->setContextProperty("serverHandler", &serverHandler);
     qmlRegisterUncreatableType<FileHelper>("com.myapp.helpers", 1, 0, "FileHelperType", "Error: FileHelperType is enum only");
     QObject::connect(
         &engine,

@@ -23,7 +23,7 @@ public:
     explicit WebSocketClient(const QUrl &url, QObject *parent = nullptr);
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
     QString lastReceivedPath() const;
-    Q_INVOKABLE QStringList getBucketsListRequest() const;
+//    Q_INVOKABLE QStringList getBucketsListRequest() const;
     /*Q_INVOKABLE*/ void getFilesFoldersListfromBucketRequest(const QString &path);
     int getFilesOnlyListfromBucketRequest(const QString &path);
     Q_INVOKABLE int deleteFileFromBucketRequest(const QString &filePath);
@@ -48,7 +48,7 @@ signals:
     void authResponseReceived(const pict_data::AuthResponse &response);
     void authResponseReceived2(const QByteArray &response);
 //    void authResponseReceived(const pict_data::AuthResponse &response);
-    void serverMessageReceived(const pict_data::ServerEnvelope &message);
+//    void serverMessageReceived(const pict_data::ServerEnvelope &message);
     void showLoginRequired();
 
 private slots:

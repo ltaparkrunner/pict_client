@@ -83,17 +83,17 @@ Q_INVOKABLE void WebSocketClient::connectToServer(/*const QString &url*/) {
 }
 QString WebSocketClient::lastReceivedPath() const { return m_path; }
 
-Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
-    pict_data::BaseMessage base;
-    pict_data::BucketsRequest message;
-    message.setUserLogin("Ivon");
+// Q_INVOKABLE QStringList WebSocketClient::getBucketsListRequest() const{
+//     pict_data::BaseMessage base;
+//     pict_data::BucketsRequest message;
+//     message.setUserLogin("Ivon");
 
-    base.setReqUserBuckets(message);
-    QProtobufSerializer serializer;
-    QByteArray data = base.serialize(&serializer);
-    /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
-    return {};
-}
+//     base.setReqUserBuckets(message);
+//     QProtobufSerializer serializer;
+//     QByteArray data = base.serialize(&serializer);
+//     /*qint64 sz =*/ m_webSocket->sendBinaryMessage(data);
+//     return {};
+// }
 
 Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &filePath){
     QUrl minioUrl(filePath);
@@ -328,11 +328,11 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
     }
     // 2. Route the inner payload to the correct signal based on the type
     qDebug() << "envelope.type(): " << envelope.type();
-    qDebug() << "pict_data::ServerEnvelope::Type::AUTH_RESPONSE: " << pict_data::ServerEnvelope::Type::AUTH_RESPONSE
-             << "SERVER_MESSAGE: " << pict_data::ServerEnvelope::Type::SERVER_MESSAGE;
+    // qDebug() << "pict_data::ServerEnvelope::Type::AUTH_RESPONSE: " << pict_data::ServerEnvelope::Type::AUTH_RESPONSE
+    //          << "SERVER_MESSAGE: " << pict_data::ServerEnvelope::Type::SERVER_MESSAGE;
     switch (envelope.type()) {
     case pict_data::ServerEnvelope::Type::AUTH_RESPONSE:{
-        qDebug() << "onBinaryMessageReceived2 -> AUTH_RESPONSE";
+        // qDebug() << "onBinaryMessageReceived2 -> AUTH_RESPONSE";
         if (envelope.hasAuthResponse()) {
             // emit authResponseReceived2(envelope);
             emit authResponseReceived(envelope.authResponse());
@@ -341,9 +341,11 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
     }
     case pict_data::ServerEnvelope::Type::SERVER_MESSAGE: {
         qDebug() << "onBinaryMessageReceived2 -> SERVER_MESSAGE";
-        if (envelope.hasServerResp())
+//        if (envelope.hasServerResp())
         {
-            emit serverMessageReceived(envelope);
+            qDebug() << "envelope.hasServerResp()";
+//            emit serverMessageReceived(envelope);
+            emit serverResponseReceived(envelope);
         }
         break;
     }
