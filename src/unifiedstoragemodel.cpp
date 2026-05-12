@@ -1,6 +1,6 @@
 #include "unifiedstoragemodel.h"
 
-UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, ServerHandler *svrHndlr, QObject *parent)
+UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHndlr, QObject *parent)
     : QAbstractListModel{parent}
     , wsclient (wsc)
     , msghandler (svrHndlr)
@@ -27,7 +27,7 @@ void UnifiedStorageModel::enterLocal(QString path) {
 
 void UnifiedStorageModel::enterSeverStore(QString path) {
     qDebug() << "UnifiedStorageModel::enterSeverStore and request";
-    connect(msghandler, &ServerHandler::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
+    connect(msghandler, &MsgHandler::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
     msghandler->getBucketsListRequest();
 }
 

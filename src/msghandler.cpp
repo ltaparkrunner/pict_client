@@ -1,14 +1,14 @@
-#include "serverhandler.h"
+#include "msghandler.h"
 
-ServerHandler::ServerHandler(WebSocketClient *client, QObject *parent)
+MsgHandler::MsgHandler(WebSocketClient *client, QObject *parent)
     : QObject(parent), m_client(client)
 {
     connect(m_client, &WebSocketClient::serverResponseReceived,
-            this, &ServerHandler::handleIncomingServerData);
+            this, &MsgHandler::handleIncomingServerData);
 }
 
-void ServerHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data){
-    qDebug() << "ServerHandler::handleIncomingServerData";
+void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data){
+    qDebug() << "MsgHandler::handleIncomingServerData";
     if(data.contentField() == pict_data::ServerEnvelope::ContentFields::Buckets){
         const auto &response = data.buckets();
         QStringList sl;
@@ -22,7 +22,7 @@ void ServerHandler::handleIncomingServerData(const pict_data::ServerEnvelope &da
     }
 }
 
-Q_INVOKABLE int ServerHandler::getBucketsListRequest() const{
+Q_INVOKABLE int MsgHandler::getBucketsListRequest() const{
     pict_data::ClientEnvelope cenv;
     pict_data::BucketsRequest message;
     message.setUserLogin("Ivon");

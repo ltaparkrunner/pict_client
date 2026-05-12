@@ -5,7 +5,7 @@
 #include <QDir>
 #include <QObject>
 #include "websocketclient.h"
-#include "serverhandler.h"
+#include "msghandler.h"
 
 // enum PathType {
 //     Unknown,
@@ -37,7 +37,7 @@ class UnifiedStorageModel : public QAbstractListModel {
 public:
     enum Roles { NameRole = Qt::UserRole + 2, PathRole, IsDirRole, IsMinioRole,  IsMinioBucketRole, IsVirtualDirRole, MongoIdRole};
 
-    explicit UnifiedStorageModel(WebSocketClient *wsc, ServerHandler *svrHndlr, QObject *parent = nullptr);
+    explicit UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHndlr, QObject *parent = nullptr);
     // Основные методы модели
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role) const override;
@@ -67,7 +67,7 @@ private:
     QVector<StorageItem> m_items;
     StorageItem m_parentItem;
     WebSocketClient *wsclient;
-    ServerHandler *msghandler;
+    MsgHandler *msghandler;
 };
 
 #endif // UNifIEDSTORAGEMODEL_H

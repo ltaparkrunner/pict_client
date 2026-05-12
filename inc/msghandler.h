@@ -1,5 +1,5 @@
-#ifndef SERVERHANDLER_H
-#define SERVERHANDLER_H
+#ifndef MSGHANDLER_H
+#define MSGHANDLER_H
 
 #include <QObject>
 #include <QString>
@@ -8,10 +8,10 @@
 #include <websocketclient.h>
 
 
-class ServerHandler : public QObject {
+class MsgHandler : public QObject {
     Q_OBJECT
 public:
-    explicit ServerHandler(WebSocketClient *client, QObject *parent = nullptr);
+    explicit MsgHandler(WebSocketClient *client, QObject *parent = nullptr);
 
     Q_INVOKABLE int getBucketsListRequest() const;
     // int getFilesFoldersListfromBucketRequest(const QString &path);
@@ -32,4 +32,4 @@ private:
     WebSocketClient *m_client;
     QString token;
 };
-#endif // SERVERHANDLER_H
+#endif // MSGHANDLER_H
