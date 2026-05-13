@@ -382,7 +382,7 @@ Window {
                         gridView2.currentIndex = index;
                     }
                     onDoubleClicked: {
-                        acceptSelection(index)
+                        acceptSelectionEnterFolder(index)
                         //mouse.accepted = true;
                     }
                 }
@@ -396,12 +396,22 @@ Window {
                     root.currentSelectedPath = model.path
                     //root.
                     if (model.isDir) {
-                        // if (model.isMinio) storageModel.enterMinioBucket(model.name)
-                        // else storageModel.enterLocal(model.path)
+                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
+                        storageModel.openFolderImages(index)
+                        GridView.view.currentIndex = 0;
+                    } else {
+                        console.log(currentSelectedPath);
+    //                        root.openPathsSelected(currentSelectedPath);
+                        root.openIndexSelected(index)
+                        root.close()
+                    }
+                }
+                function acceptSelectionEnterFolder(index) {
+                    root.currentSelectedPath = model.path
+                    //root.
+                    if (model.isDir) {
+                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
                         storageModel.enterFolder(index)
-                        //gridView2.currentIndex = 0
-                        // currentIndex = 0
-                        // parent.currentItem = 0
                         GridView.view.currentIndex = 0;
                     } else {
                         console.log(currentSelectedPath);

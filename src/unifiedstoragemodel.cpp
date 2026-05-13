@@ -55,7 +55,7 @@ void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
 void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
     beginResetModel();
     m_items.clear();
-    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths)";
+    //  qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths)";
     for (const QStringList& image : paths) {
         m_items.append({image[0], image[1], (image[2] == "folder")?true:false, true, false, false, image[3]});
     }
@@ -154,8 +154,9 @@ Q_INVOKABLE int UnifiedStorageModel::addVirtual(const QString &virtFolderName, c
     return 0;
 }
 
-Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){
-    qDebug() << "int UnifiedStorageModel::enterFolder(StorageItem item): " << m_items[indx].path;
+Q_INVOKABLE int UnifiedStorageModel::openFolderImages(int indx){  // show folder files Images in Main window
+    qDebug() << "int UnifiedStorageModel::enterFolder(StorageItem item): " << m_items[indx].path <<
+        "m_items[indx].isMinio" << m_items[indx].isMinio << "m_items[indx].isDir" << m_items[indx].isDirectory;
     if(indx < m_items.size()) m_parentItem = m_items[indx];
     else return -1;
     qDebug() << " m_parentItem: " << m_parentItem.path << "  isMinioBucket: " << m_parentItem.isMinioBucket;
@@ -185,8 +186,57 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
+        qDebug() << " m_parentItem: " << m_items[indx].path;
         connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
         wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
+        return 0;               // Minio simple folder
+    }
+    else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && m_parentItem.isVirtualDir) {
+        qDebug() << "Virtual Minio Folder path: " << m_parentItem.path << "  name: " << m_parentItem.name;
+        beginResetModel();
+        m_items.clear();
+        endResetModel();
+        return 0;   // Minio simple folder
+    }
+    return 0;
+}
+
+Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in File/Folder Dialog
+    qDebug() << "int UnifiedStorageModel::enterFolder(StorageItem item): " << m_items[indx].path <<
+        "m_items[indx].isMinio" << m_items[indx].isMinio << "m_items[indx].isDir" << m_items[indx].isDirectory;
+    if(indx < m_items.size()) m_parentItem = m_items[indx];
+    else return -1;
+    qDebug() << " m_parentItem: " << m_parentItem.path << "  isMinioBucket: " << m_parentItem.isMinioBucket;
+    if(!m_parentItem.isMinio && m_parentItem.isDirectory){ // Local Directory
+        beginResetModel();
+        m_items.clear();
+        QDir dir(m_parentItem.path);
+
+        QStringList filters;
+        filters << "*.jpg" << "*.jpeg" << "*.png" << "*.gif" << "*.bmp" << "*.webp";
+
+        QFileInfoList files = dir.entryInfoList(filters, QDir::AllEntries | QDir::NoDot, QDir::DirsFirst);
+        //    QFileInfoList list = dir.entryInfoList(QDir::AllEntries | QDir::NoDot, QDir::DirsFirst);
+        QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDot, QDir::DirsFirst);
+        QFileInfoList fullList = dirs + files;
+        //    for (auto &info : dir.entryInfoList(QDir::AllEntries | QDir::NoDot)) {
+        for (const QFileInfo &info : std::as_const(fullList)) {
+            m_items.append({info.fileName(), info.absoluteFilePath(), info.isDir(), false, false, false});
+        }
+        endResetModel();
+        return 0;
+    }
+    else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) { // Minio Bucket
+        qDebug() << " m_parentItem: " << m_parentItem.path;
+        connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name /*, usmodel*/);
+        return 0;
+    }
+    else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
+        qDebug() << " m_parentItem: " << m_items[indx].path <<
+            "m_items[indx].isMinio" << m_items[indx].isMinio << "m_items[indx].isDir" << m_items[indx].isDirectory;;
+        connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+        wsclient->getFilesFoldersListfromBucketRequest(m_items[indx].path /*, usmodel*/);
         return 0;               // Minio simple folder
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && m_parentItem.isVirtualDir) {
