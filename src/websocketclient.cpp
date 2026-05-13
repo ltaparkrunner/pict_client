@@ -136,10 +136,18 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 
     QStringList parts = path.split('/');
     QString bucket = parts.takeFirst();
-    int sz = parts.size();
+    qsizetype bucketIdx = path.indexOf(bucket);
     QString folder = "";
-    if(sz > 2) {
-        folder = parts.sliced(1, sz - 2).join("/");
+    if (bucketIdx != -1) {
+        qsizetype startPos = bucketIdx + bucket.length();
+        qsizetype endPos = path.lastIndexOf('/');
+        if (endPos > startPos) {
+            if (path.at(startPos) == '/') {
+                startPos++;
+            }
+            qsizetype length = endPos - startPos;
+            folder = path.sliced(startPos, length);
+        }
     }
     qDebug() << "bucket: " << bucket << " folder " << folder;
 

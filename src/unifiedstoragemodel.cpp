@@ -155,7 +155,7 @@ Q_INVOKABLE int UnifiedStorageModel::addVirtual(const QString &virtFolderName, c
 }
 
 Q_INVOKABLE int UnifiedStorageModel::openFolderImages(int indx){  // show folder files Images in Main window
-    qDebug() << "int UnifiedStorageModel::enterFolder(StorageItem item): " << m_items[indx].path <<
+    qDebug() << "int UnifiedStorageModel::openFolderImages(int indx): " << m_items[indx].path <<
         "m_items[indx].isMinio" << m_items[indx].isMinio << "m_items[indx].isDir" << m_items[indx].isDirectory;
     if(indx < m_items.size()) m_parentItem = m_items[indx];
     else return -1;
@@ -233,10 +233,10 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
-        qDebug() << " m_parentItem: " << m_items[indx].path <<
-            "m_items[indx].isMinio" << m_items[indx].isMinio << "m_items[indx].isDir" << m_items[indx].isDirectory;;
+        qDebug() << " m_parentItem: " << m_parentItem.path <<
+            "m_items[indx].isMinio" << m_parentItem.isMinio << "m_items[indx].isDir" << m_parentItem.isDirectory;;
         connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(m_items[indx].path /*, usmodel*/);
+        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
         return 0;               // Minio simple folder
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && m_parentItem.isVirtualDir) {
