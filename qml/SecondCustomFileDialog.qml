@@ -24,6 +24,9 @@ Window {
 //    signal openPathsSelected(string path)
     signal openIndexSelected(int index)
     signal writePathsSelected(list<string> listPath, list<string> destPath)
+    //  signal writeImages(list<[string, string]>, string destPath);
+    signal writeImages(var lf, string destPath);
+//    li.push( {"path":i.cleanPath, "mongoId:":i.mongoId});
     signal deletePathsSelected(list<int> indices)
     property int lastSelectedTab: 0
     property var selectedIndices: []
@@ -431,17 +434,27 @@ Window {
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
                 onClicked: {
-//                    var p = storageModel.data(0, path)
-                    let ls = []
+                    // let ls = []
 
-                    var data = imageModel.get(0)
-                    ls.push(data.path)
-                    if(data) console.log("storageModel.get(0)", data.path)
-                    data = imageModel.get(1)
-                    if(data.path) console.log("storageModel.get(1)", data.path)
-                    ls.push(data.path)
-                    console.log("currentSelectedPath = ", currentSelectedPath)
-                    root.writePathsSelected(ls, [currentSelectedPath]);
+                    // var data = imageModel.get(0)
+                    // ls.push(data.path)
+                    // if(data) console.log("storageModel.get(0)", data.path)
+                    // data = imageModel.get(1)
+                    // if(data.path) console.log("storageModel.get(1)", data.path)
+                    // ls.push(data.path)
+                    // console.log("currentSelectedPath = ", currentSelectedPath)
+                    // root.writePathsSelected(ls, [currentSelectedPath]);
+
+                    //var data = imageModel.get(0);
+                    let li = []
+                    // console.log("gridView2.model.length: ", gridView2.model.length, "gridView2.model.rowCount()", gridView2.model.rowCount())
+                    //console.log("imageModel.rowCount(): ", imageModel.rowCount(), " ", data.cleanPath, " ")
+                    for(let i=0; i<imageModel.rowCount(); i++){
+                        var data = imageModel.get(i);
+                        console.log("imageModel.get(",i ,")= ", data.cleanPath, " ", data.mongoId);
+                        li.push( {"path":data.cleanPath, "mongoId":data.mongoId});
+                    }
+                    root.writeImages(li, currentSelectedPath);
                     root.close()
                 }
                 background: Rectangle {

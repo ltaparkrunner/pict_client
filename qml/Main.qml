@@ -77,6 +77,11 @@ ApplicationWindow {
             storageModel.writeToFolder(ls)
         }
 
+        onWriteImages: (lf, path) => {
+            console.log("onWritePathsSelected paths: ", path)
+            storageModel.writeImageToFolder(lf, path);
+        }
+
         onDeletePathsSelected:(indices) => {
             if(indices){
                 console.log("onDeletePathsSelected:(paths)", indices[0])

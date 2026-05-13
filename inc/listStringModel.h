@@ -168,7 +168,9 @@ public:
 
     Q_INVOKABLE QVariantMap get(int row) const {
         // Проверка границ, чтобы избежать падения
+        qDebug() << "QVariantMap get(int row) const";
         if (row < 0 || row >= m_imageItems.count()) {
+            qDebug() << "row >= m_imageItems.count()";
             return QVariantMap();
         }
 

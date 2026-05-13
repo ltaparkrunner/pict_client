@@ -255,7 +255,7 @@ QStringList UnifiedStorageModel::getBacketNameFromPath(const QString &path){
 QString UnifiedStorageModel::resolveImageIndex(int indx) {
     if(indx < m_items.size()){
         StorageItem item = m_items[indx];
-        udsmToIm(item.name, item.path, item.isMinio, item.isDirectory, item.mongoId);
+        emit udsmToIm(item.name, item.path, item.isMinio, item.isDirectory, item.mongoId);
         qDebug() << "udsmToIm name: " << item.name << "  path: " << item.path;
         return item.path;
     }
@@ -271,4 +271,29 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::getData(int indx){
     map["isNetwork"] = item.isMinio;
     map["isDir"] = item.isDirectory;
     return map;
+}
+
+Q_INVOKABLE int UnifiedStorageModel::writeImageToFolder(const QVariantList &lf, QString path){
+    qDebug() << "int UnifiedStorageModel::writeToFolder";
+    if(!m_parentItem.isMinio && m_parentItem.isDirectory){
+        return 0;
+    }
+    else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) {
+        for(const QVariant &v : lf){
+            QVariantMap item = v.toMap();
+            qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();
+            msghandler->addFileRequest(item["path"].toString(), item["mongoId"].toString(), m_parentItem.path);
+        }
+        return 0;
+    }
+    else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory) {
+        qDebug() << "int UnifiedStorageModel::writeToFolder 2";
+        for(const QVariant &v : lf){
+            QVariantMap item = v.toMap();
+            qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();
+            msghandler->addFileRequest(item["path"].toString(), item["mongoId"].toString(), m_parentItem.path);
+        }
+        return 0;
+    }
+    return 0;
 }
