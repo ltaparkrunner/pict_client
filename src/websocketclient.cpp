@@ -337,10 +337,7 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
         onBinaryMessageReceived(rawBytes);
         return;
     }
-    // 2. Route the inner payload to the correct signal based on the type
     qDebug() << "envelope.type(): " << envelope.type();
-    // qDebug() << "pict_data::ServerEnvelope::Type::AUTH_RESPONSE: " << pict_data::ServerEnvelope::Type::AUTH_RESPONSE
-    //          << "SERVER_MESSAGE: " << pict_data::ServerEnvelope::Type::SERVER_MESSAGE;
     switch (envelope.type()) {
     case pict_data::ServerEnvelope::Type::AUTH_RESPONSE:{
         // qDebug() << "onBinaryMessageReceived2 -> AUTH_RESPONSE";
@@ -355,7 +352,6 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
 //        if (envelope.hasServerResp())
         {
             qDebug() << "envelope.hasServerResp()";
-//            emit serverMessageReceived(envelope);
             emit serverResponseReceived(envelope);
         }
         break;

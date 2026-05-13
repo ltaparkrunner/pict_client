@@ -233,10 +233,11 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
-        qDebug() << " m_parentItem: " << m_parentItem.path <<
-            "m_items[indx].isMinio" << m_parentItem.isMinio << "m_items[indx].isDir" << m_parentItem.isDirectory;;
-        connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
+        // qDebug() << " m_parentItem: " << m_parentItem.path <<
+        //     "m_items[indx].isMinio" << m_parentItem.isMinio << "m_items[indx].isDir" << m_parentItem.isDirectory;
+        connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+    //    wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
+        msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
         return 0;               // Minio simple folder
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && m_parentItem.isVirtualDir) {
@@ -277,8 +278,8 @@ Q_INVOKABLE int UnifiedStorageModel::deleteIndices(const QList<int> &indxs){
             QStringList sl;
             sl.append(m_items[indx].name);
 
-            QUrl minioUrl(m_items[indx].path);
-            QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+            QUrl netUrl(m_items[indx].path);
+            QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
             qDebug() << "Path: " << path;
             if (path.startsWith('/')) {
                 path.remove(0, 1);
@@ -291,7 +292,8 @@ Q_INVOKABLE int UnifiedStorageModel::deleteIndices(const QList<int> &indxs){
             sl.append(m_items[indx].mongoId);
             sl.append("Ivon");
             qDebug() << " name: " << m_items[indx].name << "  bucket: " << bucket << " mongoId: " << m_items[indx].mongoId;
-            wsclient->deleteFileFromServerRequest(sl);
+            connect(msghandler, &MsgHandler::resultSuccess, this, &UnifiedStorageModel::successToQML);
+            msghandler->deleteFileFromServerRequest(sl);
         }
     }
     return 0;
@@ -346,4 +348,12 @@ Q_INVOKABLE int UnifiedStorageModel::writeImageToFolder(const QVariantList &lf, 
         return 0;
     }
     return 0;
+}
+
+Q_INVOKABLE void UnifiedStorageModel::successToQML(const QString &msg){
+    qDebug() << "Executed successfully";
+}
+
+Q_INVOKABLE void UnifiedStorageModel::errorToQML(const QString &msg){
+    qDebug() << "Error when executing command";
 }
