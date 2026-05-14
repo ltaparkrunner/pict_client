@@ -116,8 +116,8 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 
     message.setFileName(key);
     message.setMongoId("1111111");
-    message.setUserLogin("Ivon");
-    message.setBucketName(bucket);
+//    message.setUserLogin("Ivon");
+//    message.setBucketName(bucket);
 
     base.setDeleteFile(message);
     QProtobufSerializer serializer;
@@ -154,8 +154,8 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
     pict_data::BaseMessage base;
     pict_data::FilesFoldersListRequest message;
     message.setFolderName(folder);
-    message.setBucketName(bucket);
-    message.setUserLogin("Ivon");
+//    message.setBucketName(bucket);
+//    message.setUserLogin("Ivon");
 
     base.setListRequest(message);
     QProtobufSerializer serializer;
@@ -230,8 +230,8 @@ Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const Q
     else qDebug() << "Open file: " << cleanPath;
     QByteArray fileData = file->readAll();
     message.setFileName(fileName);
-    message.setUserLogin("Ivon");
-    message.setBucketName(bucket);
+//    message.setUserLogin("Ivon");
+//    message.setBucketName(bucket);
     message.setFolder(folder);
     message.setInfo("jpg");
     message.setData(fileData);
@@ -273,7 +273,7 @@ void WebSocketClient::deleteMinioBucketsRequest(const QStringList &buckets){
 
     for(const QString &bucket : buckets) {
         qDebug() << "void WebSocketClient::deleteMinioBucketsRequest(const QStringList &buckets)" << bucket;
-        message.setBucketName(bucket);
+//        message.setBucketName(bucket);
         base.setDeleteBucket(message);
         QProtobufSerializer serializer;
         QByteArray data = base.serialize(&serializer);
@@ -287,9 +287,9 @@ int WebSocketClient::deleteFileFromServerRequest(const QStringList &fileData){
         pict_data::DeleteFileRequest message;
 
         message.setFileName(fileData.at(0));
-        message.setBucketName(fileData.at(1));
+//        message.setBucketName(fileData.at(1));
         message.setMongoId(fileData.at(2));
-        message.setUserLogin(fileData.at(3));
+//        message.setUserLogin(fileData.at(3));
         base.setDeleteFile(message);
         QProtobufSerializer serializer;
         QByteArray data = base.serialize(&serializer);
@@ -318,8 +318,8 @@ int WebSocketClient::getFilesOnlyListfromBucketRequest(const QString &minioPath)
     pict_data::BaseMessage base;
     pict_data::FilesOnlyListRequest message;
     message.setFolderName(folder);
-    message.setBucketName(bucket);
-    message.setUserLogin("Ivon");
+//    message.setBucketName(bucket);
+//    message.setUserLogin("Ivon");
 
     base.setFilesListRequest(message);
     QProtobufSerializer serializer;

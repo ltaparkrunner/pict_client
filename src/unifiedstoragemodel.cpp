@@ -37,11 +37,6 @@ void UnifiedStorageModel::enterMinioBucket(const QString &path) {
     wsclient->getFilesFoldersListfromBucketRequest(path/*, usmodel*/);
 }
 
-// void UnifiedStorageModel::enterSeverStore2(const QString &path) {
-//     connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-//     wsclient->getImagesListfromBucketRequest("images");
-// }
-
 void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
     beginResetModel();
     m_items.clear();
@@ -65,10 +60,8 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
 // 1. Return number of items
 int UnifiedStorageModel::rowCount(const QModelIndex &parent) const {
     if (parent.isValid()) {
-//        qDebug() << "UnifiedStorageModel::rowCount parent.isValid() return 0";
         return 0;
     }
-//    qDebug() << "UnifiedStorageModel::rowCount m_items.size(): " << m_items.size();
     return m_items.size();
 }
 
@@ -76,9 +69,7 @@ int UnifiedStorageModel::rowCount(const QModelIndex &parent) const {
 QVariant UnifiedStorageModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid() || index.row() < 0 || index.row() >= m_items.size())//m_imagePaths.count())
         return QVariant();
-
     const StorageItem &item = m_items.at(index.row());
-
     switch (role) {
     case NameRole:
         return item.name;
