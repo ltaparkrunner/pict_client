@@ -114,7 +114,7 @@ int MsgHandler::addFileRequest(const QString &filepath, const QString &id, const
 }
 
 int MsgHandler::getFilesFoldersListfromBucketRequest(const QString &netPath){
-    qDebug() << "getFilesFoldersListfromBucketRequest(const QString &minioPath)" << netPath;
+    qDebug() << "MsgHandler::getFilesFoldersListfromBucketRequest(const QString &minioPath)" << netPath;
     QUrl netUrl(netPath);
     QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
     if (path.startsWith('/')) {

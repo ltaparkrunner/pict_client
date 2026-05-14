@@ -33,8 +33,10 @@ void UnifiedStorageModel::enterSeverStore(QString path) {
 
 void UnifiedStorageModel::enterMinioBucket(const QString &path) {
     qDebug() << "UnifiedStorageModel::enterMinioBucket and request";
-    connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-    wsclient->getFilesFoldersListfromBucketRequest(path/*, usmodel*/);
+    // connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+    // wsclient->getFilesFoldersListfromBucketRequest(path/*, usmodel*/);
+    connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+    msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
 }
 
 void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
@@ -172,14 +174,18 @@ Q_INVOKABLE int UnifiedStorageModel::openFolderImages(int indx){  // show folder
     }
     else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) { // Minio Bucket
         qDebug() << " m_parentItem: " << m_parentItem.path;
-        connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name /*, usmodel*/);
+        // connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+        // wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name /*, usmodel*/);
+        connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+        msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
         qDebug() << " m_parentItem: " << m_items[indx].path;
-        connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
+        // connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+        // wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
+        connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+        msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
         return 0;               // Minio simple folder
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && m_parentItem.isVirtualDir) {
@@ -219,8 +225,10 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
     }
     else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) { // Minio Bucket
         qDebug() << " m_parentItem: " << m_parentItem.path;
-        connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
-        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name /*, usmodel*/);
+//        connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+//        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name /*, usmodel*/);
+        connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+        msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {

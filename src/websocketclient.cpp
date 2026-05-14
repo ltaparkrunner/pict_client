@@ -127,7 +127,7 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 }
 
 /*Q_INVOKABLE*/ void WebSocketClient::getFilesFoldersListfromBucketRequest(const QString &minioPath){
-    qDebug() << "getFilesFoldersListfromBucketRequest(const QString &minioPath)" << minioPath;
+    qDebug() << "WebSocketClient::getFilesFoldersListfromBucketRequest(const QString &minioPath)" << minioPath;
     QUrl minioUrl(minioPath);
     QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
     if (path.startsWith('/')) {
