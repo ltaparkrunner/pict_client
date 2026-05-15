@@ -21,13 +21,13 @@ ApplicationWindow {
         target: imageModel
         function onMinioImageToQML(url) {
             mainImageSource = url;
-            //console.log("Получено из C++:", url)
+            //  console.log("Получено из C++:", url)
         }
     }
     Connections {
         target: wsClient
         function onShowLoginRequired(){
-            console.log("function onShowLoginRequired()")
+            //  console.log("function onShowLoginRequired()")
             loginWarn.open()
         }
     }
@@ -64,7 +64,7 @@ ApplicationWindow {
         // }
 
         onOpenIndexSelected:(index) => {
-            console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
+            //  console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
             if(index>=0 && index<storageModel.rowCount()){
                 let img = storageModel.get(index);
                 let imgPath = img.path;
@@ -87,13 +87,13 @@ ApplicationWindow {
         }
 
         onWriteImages: (lf, path) => {
-            console.log("onWritePathsSelected paths: ", path)
+            //  console.log("onWritePathsSelected paths: ", path)
             storageModel.writeImageToFolder(lf, path);
         }
 
         onDeletePathsSelected:(indices) => {
             if(indices){
-                console.log("onDeletePathsSelected:(paths)", indices[0])
+                //  console.log("onDeletePathsSelected:(paths)", indices[0])
                 storageModel.deleteIndices(indices)
             }
             else {
@@ -509,9 +509,9 @@ ApplicationWindow {
             if (type === FileHelperType.LocalFile) {
                 console.log("before imageGrid.model.addFilePath(path)", path)
                 imageGrid.model.addImagePath(path)
-                console.log("after imageGrid.model.addFilePath(path)")
+//                console.log("after imageGrid.model.addFilePath(path)")
                 mainImageSource = imageGrid.model.resolvePath(path)
-                console.log("after mainImageSource = imageGrid.model.resolvePath(path)", path)
+//                console.log("after mainImageSource = imageGrid.model.resolvePath(path)", path)
             } else if (type === FileHelperType.LocalFolder) {
 //                console.log("Это локальная папка");
                 mainImageSource = imageGrid.model.addFilesFromFolder(path)
@@ -519,7 +519,7 @@ ApplicationWindow {
 //                console.log("Это бакет MinIO");
                 mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {
-                console.log("Это объект (файл) в MinIO", path);
+//                console.log("Это объект (файл) в MinIO", path);
                 mainImageSource = imageGrid.model.addMinioImagePath(path)
             } else {
                 console.log("Путь не распознан или не существует");

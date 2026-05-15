@@ -9,7 +9,8 @@
 #include <QFile>
 #include <QAuthenticator>
 #include "pict_data/message.qpb.h"
-#include <QSettings>
+#include "authhandler.h"
+//#include <QSettings>
 
 // enum sourceReq{
 //     imodel,
@@ -21,7 +22,7 @@ class WebSocketClient : public QObject
     Q_OBJECT
     Q_PROPERTY(QString lastReceivedPath READ lastReceivedPath NOTIFY pathReceived)
 public:
-    explicit WebSocketClient(const QUrl &url, QObject *parent = nullptr);
+    explicit WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObject *parent = nullptr);
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
     QString lastReceivedPath() const;
 //    Q_INVOKABLE QStringList getBucketsListRequest() const;
@@ -52,6 +53,9 @@ signals:
 //    void serverMessageReceived(const pict_data::ServerEnvelope &message);
     void showLoginRequired();
 
+public slots:
+    void connectToServer2();
+    void disconnectFromServer();
 private slots:
     void onConnected();
     void onDisconnected();
@@ -64,12 +68,13 @@ private slots:
 public:
     QWebSocket *m_webSocket;
 private:
+    AuthHandler *m_authHandler;
     QUrl m_url;
 //    QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
-    QSettings settings;
-    QString token;
+//    QSettings settings;
+ //   QString token;
 //    sourceReq sreq; // What is it? What is for?
     // it defines who is the source of request, and where we have to return the answer?
     // to imodel(ImageModel) or to usmodel(unifiedstoragemodel)

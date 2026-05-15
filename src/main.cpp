@@ -16,7 +16,9 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain("Alex@Co");
     app.setApplicationName("Alex@Co");
 
-    WebSocketClient wsClient(QUrl("wss://localhost:8082"));
+    AuthHandler authHandler{};//(/*&wsClient*/);
+
+    WebSocketClient wsClient(&authHandler, QUrl("wss://localhost:8082"));
 
     FileHelper fileHlp(&wsClient);
     ImageModel imodel(&wsClient);
@@ -34,7 +36,6 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("FileHelper", &fileHlp);
     engine.rootContext()->setContextProperty("storageModel", &usModel);
     engine.rootContext()->setContextProperty("msgHandler", &msgHandler);
-    AuthHandler authHandler(&wsClient);
 
     engine.rootContext()->setContextProperty("authHandler", &authHandler);
     qmlRegisterUncreatableType<FileHelper>("com.myapp.helpers", 1, 0, "FileHelperType", "Error: FileHelperType is enum only");

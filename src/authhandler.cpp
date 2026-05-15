@@ -4,19 +4,19 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QNetworkReply>
-#include <QSettings>
 
-AuthHandler::AuthHandler(WebSocketClient *client, QObject *parent)
-    : QObject(parent), m_client(client)
+AuthHandler::AuthHandler(/*WebSocketClient *client,*/ QObject *parent)
+    : QObject(parent)   //, m_client(client)
     , settings("Alex@Co", "Alex@Co")
     , m_authToken(settings.value("Auth/accessToken", "").toString())
     , m_loggedIn(m_authToken != "")
 {
     // Listen to all incoming raw traffic from the websocket client
-    connect(m_client, &WebSocketClient::authResponseReceived,
-            this, &AuthHandler::handleIncomingAuthData);
+    // connect(m_client, &WebSocketClient::authResponseReceived,
+    //         this, &AuthHandler::handleIncomingAuthData);
 }
 
+/*
 void AuthHandler::handleIncomingAuthData(const pict_data::AuthResponse &data) {
     // 1. Parse incoming data using Protobuf
     pict_data::AuthResponse response;
@@ -28,7 +28,9 @@ void AuthHandler::handleIncomingAuthData(const pict_data::AuthResponse &data) {
         qDebug() << "handleIncomingAuthData  Token: " << token << "Response error" << err;
     }
 }
+*/
 
+/*
 Q_INVOKABLE void AuthHandler::registerUser(const QString &login, const QString &password) {
     qDebug() << "Register attempt:" << login << " password: " << password;
     pict_data::ClientEnvelope cenv;
@@ -40,7 +42,8 @@ Q_INVOKABLE void AuthHandler::registerUser(const QString &login, const QString &
     cenv.setRegRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = cenv.serialize(&serializer);
-    /*qint64 sz =*/ m_client->sendBinaryMessage(data);
+    //qint64 sz =
+    m_client->sendBinaryMessage(data);
     return;
 }
 
@@ -55,9 +58,11 @@ Q_INVOKABLE void AuthHandler::login(const QString &login, const QString &passwor
     cenv.setAuthRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = cenv.serialize(&serializer);
-    /*qint64 sz =*/ m_client->sendBinaryMessage(data);
+    //qint64 sz =
+    m_client->sendBinaryMessage(data);
     return;
 }
+*/
 
 //  "http://localhost:8081/login"
 Q_INVOKABLE void AuthHandler::sendLogin(QString user, QString pass) {

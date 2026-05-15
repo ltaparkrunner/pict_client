@@ -51,14 +51,15 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     }
 }
 
-WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(parent)
+WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObject *parent) : QObject(parent)
+    , m_authHandler(authHandler)
     , m_webSocket (new QWebSocket())
     , m_url(url)
     , m_path("")
-    , settings("Alex@Co", "Alex@Co")
-    , token(settings.value("Auth/accessToken", "").toString())
+    // , settings("Alex@Co", "Alex@Co")
+    // , token(settings.value("Auth/accessToken", "").toString())
 {
-    qDebug() << "WebSocketClient::WebSocketClient  token: " << token;
+    qDebug() << "WebSocketClient::WebSocketClient  token: "; // << token;
     // m_reconnectTimer.setSingleShot(true);
 //    connect(&m_reconnectTimer, &QTimer::timeout, this, &WebSocketClient::connectToServer);
     connect(&m_pingTimer, &QTimer::timeout, this, [&]() {
@@ -75,6 +76,17 @@ WebSocketClient::WebSocketClient(const QUrl &url, QObject *parent) : QObject(par
     connect(m_webSocket, &QWebSocket::errorOccurred, this, &WebSocketClient::onError);
 //    authenticationRequired(QAuthenticator *authenticator)
     connect(m_webSocket, &QWebSocket::authenticationRequired, this, &WebSocketClient::onAuthRequired);
+
+    // Перехватываем успешный вход, чтобы автоматически запустить сокет
+    connect(m_authHandler, &AuthHandler::loginSuccess, this, &WebSocketClient::connectToServer);
+
+    // Перехватываем выход, чтобы разорвать соединение
+    connect(m_authHandler, &AuthHandler::loggedInChanged, this, [this](){
+        if (!m_authHandler->loggedIn()) {
+            disconnectFromServer();
+        }
+    });
+
     connectToServer();
 }
 
@@ -370,21 +382,38 @@ void WebSocketClient::sendBinaryMessage(const QByteArray &data) {
 }
 
 void WebSocketClient::wsTokenConnect(QString authToken){
-    token = authToken;
-    settings.beginGroup("Auth");
-    settings.setValue("accessToken", token);
-    settings.endGroup();
+    // token = authToken;
+    // settings.beginGroup("Auth");
+    // settings.setValue("accessToken", token);
+    // settings.endGroup();
     wsConnect();
 }
 
 void WebSocketClient::wsConnect(){
     QNetworkRequest request(m_url);
-    request.setRawHeader("Authorization", "Bearer " + token.toUtf8());
+    request.setRawHeader("Authorization", "Bearer " + m_authHandler->authToken().toUtf8());
 
-    qDebug() << "WebSocketClient::wsConnect: Bearer " + token.toUtf8();
+//    qDebug() << "WebSocketClient::wsConnect: Bearer " + token.toUtf8();
     m_webSocket->open(request);
 }
 
 void WebSocketClient::onAuthRequired(QAuthenticator *authenticator){
     qDebug() << "onAuthRequired(QAuthenticator): " << authenticator->realm() << authenticator->user();
+}
+
+void WebSocketClient::disconnectFromServer() {
+    m_webSocket->close();
+}
+
+void WebSocketClient::connectToServer2() {
+    if (!m_authHandler || !m_authHandler->loggedIn()) return;
+
+    // Берем актуальный токен из менеджера авторизации
+    QString token = m_authHandler->authToken();
+
+    // Формируем запрос с JWT-токеном (в протоколе или query-параметрах)
+    QNetworkRequest request(QUrl("ws://your-server-url.com"));
+    request.setRawHeader("Authorization", ("Bearer " + token).toUtf8());
+
+    m_webSocket->open(request);
 }
