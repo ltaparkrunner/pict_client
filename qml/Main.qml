@@ -108,10 +108,6 @@ ApplicationWindow {
         id: userLogin
     }
 
-    // LoginDialog {
-    //     id: userLogin
-    // }
-
     MessageDialog {
         id: msgNothingToDo
         title: "Nothing To Do"  // "Подтверждение"
@@ -205,6 +201,7 @@ ApplicationWindow {
                     }
 
                     onClicked: {
+                        userLogin.statusTextElement.text = ""
                         userLogin.open()
                         // var pos = mapToGlobal(Qt.point(x, y))
                         // pos = userMenu.parent.mapFromGlobal(pos)

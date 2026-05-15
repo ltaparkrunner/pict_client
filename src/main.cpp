@@ -34,6 +34,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("FileHelper", &fileHlp);
     engine.rootContext()->setContextProperty("storageModel", &usModel);
     engine.rootContext()->setContextProperty("msgHandler", &msgHandler);
+    AuthHandler authHandler(&wsClient);
+
+    engine.rootContext()->setContextProperty("authHandler", &authHandler);
     qmlRegisterUncreatableType<FileHelper>("com.myapp.helpers", 1, 0, "FileHelperType", "Error: FileHelperType is enum only");
     QObject::connect(
         &engine,
@@ -45,7 +48,6 @@ int main(int argc, char *argv[])
 
     QObject *rootObject = engine.rootObjects().first();
     QObject *authDialog = rootObject->findChild<QObject*>("authDialog");
-    AuthHandler authHandler(&wsClient);
 
     if (authDialog) {
         // 3. Connect loginRequested signal to C++ slot

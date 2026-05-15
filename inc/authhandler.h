@@ -20,6 +20,8 @@ public:
 
 signals:
     void startWebSocket(QString token);
+    void errAuth(QString errmsg);
+    void succAuth(QString succmsg);
 private slots:
     void handleIncomingAuthData(const pict_data::AuthResponse &data);
 private:

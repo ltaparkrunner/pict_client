@@ -12,6 +12,7 @@ Dialog {
     modal: true
     width: 300
 
+    property alias statusTextElement: statusText
     property bool isLoginMode: true
 
     // Сигналы для C++ части
@@ -20,6 +21,33 @@ Dialog {
 
     // onLoginRequested: (email, password) => authHandler.login(email, password)
     // onRegisterRequested: (email, password) => authHandler.registerUser(email, password)
+
+    // Отслеживаем сигналы от C++ объекта loginManager
+    Connections {
+        target: authHandler
+
+        function onSuccAuth(succMsg) {
+            console.log("function onSuccAuth", succMsg)
+            statusText.color = "green"
+            statusText.text = "Вход успешно выполнен!"
+            // Здесь можно закрыть диалог или переключить экран через Delay
+            loginTimer.start()
+            loginButton.enabled = true
+        }
+
+        function onErrAuth(errMsg) {
+            console.log("function onErrAuth", errMsg)
+            statusText.color = "red"
+            statusText.text = errMsg
+            loginButton.enabled = true
+        }
+    }
+
+    Timer {
+        id: loginTimer
+        interval: 1000
+        onTriggered: authDialog.accept() // Закрывает диалог ТОЛЬКО при успехе
+    }
 
     ColumnLayout {
         spacing: 15
@@ -123,13 +151,32 @@ Dialog {
             text: "Please fill in the fields."
             visible: false
         }
+        Text {
+            id: statusText
+            text: ""
+            font.pixelSize: 12
+            wrapMode: Text.WordWrap
+            width: parent.width
+            horizontalAlignment: Text.AlignHCenter
+        }
     }
 
     footer: DialogButtonBox {
         Button {
-            text: "OK"
-            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
+            id: loginButton
+            text: isLoginMode? "Login" : "Register"
             enabled: emailField.acceptableInput && passwordField.acceptableInput
+
+            onClicked: {
+                statusText.text = "Проверка..."
+                statusText.color = "blue"
+                enabled = false // Блокируем кнопку на время проверки
+                if (isLoginMode) {
+                    loginRequested(emailField.text, passwordField.text)
+                } else {
+                    registerRequested(emailField.text, passwordField.text)
+                }
+            }
         }
         Button {
             text: "Cancel"
@@ -147,17 +194,18 @@ Dialog {
     }
 
     // Обработка нажатия кнопки "ОК"
-    onAccepted: {
-        if (emailField.text === "" || passwordField.text === "") {
-            errorLabel.visible = true
-            // Не закрываем диалог при ошибке (в Qt Quick Dialog это требует переопределения кнопки)
-            return
-        }
+    // onAccepted: {
+    //     if (emailField.text === "" || passwordField.text === "") {
+    //         errorLabel.visible = true
+    //         // Не закрываем диалог при ошибке (в Qt Quick Dialog это требует переопределения кнопки)
+    //         return
+    //     }
 
-        if (isLoginMode) {
-            loginRequested(emailField.text, passwordField.text)
-        } else {
-            registerRequested(emailField.text, passwordField.text)
-        }
-    }
+    //     if (isLoginMode) {
+    //         loginRequested(emailField.text, passwordField.text)
+    //     } else {
+    //         registerRequested(emailField.text, passwordField.text)
+    //     }
+    // }
+
 }

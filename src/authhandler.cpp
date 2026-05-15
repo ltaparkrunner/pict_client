@@ -57,15 +57,15 @@ Q_INVOKABLE void AuthHandler::login(const QString &login, const QString &passwor
 
 //  "http://localhost:8081/login"
 Q_INVOKABLE void AuthHandler::sendLogin(QString user, QString pass) {
-    qDebug() << "AuthHandler::sendLogin" << user << "  " << pass;
+//    qDebug() << "AuthHandler::sendLogin" << user << "  " << pass;
     sendAuth(user, pass, "http://localhost:8081/auth/login");
 }
 
 //  "http://localhost:8081/register"
 Q_INVOKABLE void AuthHandler::sendRegister(QString user, QString pass) {
-    qDebug() << "AuthHandler::sendRegister" << user << "  " << pass;
+//    qDebug() << "AuthHandler::sendRegister" << user << "  " << pass;
     sendAuth(user, pass, "http://localhost:8081/auth/register");
-    sendAuth(user, pass, "http://localhost:8081/register");
+//    sendAuth(user, pass, "http://localhost:8081/register");
 }
 
 Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path) {
@@ -84,8 +84,19 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
             token = doc.object().value("token").toString();
+            emit succAuth(reply->errorString());
             emit startWebSocket(token);
+        }
+        else {
+            QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+            if (doc.object().contains("error")) {
+//                qDebug() << "Second branch Get error object : " << doc.object()["error"].toString();
+                emit errAuth(doc.object()["error"].toString());
+            }
+            else emit errAuth(reply->errorString());
         }
         reply->deleteLater();
     });
 }
+// TODO: reset the token, if attempt to enter on wrong login/password.
+// TODO: exit button
