@@ -4,9 +4,13 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QNetworkReply>
+#include <QSettings>
 
 AuthHandler::AuthHandler(WebSocketClient *client, QObject *parent)
     : QObject(parent), m_client(client)
+    , settings("Alex@Co", "Alex@Co")
+    , m_authToken(settings.value("Auth/accessToken", "").toString())
+    , m_loggedIn(m_authToken != "")
 {
     // Listen to all incoming raw traffic from the websocket client
     connect(m_client, &WebSocketClient::authResponseReceived,
@@ -83,9 +87,10 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
     connect(reply, &QNetworkReply::finished, this, [=]() {
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
-            token = doc.object().value("token").toString();
+            m_authToken = doc.object().value("token").toString();
+            setLoggedIn(true);
             emit succAuth(reply->errorString());
-            emit startWebSocket(token);
+            emit startWebSocket(m_authToken);
         }
         else {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
@@ -98,5 +103,52 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
         reply->deleteLater();
     });
 }
+
+bool AuthHandler::loggedIn() const{
+    return m_loggedIn;
+}
+
+void AuthHandler::setLoggedIn(bool value) {
+    qDebug() << "AuthHandler::setLoggedIn: " << value;
+    if (m_loggedIn == value)
+        return; // Если статус не изменился, ничего не делаем (защита от зацикливания)
+
+    m_loggedIn = value;
+    emit loggedInChanged(); // 4. ВАЖНО: триггерим сигнал, чтобы QML узнал об изменениях
+}
+
+Q_INVOKABLE void AuthHandler::logout(){
+    qDebug() << "Инициация процесса выхода из системы (Logoff)...";
+
+    // 1. Удаляем токен из постоянной памяти устройства (сохраненная сессия)
+    // Используйте те же имена организации и приложения, что и при инициализации
+    QSettings settings("MyCompany", "MyApplication");
+
+    if (settings.contains("auth/jwt_token")) {
+        settings.remove("auth/jwt_token");
+        settings.sync(); // Принудительно сохраняем изменения на диск
+        qDebug() << "JWT-токен успешно удален из QSettings.";
+    }
+
+    // 2. Очищаем токен из оперативной памяти C++ класса (текущая сессия)
+    // Допустим, у вас есть приватная переменная QString m_authToken;
+    this->m_authToken = "";
+
+    // 3. (Опционально) Если вы используете WebSockets или TCP-сокеты, закройте их здесь:
+    /*
+    if (m_webSocket && m_webSocket->state() == QAbstractSocket::ConnectedState) {
+        m_webSocket->close(QWebSocketProtocol::CloseCodeNormal, "User logged out");
+        qDebug() << "Постоянное соединение WebSocket закрыто.";
+    }
+    */
+
+    // 4. Меняем статус авторизации на false.
+    // Сеттер setLoggedIn(bool) автоматически вызовет emit loggedInChanged(),
+    // что заставит QML переключить видимость экранов (скроет главное окно и откроет LoginDialog).
+    this->setLoggedIn(false);
+
+    qDebug() << "Пользователь успешно разлогинен. Интерфейс QML уведомлен.";
+
+}
 // TODO: reset the token, if attempt to enter on wrong login/password.
-// TODO: exit button
+// TODO: logoff button
