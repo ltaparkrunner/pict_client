@@ -140,7 +140,7 @@ Q_INVOKABLE int UnifiedStorageModel::addVirtual(const QString &virtFolderName, c
     beginResetModel();
 
     // Добавляем две виртуальные "папки"
-    m_items.append({virtFolderName, currPath+"/"+virtFolderName, true, true, false, true, ""});
+    m_items.append({virtFolderName, currPath+"/"+virtFolderName + "/", true, true, false, true, ""});
 
     endResetModel();
     qDebug() << "Создаем папку с именем:" << virtFolderName << "in the folder: " << currPath;
@@ -324,7 +324,7 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::getData(int indx){
     return map;
 }
 
-Q_INVOKABLE int UnifiedStorageModel::writeImageToFolder(const QVariantList &lf, QString path){
+Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf, QString path){
     qDebug() << "int UnifiedStorageModel::writeToFolder";
     if(!m_parentItem.isMinio && m_parentItem.isDirectory){
         return 0;
@@ -341,7 +341,7 @@ Q_INVOKABLE int UnifiedStorageModel::writeImageToFolder(const QVariantList &lf, 
         qDebug() << "int UnifiedStorageModel::writeToFolder 2";
         for(const QVariant &v : lf){
             QVariantMap item = v.toMap();
-            qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();
+            qDebug() << item["path"].toString() << "  " << item["mongoId"].toString() << " target folder: " << m_parentItem.path;
             msghandler->addFileRequest(item["path"].toString(), item["mongoId"].toString(), m_parentItem.path);
         }
         return 0;

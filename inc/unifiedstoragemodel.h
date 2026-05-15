@@ -62,7 +62,7 @@ public:
     Q_INVOKABLE int addVirtual(const QString &virtFolderName, const QString &currPath);
     QStringList getBacketNameFromPath(const QString &path);
     Q_INVOKABLE QString resolveImageIndex(int indx);
-    Q_INVOKABLE int writeImageToFolder(const QVariantList &lf, QString path);
+    Q_INVOKABLE int writeImagesToFolder(const QVariantList &lf, QString path);
     Q_INVOKABLE void successToQML(const QString &msg);
     Q_INVOKABLE void errorToQML(const QString &msg);
 signals:

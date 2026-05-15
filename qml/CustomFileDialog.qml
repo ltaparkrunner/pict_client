@@ -311,7 +311,8 @@ Window {
                         gridView.currentIndex = index;
                     }
                     onDoubleClicked: {
-                        acceptSelection(gridView)
+                        //acceptSelection(gridView)
+                        acceptSelectionEnterFolder(index)
                         //mouse.accepted = true;
                     }
                 }
@@ -321,7 +322,6 @@ Window {
                         event.accepted = true; // Останавливаем дальнейшее распространение события
                     }
                 }
-
                 function acceptSelection(grid) {
                     root.currentSelectedPath = model.path
                     //root.
@@ -334,6 +334,19 @@ Window {
                     } else {
                         console.log(currentSelectedPath);
                         root.openPathsSelected([currentSelectedPath]);
+                        root.close()
+                    }
+                }
+                function acceptSelectionEnterFolder(index) {
+                    root.currentSelectedPath = model.path
+                    //root.
+                    if (model.isDir) {
+                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
+                        storageModel.enterFolder(index)
+                        GridView.view.currentIndex = 0;
+                    } else {
+                        //  console.log(currentSelectedPath);
+                        root.openIndexSelected(index)
                         root.close()
                     }
                 }

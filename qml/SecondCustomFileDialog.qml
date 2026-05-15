@@ -396,12 +396,11 @@ Window {
                     root.currentSelectedPath = model.path
                     //root.
                     if (model.isDir) {
-                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
+                        //  console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
                         storageModel.openFolderImages(index)
                         GridView.view.currentIndex = 0;
                     } else {
-                        console.log(currentSelectedPath);
-    //                        root.openPathsSelected(currentSelectedPath);
+                        //  console.log(currentSelectedPath);
                         root.openIndexSelected(index)
                         root.close()
                     }
@@ -410,12 +409,11 @@ Window {
                     root.currentSelectedPath = model.path
                     //root.
                     if (model.isDir) {
-                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
+                        //  console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
                         storageModel.enterFolder(index)
                         GridView.view.currentIndex = 0;
                     } else {
-                        console.log(currentSelectedPath);
-    //                        root.openPathsSelected(currentSelectedPath);
+                        //  console.log(currentSelectedPath);
                         root.openIndexSelected(index)
                         root.close()
                     }
