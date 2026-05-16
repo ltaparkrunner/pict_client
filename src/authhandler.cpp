@@ -1,5 +1,5 @@
 #include "authhandler.h"
-#include "pict_data/message.qpb.h"
+//  #include "pict_data/message.qpb.h"
 #include <QNetworkAccessManager>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -9,6 +9,7 @@ AuthHandler::AuthHandler(/*WebSocketClient *client,*/ QObject *parent)
     : QObject(parent)   //, m_client(client)
     , settings("Alex@Co", "Alex@Co")
     , m_authToken(settings.value("Auth/accessToken", "").toString())
+    , m_username(settings.value("Auth/username", "").toString())
     , m_loggedIn(m_authToken != "")
 {
     // Listen to all incoming raw traffic from the websocket client
@@ -16,63 +17,13 @@ AuthHandler::AuthHandler(/*WebSocketClient *client,*/ QObject *parent)
     //         this, &AuthHandler::handleIncomingAuthData);
 }
 
-/*
-void AuthHandler::handleIncomingAuthData(const pict_data::AuthResponse &data) {
-    // 1. Parse incoming data using Protobuf
-    pict_data::AuthResponse response;
-    QProtobufSerializer serializer;
-
-    {
-        QString err = data.error();
-        QString token = data.token();
-        qDebug() << "handleIncomingAuthData  Token: " << token << "Response error" << err;
-    }
-}
-*/
-
-/*
-Q_INVOKABLE void AuthHandler::registerUser(const QString &login, const QString &password) {
-    qDebug() << "Register attempt:" << login << " password: " << password;
-    pict_data::ClientEnvelope cenv;
-    pict_data::RegisterRequest message;
-    message.setUserLogin(login);
-    message.setPassword(password);
-
-    cenv.setType(pict_data::ClientEnvelope::Type::AUTH_REQUEST);
-    cenv.setRegRequest(message);
-    QProtobufSerializer serializer;
-    QByteArray data = cenv.serialize(&serializer);
-    //qint64 sz =
-    m_client->sendBinaryMessage(data);
-    return;
-}
-
-Q_INVOKABLE void AuthHandler::login(const QString &login, const QString &password) {
-    qDebug() << "Login attempt:" << login << " password: " << password;
-    pict_data::ClientEnvelope cenv;
-    pict_data::AuthRequest message;
-    message.setUserLogin(login);
-    message.setPassword(password);
-
-    cenv.setType(pict_data::ClientEnvelope::Type::AUTH_REQUEST);
-    cenv.setAuthRequest(message);
-    QProtobufSerializer serializer;
-    QByteArray data = cenv.serialize(&serializer);
-    //qint64 sz =
-    m_client->sendBinaryMessage(data);
-    return;
-}
-*/
-
 //  "http://localhost:8081/login"
 Q_INVOKABLE void AuthHandler::sendLogin(QString user, QString pass) {
-//    qDebug() << "AuthHandler::sendLogin" << user << "  " << pass;
     sendAuth(user, pass, "http://localhost:8081/auth/login");
 }
 
 //  "http://localhost:8081/register"
 Q_INVOKABLE void AuthHandler::sendRegister(QString user, QString pass) {
-//    qDebug() << "AuthHandler::sendRegister" << user << "  " << pass;
     sendAuth(user, pass, "http://localhost:8081/auth/register");
 //    sendAuth(user, pass, "http://localhost:8081/register");
 }
@@ -93,17 +44,18 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
             m_authToken = doc.object().value("token").toString();
+            m_username = user;
             settings.beginGroup("Auth");
             settings.setValue("accessToken", m_authToken);
+            settings.setValue("username", m_username);
             settings.endGroup();
-            setLoggedIn(true);
+//            setLoggedIn(true);
             emit succAuth(reply->errorString());
             emit startWebSocket(/*m_authToken*/);
         }
         else {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
             if (doc.object().contains("error")) {
-//                qDebug() << "Second branch Get error object : " << doc.object()["error"].toString();
                 emit errAuth(doc.object()["error"].toString());
             }
             else emit errAuth(reply->errorString());
@@ -160,3 +112,24 @@ Q_INVOKABLE void AuthHandler::logout(){
 }
 // TODO: reset the token, if attempt to enter on wrong login/password.
 // TODO: logoff button
+void AuthHandler::setUsername(const QString &newUsername) {
+    if (m_username == newUsername)
+        return; // Если имя не изменилось, ничего не делаем
+
+    m_username = newUsername;
+    emit usernameChanged(); // КРИТИЧЕСКИ ВАЖНО: уведомляем QML об изменении
+}
+
+void AuthHandler::onWssConnected(){
+    qDebug() << "AuthHandler::onWssConnected()";
+    setLoggedIn(true);
+    emit loggedInChanged();
+    emit usernameChanged();
+}
+
+void AuthHandler::onWssDisconnected(){
+    qDebug() << "AuthHandler::onWssDisconnected()";
+    setLoggedIn(false);
+//    emit usernameChanged();
+    emit loggedInChanged();
+}

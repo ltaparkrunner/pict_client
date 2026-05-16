@@ -10,7 +10,7 @@ Dialog {
     anchors.centerIn: parent
     width: 350
 
-    visible: clientBackend.tokenExpired
+    //  visible: clientBackend.tokenExpired
     Column {
         Text{
             text: "Login or register"

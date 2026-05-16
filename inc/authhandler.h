@@ -12,6 +12,7 @@
 class AuthHandler : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool loggedIn READ loggedIn WRITE setLoggedIn NOTIFY loggedInChanged)
+    Q_PROPERTY(QString username READ username NOTIFY usernameChanged)
 public:
     explicit AuthHandler(/*WebSocketClient *client,*/ QObject *parent = nullptr);
 //    Q_INVOKABLE void login(const QString &email, const QString &password);
@@ -24,12 +25,18 @@ public:
     bool loggedIn() const;
     void setLoggedIn(bool value);
     QString authToken() const { return m_authToken; }
+    QString username() const { return m_username; }
+    void setUsername(const QString &newUsername);
+    void onWssConnected();
+    void onWssDisconnected();
+
 signals:
     void startWebSocket(/*QString token*/);
     void errAuth(QString errmsg);
     void succAuth(QString succmsg);
     void loggedInChanged();
     void loginSuccess();
+    void usernameChanged();
 
 private slots:
 //    void handleIncomingAuthData(const pict_data::AuthResponse &data);
@@ -38,6 +45,7 @@ private:
     QSettings settings;
 //    QString token;
     QString m_authToken;
+    QString m_username;
     bool m_loggedIn;
 };
 

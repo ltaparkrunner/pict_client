@@ -17,13 +17,27 @@
 //     usmodel
 // };
 
-enum class AuthState { Idle, Connecting, Authenticating, Authorized };
+// enum class AuthState { Idle, Connecting, Authenticating, Authorized };
 class WebSocketClient : public QObject
 {
     Q_OBJECT
+public:
     Q_PROPERTY(QString lastReceivedPath READ lastReceivedPath NOTIFY pathReceived)
-    Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
-    Q_PROPERTY(bool tokenExpired READ tokenExpired NOTIFY tokenExpiredChanged)
+    // Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
+    // Q_PROPERTY(bool tokenExpired READ tokenExpired NOTIFY tokenExpiredChanged)
+    enum class AuthConnectState {
+        Idle,            // Начальное состояние, бездействует
+        Connecting,      // Установка TCP/WSS соединения с сервером
+        Connected,       // Сетевое соединение установлено, но авторизация еще не началась
+        Authenticating,  // Процесс проверки токена на сервере
+        Authorized,      // Успешно подключен и авторизован
+        NotAuthorized,   // Ошибка авторизации (токен протух или испорчен)
+        NoConnection     // Ошибка сети (сервер недоступен, лимит попыток исчерпан)
+    };
+    Q_ENUM(AuthConnectState) // Позволяет использовать enum внутри QML
+
+    Q_PROPERTY(AuthConnectState authConnectionState READ authConnectionState NOTIFY authConnectionStateChanged)
+
 public:
     explicit WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObject *parent = nullptr);
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
@@ -41,8 +55,9 @@ public:
     void sendBinaryMessage(const QByteArray &data);
 //    void wsTokenConnect(QString token);
 //    void wsConnect();
-    bool isConnected() const;
-    bool tokenExpired() const { return m_tokenExpiredDetected; }
+//    bool isConnected() const;
+//    bool tokenExpired() const { return m_tokenExpiredDetected; }
+    AuthConnectState authConnectionState() const { return m_authConnectionState; }
 
 signals:
     void pathReceived(const QString &path);
@@ -56,9 +71,10 @@ signals:
     void authResponseReceived2(const QByteArray &response);
 //    void authResponseReceived(const pict_data::AuthResponse &response);
 //    void serverMessageReceived(const pict_data::ServerEnvelope &message);
-    void disconnected();
-    void isConnectedChanged();
-    void tokenExpiredChanged();
+//    void disconnected();
+//    void isConnectedChanged();
+//    void tokenExpiredChanged();
+    void authConnectionStateChanged();
 
 public slots:
 //    void connectToServer2();
@@ -68,7 +84,7 @@ private slots:
     void onDisconnected();
     void onTextMessageReceived(const QString &message);
     void onBinaryMessageReceived(const QByteArray &message);
-    void onError(QAbstractSocket::SocketError error);
+//    void onError(QAbstractSocket::SocketError error);
 
     void onBinaryMessageReceived2(const QByteArray &rawBytes);
     void onAuthRequired(QAuthenticator *authenticator);
@@ -80,17 +96,17 @@ private:
     QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
-    AuthState m_authState;
+    AuthConnectState m_authConnectionState = AuthConnectState::Idle;
     bool m_tokenExpiredDetected;
     int m_reconnectAttempts;
     const int m_maxReconnectAttempts = 3;
-//    QSettings settings;
- //   QString token;
-//    sourceReq sreq; // What is it? What is for?
-    // it defines who is the source of request, and where we have to return the answer?
-    // to imodel(ImageModel) or to usmodel(unifiedstoragemodel)
-    // pathReceived2 oasses signal to ImageModel(listStringModel)
-    // pathsReceived passes signal to isModel(unifiedstoragemodel)
+
+    void setConnectionState(AuthConnectState newState);
+    // void connectToServer();
+    // void onConnected();
+    // void onDisconnected();
+    void onErrorOccurred(QAbstractSocket::SocketError error);
+    // void attemptReconnectionWithBackoff();
 
     const int RECONNECT_INTERVAL = 5000;
     const int PING_INTERVAL = 30000;

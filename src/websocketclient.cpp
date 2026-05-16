@@ -56,7 +56,8 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
     , m_webSocket (new QWebSocket())
     , m_url(url)
     , m_path("")
-    , m_authState(AuthState::Idle)
+    //, m_authState(AuthState::Idle)
+    , m_authConnectionState(AuthConnectState::Idle)
     , m_tokenExpiredDetected(false)
     , m_reconnectAttempts(0)
 {
@@ -70,11 +71,15 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
     sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
     m_webSocket->setSslConfiguration(sslConf);
 
-    connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebSocketClient::onBinaryMessageReceived2);
     connect(m_webSocket, &QWebSocket::connected, this, &WebSocketClient::onConnected);
     connect(m_webSocket, &QWebSocket::disconnected, this, &WebSocketClient::onDisconnected);
+    connect(m_webSocket, &QWebSocket::errorOccurred, this, &WebSocketClient::onErrorOccurred);
+
+    connect(m_webSocket, &QWebSocket::binaryMessageReceived, this, &WebSocketClient::onBinaryMessageReceived2);
+
+
     connect(m_webSocket, &QWebSocket::textMessageReceived, this, &WebSocketClient::onTextMessageReceived);
-    connect(m_webSocket, &QWebSocket::errorOccurred, this, &WebSocketClient::onError);
+
 //    authenticationRequired(QAuthenticator *authenticator)
     connect(m_webSocket, &QWebSocket::authenticationRequired, this, &WebSocketClient::onAuthRequired);
     // connect(this, &WebSocketClient::disconnected, m_authHandler, &AuthHandler::logout);
@@ -94,7 +99,7 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
 Q_INVOKABLE void WebSocketClient::connectToServer(/*const QString &url*/) {
     qDebug() << "WebSocketClient::connectToServer";
     if (!m_authHandler || !m_authHandler->loggedIn()) return;
-    m_authState = AuthState::Connecting;
+    m_authConnectionState = AuthConnectState::Connecting;
     m_tokenExpiredDetected = false;
     QNetworkRequest request(m_url);
     request.setRawHeader("Authorization", ("Bearer " + m_authHandler->authToken()).toUtf8());
@@ -171,32 +176,40 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 void WebSocketClient::onConnected() {
     qDebug() << "Connected. Heartbeat has started.";
 //    m_reconnectTimer.stop();
+//    emit isConnectedChanged();
+    // emit m_authHandler-> setLoggedIn(true);
+    // emit m_authHandler->usernameChanged();
+    m_authHandler->onWssConnected();
     m_reconnectAttempts = 0;
-    m_authState = AuthState::Authenticating;
+//    m_authState = AuthState::Authenticating;
     m_pingTimer.start(PING_INTERVAL);
 }
 
 void WebSocketClient::onDisconnected() {
 //    qDebug() << "Connection is lost. Waiting for reconnection...";
-    qDebug() << "WebSocketClient::onDisconnected: " << m_webSocket->error() << " error " << m_webSocket->errorString();
+    //  qDebug() << "WebSocketClient::onDisconnected: " << m_webSocket->error() << " error " << m_webSocket->errorString();
     m_pingTimer.stop();
-    m_authState = AuthState::Idle;
-    emit disconnected();
+//    m_authState = AuthState::Idle;
+//    emit disconnected();
     if (m_tokenExpiredDetected) {
-        emit tokenExpiredChanged();
+        qDebug() << "WebSocketClient::onDisconnected m_tokenExpiredDetected: " << m_tokenExpiredDetected << " " <<m_webSocket->error();
+//        emit tokenExpiredChanged();
         // Handle token expiration safely outside the error loop
         //  emit authenticationFailed();
         //  promptUserForCredentials();
         //  Show login screen, clear saved token
     }
     else if(m_reconnectAttempts < m_maxReconnectAttempts) {
+        qDebug() << "WebSocketClient::onDisconnected > m_reconnectAttempts: " << m_reconnectAttempts << " " << m_webSocket->error();
         m_reconnectAttempts++;
         m_reconnectTimer.start(RECONNECT_INTERVAL);
     }
     else if(m_reconnectAttempts >= m_maxReconnectAttempts){
-        qDebug() << " m_reconnectAttempts >= m_maxReconnectAttempts " << m_webSocket->state();
+        qDebug() << "WebSocketClient::onDisconnected <= m_reconnectAttempts: " << m_reconnectAttempts << " " << m_webSocket->error();
         // emit connectionFailedPermanently();
-        isConnectedChanged();
+        m_authHandler->onWssDisconnected();
+        //emit isConnectedChanged();
+        authConnectionStateChanged();
     }
 }
 
@@ -204,9 +217,9 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
     qDebug() << "Text from server:" << message;
 }
 
-void WebSocketClient::onError(QAbstractSocket::SocketError error) {
+void WebSocketClient::onErrorOccurred(QAbstractSocket::SocketError error) {
     qDebug() << "Error:" << m_webSocket->errorString() << " " << m_webSocket->error();
-    if (m_authState == AuthState::Authenticating &&
+    if (m_authConnectionState == AuthConnectState::Authenticating &&
         error == QAbstractSocket::ConnectionRefusedError) {
 
         m_tokenExpiredDetected = true;
@@ -277,8 +290,6 @@ void WebSocketClient::deleteMinioBucketsRequest(const QStringList &buckets){
     pict_data::DeleteBucketRequest message;
 
     for(const QString &bucket : buckets) {
-        qDebug() << "void WebSocketClient::deleteMinioBucketsRequest(const QStringList &buckets)" << bucket;
-//        message.setBucketName(bucket);
         base.setDeleteBucket(message);
         QProtobufSerializer serializer;
         QByteArray data = base.serialize(&serializer);
@@ -292,9 +303,7 @@ int WebSocketClient::deleteFileFromServerRequest(const QStringList &fileData){
         pict_data::DeleteFileRequest message;
 
         message.setFileName(fileData.at(0));
-//        message.setBucketName(fileData.at(1));
         message.setMongoId(fileData.at(2));
-//        message.setUserLogin(fileData.at(3));
         base.setDeleteFile(message);
         QProtobufSerializer serializer;
         QByteArray data = base.serialize(&serializer);
@@ -374,20 +383,6 @@ void WebSocketClient::sendBinaryMessage(const QByteArray &data) {
     }
 }
 
-// void WebSocketClient::wsTokenConnect(QString authToken){
-//     // token = authToken;
-//     // settings.beginGroup("Auth");
-//     // settings.setValue("accessToken", token);
-//     // settings.endGroup();
-//     wsConnect();
-// }
-
-// void WebSocketClient::wsConnect(){
-//     QNetworkRequest request(m_url);
-//     request.setRawHeader("Authorization", "Bearer " + m_authHandler->authToken().toUtf8());
-//     m_webSocket->open(request);
-// }
-
 void WebSocketClient::onAuthRequired(QAuthenticator *authenticator){
     qDebug() << "onAuthRequired(QAuthenticator): " << authenticator->realm() << authenticator->user();
 }
@@ -396,19 +391,6 @@ void WebSocketClient::disconnectFromServer() {
     m_webSocket->close();
 }
 
-// void WebSocketClient::connectToServer2() {
-//     if (!m_authHandler || !m_authHandler->loggedIn()) return;
-
-//     // Берем актуальный токен из менеджера авторизации
-//     // QString token = m_authHandler->authToken();
-
-//     // Формируем запрос с JWT-токеном (в протоколе или query-параметрах)
-//     QNetworkRequest request(m_url);
-//     request.setRawHeader("Authorization", ("Bearer " + m_authHandler->authToken()).toUtf8());
-
-//     m_webSocket->open(request);
+// bool WebSocketClient::isConnected() const {
+//     return m_webSocket->state() == QAbstractSocket::ConnectedState;
 // }
-
-bool WebSocketClient::isConnected() const {
-    return m_webSocket->state() == QAbstractSocket::ConnectedState;
-}

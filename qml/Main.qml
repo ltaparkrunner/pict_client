@@ -24,13 +24,13 @@ ApplicationWindow {
             //  console.log("Получено из C++:", url)
         }
     }
-    Connections {
-        target: wsClient
-        function onDisconnected(){
-            //  console.log("function onShowLoginRequired()")
-            loginWarn.open()
-        }
-    }
+    // Connections {
+    //     target: wsClient
+    //     function onDisconnected(){
+    //         //  console.log("function onShowLoginRequired()")
+    //         loginWarn.open()
+    //     }
+    // }
 
     Connections {
         target: authHandler
@@ -60,7 +60,7 @@ ApplicationWindow {
     NetworkDialog {
         // Связываем свойство диалога напрямую с C++ классом
         // Предварительно зарегистрировав MyClient в контексте QML под именем myClient
-        isNetworkAvailable: wsClient.isConnected
+        isNetworkAvailable: wsClient.authConnectionState //isConnected
         //  clientBackend: wsClient
 
         onAccepted: {
@@ -187,6 +187,7 @@ ApplicationWindow {
                     id: loginButton
                     Layout.preferredWidth: 25
                     Layout.preferredHeight: 25
+                    hoverEnabled: true
                     Item {
                         id: userImageCliped
                         anchors.left: parent.left
@@ -240,15 +241,14 @@ ApplicationWindow {
                         // userMenu.x = x - userMenu.width + 25 + 3
                         // userMenu.y = y + 25 + 3
                     }
-
                     Shape {
                         id: bubble
                         x: -text.width - 25
                         anchors.margins: 3
                         preferredRendererType: Shape.CurveRenderer
-                        visible: authHandler ? !authHandler.loggedIn : false
+                        visible: (authHandler ? !authHandler.loggedIn : false) || loginButton.hovered
+                        //  visible: loginButton.hovered || (authHandler ? authHandler.loggedIn : false)
                         //  visible: !rootWnd.authHandler.loggedIn
-
                         ShapePath {
                             strokeWidth: 0
                             fillColor: "#667085"
@@ -272,12 +272,49 @@ ApplicationWindow {
                             y: 8
                             id: text
                             color: "white"
-                            text: qsTr("Log in to edit")
+                            //  text: qsTr("Log in to edit")
+                            text: authHandler ? ( authHandler.loggedIn ? authHandler.username : "Log in to edit") : "Log in to edit"
                             font.bold: true
                             horizontalAlignment: Qt.AlignHCenter
                             verticalAlignment: Qt.AlignVCenter
                         }
                     }
+                    // Shape {
+                    //     id: bubble2
+                    //     x: -text2.width - 25
+                    //     anchors.margins: 3
+                    //     preferredRendererType: Shape.CurveRenderer
+                    //     visible: authHandler ? authHandler.loggedIn : false
+
+                    //     ShapePath {
+                    //         strokeWidth: 0
+                    //         fillColor: "#667085"
+                    //         startX: 5; startY: 0
+                    //         PathLine { x: 5 + text2.width + 6; y: 0 }
+                    //         PathArc { x: 10 + text2.width + 6; y: 5; radiusX: 5; radiusY: 5}
+                    //         // arrow
+                    //         PathLine { x: 10 + text2.width + 6; y: 8 + text2.height / 2 - 6 }
+                    //         PathLine { x: 10 + text2.width + 6 + 6; y: 8 + text2.height / 2 }
+                    //         PathLine { x: 10 + text2.width + 6; y: 8 + text2.height / 2 + 6}
+                    //         PathLine { x: 10 + text2.width + 6; y: 5 + text2.height + 6 }
+                    //         // end arrow
+                    //         PathArc { x: 5 + text2.width + 6; y: 10 + text2.height + 6 ; radiusX: 5; radiusY: 5}
+                    //         PathLine { x: 5; y: 10 + text2.height + 6 }
+                    //         PathArc { x: 0; y: 5 + text2.height + 6 ; radiusX: 5; radiusY: 5}
+                    //         PathLine { x: 0; y: 5 }
+                    //         PathArc { x: 5; y: 0 ; radiusX: 5; radiusY: 5}
+                    //     }
+                    //     Text {
+                    //         x: 8
+                    //         y: 8
+                    //         id: text2
+                    //         color: "white"
+                    //         text: qsTr(authHandler.username)
+                    //         font.bold: true
+                    //         horizontalAlignment: Qt.AlignHCenter
+                    //         verticalAlignment: Qt.AlignVCenter
+                    //     }
+                    // }
                 }
             }
             RowLayout{
