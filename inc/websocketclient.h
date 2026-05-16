@@ -17,10 +17,13 @@
 //     usmodel
 // };
 
+enum class AuthState { Idle, Connecting, Authenticating, Authorized };
 class WebSocketClient : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString lastReceivedPath READ lastReceivedPath NOTIFY pathReceived)
+    Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
+    Q_PROPERTY(bool tokenExpired READ tokenExpired NOTIFY tokenExpiredChanged)
 public:
     explicit WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObject *parent = nullptr);
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
@@ -36,8 +39,10 @@ public:
     int deleteFileFromServerRequest(const QStringList &fileData);
 
     void sendBinaryMessage(const QByteArray &data);
-    void wsTokenConnect(QString token);
-    void wsConnect();
+//    void wsTokenConnect(QString token);
+//    void wsConnect();
+    bool isConnected() const;
+    bool tokenExpired() const { return m_tokenExpiredDetected; }
 
 signals:
     void pathReceived(const QString &path);
@@ -51,10 +56,12 @@ signals:
     void authResponseReceived2(const QByteArray &response);
 //    void authResponseReceived(const pict_data::AuthResponse &response);
 //    void serverMessageReceived(const pict_data::ServerEnvelope &message);
-    void showLoginRequired();
+    void disconnected();
+    void isConnectedChanged();
+    void tokenExpiredChanged();
 
 public slots:
-    void connectToServer2();
+//    void connectToServer2();
     void disconnectFromServer();
 private slots:
     void onConnected();
@@ -70,9 +77,13 @@ public:
 private:
     AuthHandler *m_authHandler;
     QUrl m_url;
-//    QTimer m_reconnectTimer;
+    QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
+    AuthState m_authState;
+    bool m_tokenExpiredDetected;
+    int m_reconnectAttempts;
+    const int m_maxReconnectAttempts = 3;
 //    QSettings settings;
  //   QString token;
 //    sourceReq sreq; // What is it? What is for?

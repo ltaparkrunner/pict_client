@@ -26,7 +26,7 @@ ApplicationWindow {
     }
     Connections {
         target: wsClient
-        function onShowLoginRequired(){
+        function onDisconnected(){
             //  console.log("function onShowLoginRequired()")
             loginWarn.open()
         }
@@ -42,6 +42,7 @@ ApplicationWindow {
     }
 
     WarnDialog{
+        clientBackend: wsClient
         id: loginWarn
     }
 
@@ -53,6 +54,18 @@ ApplicationWindow {
                 for(var path of paths)
                     processPath(path)
             }
+        }
+    }
+
+    NetworkDialog {
+        // Связываем свойство диалога напрямую с C++ классом
+        // Предварительно зарегистрировав MyClient в контексте QML под именем myClient
+        isNetworkAvailable: wsClient.isConnected
+        //  clientBackend: wsClient
+
+        onAccepted: {
+            // При нажатии "Повторить" инициируем новое подключение
+            wsClient.connectToServer()
         }
     }
 

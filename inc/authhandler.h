@@ -25,7 +25,7 @@ public:
     void setLoggedIn(bool value);
     QString authToken() const { return m_authToken; }
 signals:
-    void startWebSocket(QString token);
+    void startWebSocket(/*QString token*/);
     void errAuth(QString errmsg);
     void succAuth(QString succmsg);
     void loggedInChanged();

@@ -32,7 +32,7 @@ qt_add_qml_module(${PROJECT_NAME}
         SOURCES inc/auxilary.h
         SOURCES src/auxilary.cpp
         RESOURCES icons/login.svg icons/logout.svg icons/user.svg
-        QML_FILES
+        QML_FILES qml/NetworkDialog.qml
         SOURCES
         SOURCES
         RESOURCES icons/userMask.svg

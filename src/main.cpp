@@ -59,6 +59,6 @@ int main(int argc, char *argv[])
         QObject::connect(authDialog, SIGNAL(registerRequested(QString,QString)),
                          &authHandler, SLOT(sendRegister(QString,QString)));
     }
-    QObject::connect(&authHandler, &AuthHandler::startWebSocket, &wsClient, &WebSocketClient::wsTokenConnect);
+    QObject::connect(&authHandler, &AuthHandler::startWebSocket, &wsClient, &WebSocketClient::connectToServer);
     return app.exec();
 }

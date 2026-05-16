@@ -98,7 +98,7 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
             settings.endGroup();
             setLoggedIn(true);
             emit succAuth(reply->errorString());
-            emit startWebSocket(m_authToken);
+            emit startWebSocket(/*m_authToken*/);
         }
         else {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());

@@ -23,7 +23,7 @@ public:
     int deleteFileFromServerRequest(const QStringList &fileData);
 
 signals:
-    void startWebSocket(QString token);
+    //  void startWebSocket(QString token);
     void bucketsReceived(const QStringList &buckets);
     void pathsReceived(const QList<QStringList> &paths);
     void resultSuccess(const QString &msg);
