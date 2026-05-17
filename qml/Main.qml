@@ -7,6 +7,7 @@ import QtQuick.Controls.Basic
 import QtQuick.Dialogs
 import QtQuick.Effects
 import QtQuick.Shapes
+import pict_client //1.0
 
 ApplicationWindow {
     id: rootWnd
@@ -552,7 +553,98 @@ ApplicationWindow {
     }
 
 //        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
+    footer: ToolBar {
+        id: statusBar
 
+        // Высота панели
+        height: 30
+
+        // Меняем цвет фона панели в зависимости от состояния сети/авторизации
+        background: Rectangle {
+            color: {
+                if (!wsClient) return "#667085" // Цвет по умолчанию (Серый)
+
+                switch (wsClient.authConnectionState) {
+                    case WebSocketClient.Authorized:
+                        return "#2e7d32" // Зеленый (Успешно подключен)
+                    case WebSocketClient.Connecting:
+                    case WebSocketClient.Connected:
+                    case WebSocketClient.Authenticating:
+                        return "#f57c00" // Оранжевый (В процессе)
+                    case WebSocketClient.NotAuthorized:
+                    case WebSocketClient.NoConnection:
+                        return "#d32f2f" // Красный (Ошибка)
+                    default:
+                        return "#667085"
+                }
+            }
+
+            // Плавный переход цвета при смене состояний
+            Behavior on color { ColorAnimation { duration: 300 } }
+        }
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
+            spacing: 10
+            // verticalAlignment: Qt.AlignVCenter
+
+            // Иконка или индикатор состояния (маленький кружок)
+            Rectangle {
+                width: 10
+                height: 10
+                radius: 5
+                Layout.alignment: Qt.AlignVCenter
+                color: "white"
+
+                // Делаем так, чтобы индикатор мигал во время подключения
+                SequentialAnimation on opacity {
+                    running: wsClient.authConnectionState === WebSocketClient.Connecting ||
+                             wsClient.authConnectionState === WebSocketClient.Authenticating
+                    loops: Animation.Infinite
+                    PropertyAnimation { to: 0.2; duration: 500 }
+                    PropertyAnimation { to: 1.0; duration: 500 }
+                    // Если состояние стабильное, просто горит на 100%
+                    onRunningChanged: if (!running) opacity = 1.0
+                }
+            }
+            // Текстовое описание текущего статуса
+            Label {
+                //anchors.verticalCenter: parent.verticalCenter
+                Layout.alignment: Qt.AlignVCenter
+                color: "white"
+                font.pixelSize: 12
+                font.bold: true
+
+                text: {
+                    if (!wsClient) return "Инициализация..."
+                    //  console.log("wsClient.authConnectionState: ", wsClient.authConnectionState, " wsClient.Idle: ", wsClient.Idle)
+                    // for (var property in wsClient) {
+                    //     try {
+                    //         // Выводим имя свойства и его текущее значение
+                    //         console.log(property + " : " + obj[property])
+                    //     } catch (e) {
+                    //         // Некоторые свойства Qt защищены от чтения в рантайме
+                    //         console.log(property + " : [Ошибка чтения: " + e.message + "]")
+                    //     }
+                    // }
+                    //  console.log(JSON.stringify(wsClient, null, 2))
+                    switch (wsClient.authConnectionState) {
+                        case WebSocketClient.Idle: return "Отключено"
+                        case WebSocketClient.Connecting: return "Подключение по сети..."
+                        case WebSocketClient.Connected: return "Сеть активна, авторизация..."
+                        case WebSocketClient.Authenticating: return "Проверка токена безопасности..."
+                        case WebSocketClient.Authorized: return "Подключен: " + (authHandler ? authHandler.username : "")
+                        case WebSocketClient.NotAuthorized: return "Ошибка: Токен устарел или испорчен"
+                        case WebSocketClient.NoConnection: return "Ошибка: Нет связи с сервером"
+                        default: return "Неизвестный статус"
+                    }
+
+                }
+            }
+        }
+    }
     function processPath(path){
         if(path) {
             let type = FileHelper.checkPathType(path);

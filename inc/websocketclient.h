@@ -10,17 +10,14 @@
 #include <QAuthenticator>
 #include "pict_data/message.qpb.h"
 #include "authhandler.h"
-//#include <QSettings>
+#include <QtQml>
 
-// enum sourceReq{
-//     imodel,
-//     usmodel
-// };
-
-// enum class AuthState { Idle, Connecting, Authenticating, Authorized };
 class WebSocketClient : public QObject
 {
     Q_OBJECT
+    QML_ELEMENT
+    QML_UNCREATABLE("WebSocketClient can only be instantiated from C++")
+//    Q_ENUM(AuthConnectState)
 public:
     Q_PROPERTY(QString lastReceivedPath READ lastReceivedPath NOTIFY pathReceived)
     // Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
@@ -56,8 +53,7 @@ public:
 //    void wsTokenConnect(QString token);
 //    void wsConnect();
 //    bool isConnected() const;
-//    bool tokenExpired() const { return m_tokenExpiredDetected; }
-    AuthConnectState authConnectionState() const { return m_authConnectionState; }
+    AuthConnectState authConnectionState() const { return m_authConnectState; }
 
 signals:
     void pathReceived(const QString &path);
@@ -96,8 +92,7 @@ private:
     QTimer m_reconnectTimer;
     QTimer m_pingTimer;
     QString m_path;
-    AuthConnectState m_authConnectionState = AuthConnectState::Idle;
-    bool m_tokenExpiredDetected;
+    AuthConnectState m_authConnectState;    // = AuthConnectState::Idle;
     int m_reconnectAttempts;
     const int m_maxReconnectAttempts = 3;
 
@@ -111,5 +106,5 @@ private:
     const int RECONNECT_INTERVAL = 5000;
     const int PING_INTERVAL = 30000;
 };
-
+//  Q_DECLARE_METATYPE(WebSocketClient::AuthConnectState)
 #endif // WEBSOCKETCLIENT_H
