@@ -188,6 +188,13 @@ void WebSocketClient::onDisconnected() {
     if (m_authConnectState == AuthConnectState::NotAuthorized) {
         qWarning() << "Stopping: Token is spoiled.";
         //  Show login screen, clear saved token
+        setConnectionState(AuthConnectState::NotAuthorized);
+        return;
+    }
+    if (m_authConnectState == AuthConnectState::LoggingOut) {
+        qWarning() << "Stopping: Token is spoiled.";
+        //  Show login screen, clear saved token
+        setConnectionState(AuthConnectState::LoggedOut);
         return;
     }
     else if(m_reconnectAttempts < m_maxReconnectAttempts) {
@@ -404,7 +411,8 @@ Q_INVOKABLE void WebSocketClient::registerRequested(const QString &login, const 
 Q_INVOKABLE void WebSocketClient::logout(){
     setConnectionState(AuthConnectState::LoggingOut);
     connect(m_authHandler, &AuthHandler::logoffSuccess, this, [=](){
-        setConnectionState(AuthConnectState::LoggedOut);
+        setConnectionState(AuthConnectState::LoggingOut);
+        m_webSocket -> close();
     });
     m_authHandler->logout();
 }
