@@ -29,7 +29,11 @@ public:
         Authenticating,  // Процесс проверки токена на сервере
         Authorized,      // Успешно подключен и авторизован
         NotAuthorized,   // Ошибка авторизации (токен протух или испорчен)
-        NoConnection     // Ошибка сети (сервер недоступен, лимит попыток исчерпан)
+        NoConnection,     // Ошибка сети (сервер недоступен, лимит попыток исчерпан)
+
+        LoggingOut,      // В процессе выхода (отправка запроса logout / закрытие сессии)
+        LoggedOut        // Успешно вышел из системы (токен стерт, ожидаем ручного ввода)
+
     };
     Q_ENUM(AuthConnectState) // Позволяет использовать enum внутри QML
 
@@ -54,6 +58,9 @@ public:
 //    void wsConnect();
 //    bool isConnected() const;
     AuthConnectState authConnectionState() const { return m_authConnectState; }
+
+    void loginRequested(const QString &login, const QString &passw);
+    void registerRequested(const QString &login, const QString &passw);
 
 signals:
     void pathReceived(const QString &path);

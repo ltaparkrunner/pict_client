@@ -25,8 +25,8 @@ void UnifiedStorageModel::enterLocal(QString path) {
     endResetModel();
 }
 
-void UnifiedStorageModel::enterSeverStore(QString path) {
-    qDebug() << "UnifiedStorageModel::enterSeverStore and request";
+void UnifiedStorageModel::enterServerStore(QString path) {
+    qDebug() << "UnifiedStorageModel::enterServerStore and request";
     connect(msghandler, &MsgHandler::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
     msghandler->getBucketsListRequest();
 }

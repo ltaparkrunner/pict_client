@@ -47,18 +47,18 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
     engine.loadFromModule("pict_client", "Main");
 
-    QObject *rootObject = engine.rootObjects().first();
-    QObject *authDialog = rootObject->findChild<QObject*>("authDialog");
+    // QObject *rootObject = engine.rootObjects().first();
+    // QObject *authDialog = rootObject->findChild<QObject*>("authDialog");
 
-    if (authDialog) {
-        // 3. Connect loginRequested signal to C++ slot
-        QObject::connect(authDialog, SIGNAL(loginRequested(QString,QString)),
-                         &authHandler, SLOT(sendLogin(QString,QString)));
+    // if (authDialog) {
+    //     // 3. Connect loginRequested signal to C++ slot
+    //     QObject::connect(authDialog, SIGNAL(loginRequested(QString,QString)),
+    //                      &authHandler, SLOT(sendLogin(QString,QString)));
 
-        // 4. Connect registerRequested signal to C++ slot
-        QObject::connect(authDialog, SIGNAL(registerRequested(QString,QString)),
-                         &authHandler, SLOT(sendRegister(QString,QString)));
-    }
+    //     // 4. Connect registerRequested signal to C++ slot
+    //     QObject::connect(authDialog, SIGNAL(registerRequested(QString,QString)),
+    //                      &authHandler, SLOT(sendRegister(QString,QString)));
+    // }
     QObject::connect(&authHandler, &AuthHandler::startWebSocket, &wsClient, &WebSocketClient::connectToServer);
     return app.exec();
 }

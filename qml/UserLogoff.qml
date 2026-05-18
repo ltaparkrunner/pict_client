@@ -48,7 +48,8 @@ Dialog {
     onAccepted: {
         console.log("Пользователь подтвердил выход")
         // Вызываем ваш C++ метод логаута, который очистит токен
-        authHandler.logout()
+        //  authHandler.logout()
+        wsClient.logout()
     }
 
     // Обработка нажатия на кнопку "Отмена" (Dialog.No или закрытие окна)

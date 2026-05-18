@@ -11,7 +11,7 @@
 
 class AuthHandler : public QObject {
     Q_OBJECT
-    Q_PROPERTY(bool loggedIn READ loggedIn WRITE setLoggedIn NOTIFY loggedInChanged)
+//    Q_PROPERTY(bool loggedIn READ loggedIn WRITE setLoggedIn NOTIFY loggedInChanged)
     Q_PROPERTY(QString username READ username NOTIFY usernameChanged)
 public:
     explicit AuthHandler(/*WebSocketClient *client,*/ QObject *parent = nullptr);
@@ -22,8 +22,8 @@ public:
     Q_INVOKABLE void sendAuth(QString user, QString pass, QString path);
 
     Q_INVOKABLE void logout();
-    bool loggedIn() const;
-    void setLoggedIn(bool value);
+//    bool loggedIn() const;
+//    void setLoggedIn(bool value);
     QString authToken() const { return m_authToken; }
     QString username() const { return m_username; }
     void setUsername(const QString &newUsername);
@@ -34,8 +34,8 @@ signals:
     void startWebSocket(/*QString token*/);
     void errAuth(QString errmsg);
     void succAuth(QString succmsg);
-    void loggedInChanged();
-    void loginSuccess();
+//    void loggedInChanged();
+    void loginRegSuccess();
     void usernameChanged();
 
 private slots:

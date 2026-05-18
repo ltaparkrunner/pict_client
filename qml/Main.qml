@@ -59,6 +59,7 @@ ApplicationWindow {
     }
 
     NetworkDialog {
+        id: nwDialog
         // Связываем свойство диалога напрямую с C++ классом
         // Предварительно зарегистрировав MyClient в контексте QML под именем myClient
         isNetworkAvailable: wsClient.authConnectionState //isConnected
@@ -229,18 +230,18 @@ ApplicationWindow {
                     }
 
                     onClicked: {
-                        if(!authHandler.loggedIn) {
+//                        if(!authHandler.loggedIn) {
+                        if(wsClient.authConnectionState === WebSocketClient.NotAuthorized ||
+                            wsClient.authConnectionState === WebSocketClient.LoggedOut){
                             userLogin.statusTextElement.text = ""
                             userLogin.open()
                         }
-                        else {
+                        else if(wsClient.authConnectionState === WebSocketClient.Authorized){
                             userLogoff.open()
                         }
-
-                        // var pos = mapToGlobal(Qt.point(x, y))
-                        // pos = userMenu.parent.mapFromGlobal(pos)
-                        // userMenu.x = x - userMenu.width + 25 + 3
-                        // userMenu.y = y + 25 + 3
+                        else {
+                            nwDialog.open()
+                        }
                     }
                     Shape {
                         id: bubble

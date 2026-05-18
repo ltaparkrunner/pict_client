@@ -8,7 +8,7 @@
 AuthHandler::AuthHandler(/*WebSocketClient *client,*/ QObject *parent)
     : QObject(parent)   //, m_client(client)
     , settings("Alex@Co", "Alex@Co")
-    , m_authToken(settings.value("Auth/accessToken", "").toString())
+    , m_authToken(settings.value("Auth/accessToken", "").toString())  // the second argument is a default value
     , m_username(settings.value("Auth/username", "").toString())
     , m_loggedIn(m_authToken != "")
 {
@@ -50,7 +50,7 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
             settings.setValue("username", m_username);
             settings.endGroup();
 //            setLoggedIn(true);
-            emit succAuth(reply->errorString());
+//            emit succAuth(reply->errorString());
             emit startWebSocket(/*m_authToken*/);
         }
         else {
@@ -64,36 +64,39 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
     });
 }
 
-bool AuthHandler::loggedIn() const{
-    return m_loggedIn;
-}
+// bool AuthHandler::loggedIn() const{
+//     return m_loggedIn;
+// }
 
-void AuthHandler::setLoggedIn(bool value) {
-    qDebug() << "AuthHandler::setLoggedIn: " << value;
-    if (m_loggedIn == value)
-        return; // Если статус не изменился, ничего не делаем (защита от зацикливания)
+// void AuthHandler::setLoggedIn(bool value) {
+//     qDebug() << "AuthHandler::setLoggedIn: " << value;
+//     if (m_loggedIn == value)
+//         return; // Если статус не изменился, ничего не делаем (защита от зацикливания)
 
-    m_loggedIn = value;
-    emit loggedInChanged(); // 4. ВАЖНО: триггерим сигнал, чтобы QML узнал об изменениях
-}
+//     m_loggedIn = value;
+//     emit loggedInChanged(); // 4. ВАЖНО: триггерим сигнал, чтобы QML узнал об изменениях
+// }
 
 Q_INVOKABLE void AuthHandler::logout(){
     qDebug() << "Инициация процесса выхода из системы (Logoff)...";
 
     // 1. Удаляем токен из постоянной памяти устройства (сохраненная сессия)
     // Используйте те же имена организации и приложения, что и при инициализации
-    QSettings settings("MyCompany", "MyApplication");
+    QSettings settings("Alex@Co", "Alex@Co");
 
-    if (settings.contains("auth/jwt_token")) {
-        settings.remove("auth/jwt_token");
+    if (settings.contains("Auth/accessToken")) {
+        settings.remove("Auth/accessToken");
         settings.sync(); // Принудительно сохраняем изменения на диск
         qDebug() << "JWT-токен успешно удален из QSettings.";
     }
-
+    if (settings.contains("Auth/username")) {
+        settings.remove("Auth/username");
+        settings.sync(); // Принудительно сохраняем изменения на диск
+    }
     // 2. Очищаем токен из оперативной памяти C++ класса (текущая сессия)
     // Допустим, у вас есть приватная переменная QString m_authToken;
     this->m_authToken = "";
-
+    this->m_username = "";
     // 3. (Опционально) Если вы используете WebSockets или TCP-сокеты, закройте их здесь:
     /*
     if (m_webSocket && m_webSocket->state() == QAbstractSocket::ConnectedState) {
@@ -105,7 +108,7 @@ Q_INVOKABLE void AuthHandler::logout(){
     // 4. Меняем статус авторизации на false.
     // Сеттер setLoggedIn(bool) автоматически вызовет emit loggedInChanged(),
     // что заставит QML переключить видимость экранов (скроет главное окно и откроет LoginDialog).
-    this->setLoggedIn(false);
+    //  this->setLoggedIn(false);
 
     qDebug() << "Пользователь успешно разлогинен. Интерфейс QML уведомлен.";
 
@@ -122,14 +125,14 @@ void AuthHandler::setUsername(const QString &newUsername) {
 
 void AuthHandler::onWssConnected(){
     qDebug() << "AuthHandler::onWssConnected()";
-    setLoggedIn(true);
-    emit loggedInChanged();
+//    setLoggedIn(true);
+//    emit loggedInChanged();
     emit usernameChanged();
 }
 
 void AuthHandler::onWssDisconnected(){
     qDebug() << "AuthHandler::onWssDisconnected()";
-    setLoggedIn(false);
+//    setLoggedIn(false);
 //    emit usernameChanged();
-    emit loggedInChanged();
+//    emit loggedInChanged();
 }

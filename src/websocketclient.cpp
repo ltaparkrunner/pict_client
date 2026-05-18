@@ -2,7 +2,7 @@
 #include "pict_data/message.qpb.h"
 #include <QFileInfo>
 #include <QtProtobuf/QProtobufSerializer>
-#include <QSettings>
+//  #include <QSettings>
 
 void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
     //    qDebug() << "FileClient::onBinaryMessageReceived(const QByteArray &data)";
@@ -84,21 +84,20 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
     connect(m_webSocket, &QWebSocket::authenticationRequired, this, &WebSocketClient::onAuthRequired);
     // connect(this, &WebSocketClient::disconnected, m_authHandler, &AuthHandler::logout);
     // Перехватываем успешный вход, чтобы автоматически запустить сокет
-    connect(m_authHandler, &AuthHandler::loginSuccess, this, &WebSocketClient::connectToServer);
+    // connect(m_authHandler, &AuthHandler::loginSuccess, this, &WebSocketClient::connectToServer);
 
     // Перехватываем выход, чтобы разорвать соединение
-    connect(m_authHandler, &AuthHandler::loggedInChanged, this, [this](){
-        if (!m_authHandler->loggedIn()) {
-            disconnectFromServer();
-        }
-    });
-
+    // connect(m_authHandler, &AuthHandler::loggedInChanged, this, [this](){
+    //     if (!m_authHandler->loggedIn()) {
+    //         disconnectFromServer();
+    //     }
+    // });
     connectToServer();
 }
 
 Q_INVOKABLE void WebSocketClient::connectToServer(/*const QString &url*/) {
     qDebug() << "WebSocketClient::connectToServer";
-    if (!m_authHandler || !m_authHandler->loggedIn()) return;
+//    if (!m_authHandler || !m_authHandler->loggedIn()) return;
     setConnectionState(AuthConnectState::Connecting);
     // m_tokenExpiredDetected = false;
     QNetworkRequest request(m_url);
@@ -388,4 +387,16 @@ void WebSocketClient::setConnectionState(AuthConnectState newState) {
     m_authConnectState = newState;
     emit authConnectionStateChanged();
     qDebug() << "State changed to:" << static_cast<int>(m_authConnectState);
+}
+
+void WebSocketClient::loginRequested(const QString &login, const QString &passw){
+    setConnectionState(AuthConnectState::Connecting);
+    connect(m_authHandler, &AuthHandler::loginRegSuccess, this, &WebSocketClient::connectToServer);
+    m_authHandler->sendLogin(login, passw);
+}
+
+void WebSocketClient::registerRequested(const QString &login, const QString &passw){
+    setConnectionState(AuthConnectState::Connecting);
+    connect(m_authHandler, &AuthHandler::loginRegSuccess, this, &WebSocketClient::connectToServer);
+    m_authHandler->sendRegister(login, passw);
 }

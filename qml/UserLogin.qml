@@ -172,9 +172,9 @@ Dialog {
                 statusText.color = "blue"
                 enabled = false // Блокируем кнопку на время проверки
                 if (isLoginMode) {
-                    loginRequested(emailField.text, passwordField.text)
+                    wsClient.loginRequested(emailField.text, passwordField.text)
                 } else {
-                    registerRequested(emailField.text, passwordField.text)
+                    wsClient.registerRequested(emailField.text, passwordField.text)
                 }
             }
         }
