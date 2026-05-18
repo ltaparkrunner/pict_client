@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts 1.15
 import pict_client
 
 Dialog {
@@ -23,17 +24,18 @@ Dialog {
     }
 
     // Содержимое диалога (Иконка предупреждения + Текст)
-    Row {
+    RowLayout {
         spacing: 15
-        anchors.fill: parent
-        anchors.margins: 15
+        // anchors.fill: parent
+        // anchors.margins: 15
 
         // Простая текстовая иконка предупреждения (можно заменить на Image)
         Text {
             text: "⚠"
             font.pixelSize: 28
             color: "#f39c12" // Оранжевый цвет предупреждения
-            anchors.verticalCenter: parent.verticalCenter
+//            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignVCenter
         }
 
         Label {
@@ -41,16 +43,17 @@ Dialog {
             font.pixelSize: 14
             wrapMode: Text.WordWrap
             width: 250 // Ограничиваем ширину для красивого переноса текста
-            anchors.verticalCenter: parent.verticalCenter
+//            anchors.verticalCenter: parent.verticalCenter
+            Layout.alignment: Qt.AlignVCenter
         }
     }
 
     // Обработка нажатия на кнопку "Выйти" (Dialog.Yes)
     onAccepted: {
-        console.log("Пользователь подтвердил выход")
+        //  console.log("Пользователь подтвердил выход")
         // Вызываем ваш C++ метод логаута, который очистит токен
         //  authHandler.logout()
-        console.log(JSON.stringify(wsClient, null, 2))
+        //  console.log(JSON.stringify(wsClient, null, 2))
         wsClient.logout()
     }
 

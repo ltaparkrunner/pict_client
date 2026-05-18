@@ -403,6 +403,8 @@ Q_INVOKABLE void WebSocketClient::registerRequested(const QString &login, const 
 
 Q_INVOKABLE void WebSocketClient::logout(){
     setConnectionState(AuthConnectState::LoggingOut);
-    connect(m_authHandler, &AuthHandler::logoffSuccess, this, &WebSocketClient::connectToServer);
+    connect(m_authHandler, &AuthHandler::logoffSuccess, this, [=](){
+        setConnectionState(AuthConnectState::LoggedOut);
+    });
     m_authHandler->logout();
 }

@@ -33,14 +33,14 @@ ApplicationWindow {
     //     }
     // }
 
-    Connections {
-        target: authHandler
-        function onSuccAuth(errMsg){
+    // Connections {
+    //     target: authHandler
+    //     function onSuccAuth(errMsg){
 
-        }
-        // function onLogoff(msg){
-        // }
-    }
+    //     }
+    //     // function onLogoff(msg){
+    //     // }
+    // }
 
     WarnDialog{
         clientBackend: wsClient
@@ -192,8 +192,7 @@ ApplicationWindow {
                     hoverEnabled: true
                     Item {
                         id: userImageCliped
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                         width: 25
                         height: 25
 
@@ -248,7 +247,8 @@ ApplicationWindow {
                         x: -text.width - 25
                         anchors.margins: 3
                         preferredRendererType: Shape.CurveRenderer
-                        visible: (authHandler ? !authHandler.loggedIn : false) || loginButton.hovered
+                        visible: wsClient.authConnectionState === WebSocketClient.NotAuthorized ||
+                                 wsClient.authConnectionState === WebSocketClient.LoggedOut
                         //  visible: loginButton.hovered || (authHandler ? authHandler.loggedIn : false)
                         //  visible: !rootWnd.authHandler.loggedIn
                         ShapePath {
@@ -534,8 +534,9 @@ ApplicationWindow {
                     }
 
                     Text {
-                        anchors.bottom: parent.bottom
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        //  anchors.bottom: parent.bottom
+                        //  anchors.horizontalCenter: parent.horizontalCenter
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignBottom
                         text: "No Image Loaded"//"Large Image Preview"
                         color: "white"
                         font.pixelSize: 18
@@ -571,10 +572,12 @@ ApplicationWindow {
                     case WebSocketClient.Connecting:
                     case WebSocketClient.Connected:
                     case WebSocketClient.Authenticating:
+                    case WebSocketClient.LoggingOut:
                         return "#f57c00" // Оранжевый (В процессе)
                     case WebSocketClient.NotAuthorized:
                     case WebSocketClient.NoConnection:
                         return "#d32f2f" // Красный (Ошибка)
+                    case WebSocketClient.LoggedOut: return "darkkhaki"
                     default:
                         return "#667085"
                 }
@@ -639,6 +642,8 @@ ApplicationWindow {
                         case WebSocketClient.Authorized: return "Подключен: " + (authHandler ? authHandler.username : "")
                         case WebSocketClient.NotAuthorized: return "Ошибка: Токен устарел или испорчен"
                         case WebSocketClient.NoConnection: return "Ошибка: Нет связи с сервером"
+                        case WebSocketClient.LoggingOut: return "Пользователь отключается"
+                        case WebSocketClient.LoggedOut: return "Ни один пользователь не подключен."
                         default: return "Неизвестный статус"
                     }
 
