@@ -389,14 +389,20 @@ void WebSocketClient::setConnectionState(AuthConnectState newState) {
     qDebug() << "State changed to:" << static_cast<int>(m_authConnectState);
 }
 
-void WebSocketClient::loginRequested(const QString &login, const QString &passw){
+Q_INVOKABLE void WebSocketClient::loginRequested(const QString &login, const QString &passw){
     setConnectionState(AuthConnectState::Connecting);
     connect(m_authHandler, &AuthHandler::loginRegSuccess, this, &WebSocketClient::connectToServer);
     m_authHandler->sendLogin(login, passw);
 }
 
-void WebSocketClient::registerRequested(const QString &login, const QString &passw){
+Q_INVOKABLE void WebSocketClient::registerRequested(const QString &login, const QString &passw){
     setConnectionState(AuthConnectState::Connecting);
     connect(m_authHandler, &AuthHandler::loginRegSuccess, this, &WebSocketClient::connectToServer);
     m_authHandler->sendRegister(login, passw);
+}
+
+Q_INVOKABLE void WebSocketClient::logout(){
+    setConnectionState(AuthConnectState::LoggingOut);
+    connect(m_authHandler, &AuthHandler::logoffSuccess, this, &WebSocketClient::connectToServer);
+    m_authHandler->logout();
 }

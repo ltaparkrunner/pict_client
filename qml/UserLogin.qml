@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Controls.Basic
+import pict_client
 
 Dialog {
     id: authDialog
@@ -23,23 +24,44 @@ Dialog {
     // onRegisterRequested: (email, password) => authHandler.registerUser(email, password)
 
     // Отслеживаем сигналы от C++ объекта loginManager
+    // Connections {
+    //     target: authHandler
+
+    //     function onSuccAuth(succMsg) {
+    //         console.log("function onSuccAuth", succMsg)
+    //         statusText.color = "green"
+    //         statusText.text = "Вход успешно выполнен!"
+    //         // Здесь можно закрыть диалог или переключить экран через Delay
+    //         loginTimer.start()
+    //         loginButton.enabled = true
+    //     }
+
+    //     function onErrAuth(errMsg) {
+    //         console.log("function onErrAuth", errMsg)
+    //         statusText.color = "red"
+    //         statusText.text = errMsg
+    //         loginButton.enabled = true
+    //     }
+    // }
+
     Connections {
-        target: authHandler
-
-        function onSuccAuth(succMsg) {
-            console.log("function onSuccAuth", succMsg)
-            statusText.color = "green"
-            statusText.text = "Вход успешно выполнен!"
-            // Здесь можно закрыть диалог или переключить экран через Delay
-            loginTimer.start()
-            loginButton.enabled = true
-        }
-
-        function onErrAuth(errMsg) {
-            console.log("function onErrAuth", errMsg)
-            statusText.color = "red"
-            statusText.text = errMsg
-            loginButton.enabled = true
+        target: wsClient
+        function onAuthConnectionStateChanged(){
+            console.log("function authConnectionStateChanged")
+            if(wsClient.authConnectionState === WebSocketClient.Authorized) {
+                console.log("function authConnectionStateChanged Succ")
+                statusText.color = "green"
+                statusText.text = "Вход успешно выполнен!"
+                // Здесь можно закрыть диалог или переключить экран через Delay
+                loginTimer.start()
+                loginButton.enabled = true
+            }
+            if(wsClient.authConnectionState === WebSocketClient.NotAuthorized) {
+                console.log("function authConnectionStateChanged Err")
+                statusText.color = "red"
+                statusText.text = "Ошибка авторизации."
+                loginButton.enabled = true
+            }
         }
     }
 
@@ -192,20 +214,4 @@ Dialog {
         emailField.focus = false
         passwordField.focus = false
     }
-
-    // Обработка нажатия кнопки "ОК"
-    // onAccepted: {
-    //     if (emailField.text === "" || passwordField.text === "") {
-    //         errorLabel.visible = true
-    //         // Не закрываем диалог при ошибке (в Qt Quick Dialog это требует переопределения кнопки)
-    //         return
-    //     }
-
-    //     if (isLoginMode) {
-    //         loginRequested(emailField.text, passwordField.text)
-    //     } else {
-    //         registerRequested(emailField.text, passwordField.text)
-    //     }
-    // }
-
 }

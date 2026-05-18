@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls
+import pict_client
 
 Dialog {
     id: logoffDialog
@@ -49,6 +50,7 @@ Dialog {
         console.log("Пользователь подтвердил выход")
         // Вызываем ваш C++ метод логаута, который очистит токен
         //  authHandler.logout()
+        console.log(JSON.stringify(wsClient, null, 2))
         wsClient.logout()
     }
 

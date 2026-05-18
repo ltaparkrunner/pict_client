@@ -59,8 +59,9 @@ public:
 //    bool isConnected() const;
     AuthConnectState authConnectionState() const { return m_authConnectState; }
 
-    void loginRequested(const QString &login, const QString &passw);
-    void registerRequested(const QString &login, const QString &passw);
+    Q_INVOKABLE void loginRequested(const QString &login, const QString &passw);
+    Q_INVOKABLE void registerRequested(const QString &login, const QString &passw);
+    Q_INVOKABLE void logout();
 
 signals:
     void pathReceived(const QString &path);

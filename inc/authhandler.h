@@ -37,6 +37,7 @@ signals:
 //    void loggedInChanged();
     void loginRegSuccess();
     void usernameChanged();
+    void logoffSuccess();
 
 private slots:
 //    void handleIncomingAuthData(const pict_data::AuthResponse &data);
