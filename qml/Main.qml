@@ -574,9 +574,9 @@ ApplicationWindow {
                     case WebSocketClient.Authenticating:
                     case WebSocketClient.LoggingOut:
                         return "#f57c00" // Оранжевый (В процессе)
-                    case WebSocketClient.NotAuthorized:
                     case WebSocketClient.NoConnection:
                         return "#d32f2f" // Красный (Ошибка)
+                    case WebSocketClient.NotAuthorized:
                     case WebSocketClient.LoggedOut: return "darkkhaki"
                     default:
                         return "#667085"
@@ -640,7 +640,7 @@ ApplicationWindow {
                         case WebSocketClient.Connected: return "Сеть активна, авторизация..."
                         case WebSocketClient.Authenticating: return "Проверка токена безопасности..."
                         case WebSocketClient.Authorized: return "Подключен: " + (authHandler ? authHandler.username : "")
-                        case WebSocketClient.NotAuthorized: return "Ошибка: Токен устарел или испорчен"
+                        case WebSocketClient.NotAuthorized: return "Ни один пользователь не подключен."     //"Ошибка: Токен устарел или испорчен"
                         case WebSocketClient.NoConnection: return "Ошибка: Нет связи с сервером"
                         case WebSocketClient.LoggingOut: return "Пользователь отключается"
                         case WebSocketClient.LoggedOut: return "Ни один пользователь не подключен."

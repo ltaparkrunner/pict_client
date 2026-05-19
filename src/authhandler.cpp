@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QNetworkReply>
+#include <QTimer>
 
 AuthHandler::AuthHandler(/*WebSocketClient *client,*/ QObject *parent)
     : QObject(parent)   //, m_client(client)
@@ -38,9 +39,11 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
     json["username"] = user;
     json["password"] = pass;
 
-    QNetworkReply* reply = manager->post(request, QJsonDocument(json).toJson());
+    request.setTransferTimeout(5000);
+    QNetworkReply* reply = manager->post(request, QJsonDocument(json).toJson());// = manager->post(request, QJsonDocument(json).toJson());
 
     connect(reply, &QNetworkReply::finished, this, [=]() {
+        qDebug() << "reply->error()" << reply->error();
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
             m_authToken = doc.object().value("token").toString();
@@ -51,17 +54,42 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
             settings.endGroup();
 //            setLoggedIn(true);
 //            emit succAuth(reply->errorString());
-            emit startWebSocket(/*m_authToken*/);
+            emit authSucc(AuthCond::LoginSucc, "LoginSucc");
+        } else if(reply->error() == QNetworkReply::TimeoutError){
+            qDebug() << "QNetworkReply::TimeoutError";
+            emit authErr(AuthCond::LoginTimeoutErr, "LoginTimeoutErr");
+        } else if(reply->error() == QNetworkReply::ConnectionRefusedError){
+            qDebug() << "QNetworkReply::LoginConnErr";
+            emit authErr(AuthCond::LoginConnErr, "LoginConnErr");
         }
         else {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
             if (doc.object().contains("error")) {
-                emit errAuth(doc.object()["error"].toString());
+                emit authErr(AuthCond::LoginErr, doc.object()["error"].toString());
             }
-            else emit errAuth(reply->errorString());
+            else emit authErr(AuthCond::LoginErr, reply->errorString());
         }
         reply->deleteLater();
     });
+
+    //  reply = manager->post(request, QJsonDocument(json).toJson());
+    // connect(reply, &QNetworkReply::errorOccurred, [reply](QNetworkReply::NetworkError code) {
+    //     qDebug() << " reply->error() " << reply->error() << "QNetworkReply::NetworkError" << code;
+    //     if (code == QNetworkReply::OperationCanceledError) {
+    //         qDebug() << "Request timed out or was canceled!";
+    //     }
+    // });
+    // QTimer* timer = new QTimer(reply);
+    // timer->setSingleShot(true);
+    // timer->start(5000);
+
+    // // 3. Handle the timeout event (Connection hung / No response)
+    // QObject::connect(timer, &QTimer::timeout, this, [reply]() {
+    //     if (reply->isRunning()) {
+    //         qDebug() << "Error: Connection timed out. Server did not respond.";
+    //         reply->abort(); // This forces the reply to close and triggers the error signal
+    //     }
+    // });
 }
 
 Q_INVOKABLE void AuthHandler::logout(){
@@ -96,16 +124,11 @@ void AuthHandler::setUsername(const QString &newUsername) {
     emit usernameChanged(); // КРИТИЧЕСКИ ВАЖНО: уведомляем QML об изменении
 }
 
-void AuthHandler::onWssConnected(){
-    qDebug() << "AuthHandler::onWssConnected()";
-//    setLoggedIn(true);
-//    emit loggedInChanged();
-    emit usernameChanged();
-}
+// void AuthHandler::onWssConnected(){
+//     qDebug() << "AuthHandler::onWssConnected()";
+//     emit usernameChanged();
+// }
 
-void AuthHandler::onWssDisconnected(){
-    qDebug() << "AuthHandler::onWssDisconnected()";
-//    setLoggedIn(false);
-//    emit usernameChanged();
-//    emit loggedInChanged();
-}
+// void AuthHandler::onWssDisconnected(){
+//     qDebug() << "AuthHandler::onWssDisconnected()";
+// }

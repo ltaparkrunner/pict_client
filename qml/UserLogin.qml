@@ -59,7 +59,14 @@ Dialog {
             if(wsClient.authConnectionState === WebSocketClient.NotAuthorized) {
                 console.log("function authConnectionStateChanged Err")
                 statusText.color = "red"
-                statusText.text = "Ошибка авторизации."
+                statusText.text = "Authorization error, check your login and password."
+                loginButton.enabled = true
+            }
+            if(wsClient.authConnectionState === WebSocketClient.NoConnection) {
+                console.log("function authConnectionStateChanged Err")
+                statusText.color = "red"
+                statusText.text = "No network connection. Check your network."
+                loginTimer.start()
                 loginButton.enabled = true
             }
         }

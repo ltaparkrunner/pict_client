@@ -11,31 +11,37 @@
 
 class AuthHandler : public QObject {
     Q_OBJECT
-//    Q_PROPERTY(bool loggedIn READ loggedIn WRITE setLoggedIn NOTIFY loggedInChanged)
     Q_PROPERTY(QString username READ username NOTIFY usernameChanged)
 public:
+    enum class AuthCond {
+        LoginSucc,
+        LoginErr,
+        LoginTimeoutErr,
+        LoginConnErr,
+        LogoutSucc,
+        LogoutErr,
+        LogoutTimeoutErr,
+        LogoutConnErr
+    };
     explicit AuthHandler(/*WebSocketClient *client,*/ QObject *parent = nullptr);
-//    Q_INVOKABLE void login(const QString &email, const QString &password);
-//    Q_INVOKABLE void registerUser(const QString &email, const QString &password);
     Q_INVOKABLE void sendLogin(QString user, QString pass);
     Q_INVOKABLE void sendRegister(QString user, QString pass);
     Q_INVOKABLE void sendAuth(QString user, QString pass, QString path);
 
     Q_INVOKABLE void logout();
-//    bool loggedIn() const;
-//    void setLoggedIn(bool value);
+
     QString authToken() const { return m_authToken; }
     QString username() const { return m_username; }
     void setUsername(const QString &newUsername);
-    void onWssConnected();
-    void onWssDisconnected();
+//    void onWssConnected();
+//    void onWssDisconnected();
 
 signals:
     void startWebSocket(/*QString token*/);
-    void errAuth(QString errmsg);
-    void succAuth(QString succmsg);
+    void authErr(AuthCond authc, QString errmsg);
+    void authSucc(AuthCond authc, QString succmsg);
 //    void loggedInChanged();
-    void loginRegSuccess();
+//    void loginRegSuccess();
     void usernameChanged();
     void logoffSuccess();
 

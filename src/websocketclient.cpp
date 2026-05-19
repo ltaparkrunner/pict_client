@@ -398,13 +398,33 @@ void WebSocketClient::setConnectionState(AuthConnectState newState) {
 
 Q_INVOKABLE void WebSocketClient::loginRequested(const QString &login, const QString &passw){
     setConnectionState(AuthConnectState::Connecting);
-    connect(m_authHandler, &AuthHandler::loginRegSuccess, this, &WebSocketClient::connectToServer);
+    connect(m_authHandler, &AuthHandler::authSucc, this, &WebSocketClient::connectToServer);
+    connect(m_authHandler, &AuthHandler::authErr, this,
+            [=](AuthHandler::AuthCond authCond, QString errmsg){
+                qDebug() << "Login Error LoginConnErr";
+                if(authCond == AuthHandler::AuthCond::LoginTimeoutErr ||
+                    authCond == AuthHandler::AuthCond::LoginConnErr ){
+                    qDebug() << "LoginTimeoutErr or LoginConnErr";
+                    setConnectionState(AuthConnectState::NoConnection);
+                }
+                else setConnectionState(AuthConnectState::NotAuthorized);// errmsg transmit to
+            });
     m_authHandler->sendLogin(login, passw);
 }
 
 Q_INVOKABLE void WebSocketClient::registerRequested(const QString &login, const QString &passw){
     setConnectionState(AuthConnectState::Connecting);
-    connect(m_authHandler, &AuthHandler::loginRegSuccess, this, &WebSocketClient::connectToServer);
+    connect(m_authHandler, &AuthHandler::authSucc, this, &WebSocketClient::connectToServer);
+    connect(m_authHandler, &AuthHandler::authErr, this,
+            [=](AuthHandler::AuthCond authCond, QString errmsg){
+        qDebug() << "Login Error LoginConnErr";
+        if(authCond == AuthHandler::AuthCond::LoginTimeoutErr ||
+           authCond == AuthHandler::AuthCond::LoginConnErr ){
+            qDebug() << "LoginTimeoutErr or LoginConnErr";
+            setConnectionState(AuthConnectState::NoConnection);
+        }
+        else setConnectionState(AuthConnectState::NotAuthorized);// errmsg transmit to
+    });
     m_authHandler->sendRegister(login, passw);
 }
 
