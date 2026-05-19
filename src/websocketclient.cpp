@@ -233,13 +233,21 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
 }
 
 void WebSocketClient::onErrorOccurred(QAbstractSocket::SocketError error) {
-    qDebug() << "Error:" << m_webSocket->errorString() << " " << m_webSocket->error();
+    qDebug() << "Error:" << m_webSocket->errorString() << " " << m_webSocket->error() << "  m_authConnectState: " << m_authConnectState;
+    qDebug() << " error: " << error;
     if (m_authConnectState == AuthConnectState::Connecting &&
-        error == QAbstractSocket::ConnectionRefusedError) {
-        if(m_authConnectState != AuthConnectState::UserDisconnecting)
-            setConnectionState(AuthConnectState::ExternalDisconnecting);
-        qWarning() << "Authentication failed. Token is likely invalid.";
+        error == QAbstractSocket::ConnectionRefusedError ||
+        error == QAbstractSocket::UnknownSocketError) {
+        QString systemError = m_webSocket->errorString();
+        qDebug() << "Handshake error occurred:" << systemError;
+        if (systemError.contains("Authenticate")) {
+            qDebug() << "Token expired! Initiate authentication refresh.";
+            setConnectionState(AuthConnectState::NotAuthorized);
+        }
+        //  qWarning() << "Authentication failed. Token is likely invalid.";
     }
+    else if(m_authConnectState != AuthConnectState::UserDisconnecting)
+        setConnectionState(AuthConnectState::ExternalDisconnecting);
     // if (m_webSocket->state() != QAbstractSocket::ConnectedState && !m_reconnectTimer.isActive()) {
     //     m_reconnectTimer.start(RECONNECT_INTERVAL);
     // }
