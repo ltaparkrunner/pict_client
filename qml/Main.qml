@@ -573,6 +573,10 @@ ApplicationWindow {
                     case WebSocketClient.Connected:
                     case WebSocketClient.Authenticating:
                     case WebSocketClient.LoggingOut:
+                    case WebSocketClient.AuthorizedNoPingRespond:
+                    case WebSocketClient.LoggedOutNoPingRespond:
+                    case WebSocketClient.ExternalDisconnecting:
+                    case WebSocketClient.UserDisconnecting:
                         return "#f57c00" // Оранжевый (В процессе)
                     case WebSocketClient.NoConnection:
                         return "#d32f2f" // Красный (Ошибка)
@@ -644,6 +648,10 @@ ApplicationWindow {
                         case WebSocketClient.NoConnection: return "Ошибка: Нет связи с сервером"
                         case WebSocketClient.LoggingOut: return "Пользователь отключается"
                         case WebSocketClient.LoggedOut: return "Ни один пользователь не подключен."
+                        case WebSocketClient.AuthorizedNoPingRespond: return "Подключен: " + (authHandler ? authHandler.username : "") + ".  Ping отсутствует."
+                        case WebSocketClient.LoggedOutNoPingRespond: return "Ни один пользователь не подключен.  Ping отсутствует."
+                        case WebSocketClient.ExternalDisconnecting: return "Ошибка сервера."
+                        case WebSocketClient.UserDisconnecting: return "Отключаемся."
                         default: return "Неизвестный статус"
                     }
 

@@ -70,9 +70,8 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
             m_webSocket->ping();
         }
         else {
-            setConnectionState(AuthConnectState::NoConnection);
-            m_reconnectAttempts = 0;
-            m_webSocket->abort();
+            if(m_authConnectState == AuthConnectState::Authorized) setConnectionState(AuthConnectState::AuthorizedNoPingRespond);
+            else if(m_authConnectState == AuthConnectState::LoggedOut) setConnectionState(AuthConnectState::LoggedOutNoPingRespond);
         }
     });
     QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
@@ -198,6 +197,7 @@ void WebSocketClient::onConnected() {
 
 void WebSocketClient::onDisconnected() {
     qDebug() << "WebSocketClient::onDisconnected: " << m_webSocket->error() << " error " << m_webSocket->errorString();
+    qDebug() << "WebSocketClient::onDisconnected: AuthConnectState: " << m_authConnectState;
     m_pingTimer.stop();
 
     if (m_authConnectState == AuthConnectState::NotAuthorized) {
@@ -212,13 +212,14 @@ void WebSocketClient::onDisconnected() {
         setConnectionState(AuthConnectState::LoggedOut);
         return;
     }
-    else if(m_reconnectAttempts < m_maxReconnectAttempts) {
+    else if(m_authConnectState != AuthConnectState::UserDisconnecting && m_reconnectAttempts < m_maxReconnectAttempts) {
         qDebug() << "WebSocketClient::onDisconnected > m_reconnectAttempts: " << m_reconnectAttempts << " " << m_webSocket->error();
         setConnectionState(AuthConnectState::Connecting);
         m_reconnectAttempts++;
         m_reconnectTimer.start(RECONNECT_INTERVAL);
     }
-    else if(m_reconnectAttempts >= m_maxReconnectAttempts){
+    else if((m_authConnectState != AuthConnectState::UserDisconnecting && m_reconnectAttempts >= m_maxReconnectAttempts)
+               || (m_authConnectState == AuthConnectState::UserDisconnecting)){
         qDebug() << "WebSocketClient::onDisconnected <= m_reconnectAttempts: " << m_reconnectAttempts << " " << m_webSocket->error();
         // emit connectionFailedPermanently();
         // m_authHandler->onWssDisconnected();
@@ -235,7 +236,8 @@ void WebSocketClient::onErrorOccurred(QAbstractSocket::SocketError error) {
     qDebug() << "Error:" << m_webSocket->errorString() << " " << m_webSocket->error();
     if (m_authConnectState == AuthConnectState::Connecting &&
         error == QAbstractSocket::ConnectionRefusedError) {
-        setConnectionState(AuthConnectState::NotAuthorized);
+        if(m_authConnectState != AuthConnectState::UserDisconnecting)
+            setConnectionState(AuthConnectState::ExternalDisconnecting);
         qWarning() << "Authentication failed. Token is likely invalid.";
     }
     // if (m_webSocket->state() != QAbstractSocket::ConnectedState && !m_reconnectTimer.isActive()) {

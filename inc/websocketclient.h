@@ -31,8 +31,12 @@ public:
         NoConnection,     // Ошибка сети (сервер недоступен, лимит попыток исчерпан)
 
         LoggingOut,      // В процессе выхода (отправка запроса logout / закрытие сессии)
-        LoggedOut        // Успешно вышел из системы (токен стерт, ожидаем ручного ввода)
+        LoggedOut,        // Успешно вышел из системы (токен стерт, ожидаем ручного ввода)
 
+        UserDisconnecting,
+        ExternalDisconnecting,
+        AuthorizedNoPingRespond,    //
+        LoggedOutNoPingRespond
     };
     Q_ENUM(AuthConnectState) // Позволяет использовать enum внутри QML
 
