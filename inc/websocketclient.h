@@ -21,7 +21,6 @@ class WebSocketClient : public QObject
 public:
     Q_PROPERTY(QString lastReceivedPath READ lastReceivedPath NOTIFY pathReceived)
     // Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
-    // Q_PROPERTY(bool tokenExpired READ tokenExpired NOTIFY tokenExpiredChanged)
     enum class AuthConnectState {
         Idle,            // Начальное состояние, бездействует
         Connecting,      // Установка TCP/WSS соединения с сервером
@@ -104,6 +103,7 @@ private:
     int m_reconnectAttempts;
     const int m_maxReconnectAttempts = 3;
 
+    bool m_pongReceived;
     void setConnectionState(AuthConnectState newState);
     // void connectToServer();
     // void onConnected();

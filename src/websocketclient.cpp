@@ -60,12 +60,20 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
     , m_authConnectState(AuthConnectState::Idle)
     //, m_tokenExpiredDetected(false)
     , m_reconnectAttempts(0)
+    , m_pongReceived(true)
 {
     qDebug() << "WebSocketClient::WebSocketClient  token: "; // << token;
     m_reconnectTimer.setSingleShot(true);
     connect(&m_reconnectTimer, &QTimer::timeout, this, &WebSocketClient::connectToServer);
     connect(&m_pingTimer, &QTimer::timeout, this, [&]() {
-        if (m_webSocket->state() == QAbstractSocket::ConnectedState) m_webSocket->ping();
+        if (m_webSocket->state() == QAbstractSocket::ConnectedState && m_pongReceived) {
+            m_webSocket->ping();
+        }
+        else {
+            setConnectionState(AuthConnectState::NoConnection);
+            m_reconnectAttempts = 0;
+            m_webSocket->abort();
+        }
     });
     QSslConfiguration sslConf = QSslConfiguration::defaultConfiguration();
     sslConf.setPeerVerifyMode(QSslSocket::VerifyNone);
@@ -82,6 +90,12 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
 
 //    authenticationRequired(QAuthenticator *authenticator)
     connect(m_webSocket, &QWebSocket::authenticationRequired, this, &WebSocketClient::onAuthRequired);
+    connect(m_webSocket, &QWebSocket::pong, this, [this](quint64 elapsedTime, const QByteArray &payload){
+        Q_UNUSED(elapsedTime);
+        Q_UNUSED(payload);
+        m_pongReceived = true;
+        qDebug() << "Понг получен. Соединение стабильно.";
+    });
     // connect(this, &WebSocketClient::disconnected, m_authHandler, &AuthHandler::logout);
     // Перехватываем успешный вход, чтобы автоматически запустить сокет
     // connect(m_authHandler, &AuthHandler::loginSuccess, this, &WebSocketClient::connectToServer);
@@ -174,6 +188,7 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 void WebSocketClient::onConnected() {
     qDebug() << "Connected. Heartbeat has started.";
     qDebug() << "WSS Network layer connected.";
+    m_pongReceived = true;
     m_reconnectAttempts = 0;
     m_reconnectTimer.stop();
     setConnectionState(AuthConnectState::Authorized);
