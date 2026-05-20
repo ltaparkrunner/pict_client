@@ -1,3 +1,6 @@
+once more how to enter and switch between the windows in FileCustomDialog.
+What a message in Network Store
+
 no connection with server in a several minute decide,  how m_pingTimer works?
 when no connection, but attempt to connect, authErr decide.
 

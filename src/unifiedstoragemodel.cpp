@@ -25,10 +25,13 @@ void UnifiedStorageModel::enterLocal(QString path) {
     endResetModel();
 }
 
-void UnifiedStorageModel::enterServerStore(QString path) {
-    qDebug() << "UnifiedStorageModel::enterServerStore and request";
-    connect(msghandler, &MsgHandler::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
-    msghandler->getBucketsListRequest();
+void UnifiedStorageModel::enterNetStore(QString path) {
+        connect(msghandler, &MsgHandler::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
+        connect(wsclient, &WebSocketClient::errReceived, this, [=](){
+            qDebug() << " errReceived";
+
+        });
+        msghandler->getBucketsListRequest();
 }
 
 void UnifiedStorageModel::enterMinioBucket(const QString &path) {
@@ -106,6 +109,7 @@ QHash<int, QByteArray> UnifiedStorageModel::roleNames() const{
 }
 
 void UnifiedStorageModel::loadRoot() {
+    qDebug() << "UnifiedStorageModel::loadRoot()";
     beginResetModel();
     m_items.clear();
 

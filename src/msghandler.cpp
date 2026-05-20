@@ -43,9 +43,9 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
 }
 
 Q_INVOKABLE int MsgHandler::getBucketsListRequest() const{
+    qDebug() << "MsgHandler::getBucketsListRequest()";
     pict_data::ClientEnvelope cenv;
     pict_data::BucketsRequest message;
-//    message.setUserLogin("Ivon");
 
     cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
     cenv.setReqUserBuckets(message);

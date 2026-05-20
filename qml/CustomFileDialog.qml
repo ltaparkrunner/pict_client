@@ -6,14 +6,17 @@ import QtQuick.Controls.Basic
 
 Window {
     id: root
-    title: "Selecting an object (Locally / MinIO)"
+    title: "Selecting an object (Locally / Network storage)"
     width: 500; height: 400
 //    modal: false
 //    standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: "."
 //    property string currentPath: "/"
-    signal openPathsSelected(list<string> path)
+
+//    signal openPathsSelected(list<string> path)
+    signal openIndicesSelected(list<int> inds)
+    signal openIndexSelected(int index)
     property int lastSelectedTab: 0
     property var selectedIndices: []
 //    property var selectedPaths: []
@@ -83,12 +86,12 @@ Window {
 //                focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    storageModel.enterLocal("/")
+                    storageModel.enterLocal("/")   // TODO:
                     tb_local.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        storageModel.enterLocal("/");
+                        //storageModel.enterLocal("/"); TODO: right to write
                         root.lastSelectedTab=0
                     }
                 }
@@ -104,7 +107,7 @@ Window {
                         console.log("tb_local Нажата стрелка Вправо")
                     }
                 }
-                KeyNavigation.right: tb_minio
+                KeyNavigation.right: nw_storage
                 Keys.onDownPressed: {
                     gridView.forceActiveFocus()
                 }
@@ -149,17 +152,17 @@ Window {
                 }
             }
             TabButton {
-                id: tb_minio
-                text: "MinIO"
+                id: nw_storage
+                text: "Network storage"
                 focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    storageModel.enterServerStore("main-bucket")
-                    tb_minio.forceActiveFocus()
+                    storageModel.enterNetStore("main-bucket")
+                    nw_storage.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        storageModel.enterServerStore("main-bucket");
+                        storageModel.enterNetStore("main-bucket");
                         root.lastSelectedTab=1
                     }
                 }
@@ -169,10 +172,10 @@ Window {
                         event.accepted = true
                     }
                     if (event.key === Qt.Key_Right) {
-                        console.log("tb_minio Нажата стрелка Вправо")
+                        console.log("nw_storage Нажата стрелка Вправо")
                     }
                     if (event.key === Qt.Key_Left) {
-                        console.log("tb_minio Нажата стрелка Влево")
+                        console.log("nw_storage Нажата стрелка Влево")
                     }
                 }
                 KeyNavigation.left: tb_local
@@ -205,7 +208,7 @@ Window {
 
                         // Плавная анимация появления линии
                         Behavior on height { NumberAnimation { duration: 150 } }
-                        visible: !tb_minio.activeFocus
+                        visible: !nw_storage.activeFocus
                     }
                     Rectangle {
                         anchors.fill: parent
@@ -214,11 +217,11 @@ Window {
                         // border.color: "#2196F3"
                         // border.width: 2
                         // radius: 6
-                        color: tb_minio.enabled ? "transparent" : "#353535"
-                        border.color: tb_minio.activeFocus ? "#21be2b" : "#bdbebf"
-                        border.width: tb_minio.activeFocus ? 2 : 1
+                        color: nw_storage.enabled ? "transparent" : "#353535"
+                        border.color: nw_storage.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: nw_storage.activeFocus ? 2 : 1
                         radius: 4
-                        visible: tb_minio.activeFocus // tb_minio.visualFocus       Виден только при фокусе
+                        visible: nw_storage.activeFocus // nw_storage.visualFocus       Виден только при фокусе
                     }
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }
@@ -230,18 +233,32 @@ Window {
             id: gridView
             Layout.fillWidth: true
             Layout.fillHeight: true
+            //height: cellHeight
             clip: true // clip what is it?
             focus: true
             flow: GridView.FlowTopToBottom
-
+            //flow: GridView.FlowLeftToRight
             cellWidth: 140  // Ширина колонки
             cellHeight: 60 // Высота строки
 
             model: storageModel // Объект UnifiedStorageModel из C++
             // Настройка ScrollBar (Полоса прокрутки)
-            ScrollBar.vertical: ScrollBar {
+            ScrollBar.horizontal: ScrollBar {
+                id: horizontalScrollBar
+            //ScrollBar.vertical: ScrollBar {
                 active: true // Всегда видна при прокрутке
-                policy: ScrollBar.AlwaysOn // Или AsNeeded
+                policy: ScrollBar.AsNeeded  //AlwaysOn // Или AsNeeded
+                implicitHeight: 14
+                contentItem: Rectangle {
+                    implicitWidth: 100
+                    implicitHeight: 12
+                    radius: 6
+                    //  Делаем цвет ярче, когда на скроллбар наводят мышь или тянут его
+                    color: horizontalScrollBar.pressed ? "#1177BB" :
+                           horizontalScrollBar.hovered ? "#2299EE" : "#888888"
+                    //  Плавное изменение цвета при наведении
+                    Behavior on color { ColorAnimation { duration: 150 } }
+                }
             }
 
             highlightMoveDuration: 0
@@ -306,7 +323,6 @@ Window {
                             // Одиночный выбор (без Ctrl)
                             selectedIndices = [index];
                         }
-
                         // Устанавливаем currentIndex для GridView (визуальный фокус)
                         gridView.currentIndex = index;
                     }
@@ -333,7 +349,8 @@ Window {
                         // parent.currentItem = 0
                     } else {
                         console.log(currentSelectedPath);
-                        root.openPathsSelected([currentSelectedPath]);
+                        //root.openPathsSelected([currentSelectedPath]);
+                        root.openIndicesSelected([index])
                         root.close()
                     }
                 }
@@ -376,14 +393,16 @@ Window {
                 onClicked: {
                     if(selectedIndices){
                         console.log("selectedIndices", selectedIndices)
-                        var selectedPaths = []
-                        for(let index of selectedIndices) {
-                            console.log("storageModel.get(index).path", storageModel.get(index).path)
-                            selectedPaths.push(storageModel.get(index).path)
-                        }
-                        root.openPathsSelected(selectedPaths);
+                        // var selectedPaths = []
+                        // for(let index of selectedIndices) {
+                        //     console.log("storageModel.get(index).path", storageModel.get(index).path)
+                        //     selectedPaths.push(storageModel.get(index).path)
+                        // }
+                        //  root.openPathsSelected(selectedPaths);
+                        root.openIndicesSelected(selectedIndices);
                     }
-                    else root.openPathsSelected([currentSelectedPath]);
+                    else //root.openPathsSelected([currentSelectedPath]);
+                        root.openIndicesSelected([selectedIndices]);
                     root.close() }
                 background: Rectangle {
                     anchors.fill: parent
@@ -434,6 +453,7 @@ Window {
                 }
             }
         }
+
     }
 //    onActiveFocusItemChanged: console.log("Фокус сейчас на: " + activeFocusItem)
 //    Component.on

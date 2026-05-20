@@ -160,7 +160,7 @@ Window {
                         console.log("tb_local Нажата стрелка Вправо")
                     }
                 }
-                KeyNavigation.right: tb_minio
+                KeyNavigation.right: nw_storage
                 Keys.onDownPressed: {
                     gridView2.forceActiveFocus()
                 }
@@ -205,17 +205,17 @@ Window {
                 }
             }
             TabButton {
-                id: tb_minio
+                id: nw_storage
                 text: "MinIO"
                 focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    storageModel.enterServerStore("main-bucket")
-                    tb_minio.forceActiveFocus()
+                    storageModel.enterNetStore("main-bucket")
+                    nw_storage.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        storageModel.enterServerStore("main-bucket");
+                        storageModel.enterNetStore("main-bucket");
                         root.lastSelectedTab=1
                     }
                 }
@@ -225,10 +225,10 @@ Window {
                         event.accepted = true
                     }
                     if (event.key === Qt.Key_Right) {
-                        console.log("tb_minio Нажата стрелка Вправо")
+                        console.log("nw_storage Нажата стрелка Вправо")
                     }
                     if (event.key === Qt.Key_Left) {
-                        console.log("tb_minio Нажата стрелка Влево")
+                        console.log("nw_storage Нажата стрелка Влево")
                     }
                 }
                 KeyNavigation.left: tb_local
@@ -261,7 +261,7 @@ Window {
 
                         // Плавная анимация появления линии
                         Behavior on height { NumberAnimation { duration: 150 } }
-                        visible: !tb_minio.activeFocus
+                        visible: !nw_storage.activeFocus
                     }
                     Rectangle {
                         anchors.fill: parent
@@ -270,11 +270,11 @@ Window {
                         // border.color: "#2196F3"
                         // border.width: 2
                         // radius: 6
-                        color: tb_minio.enabled ? "transparent" : "#353535"
-                        border.color: tb_minio.activeFocus ? "#21be2b" : "#bdbebf"
-                        border.width: tb_minio.activeFocus ? 2 : 1
+                        color: nw_storage.enabled ? "transparent" : "#353535"
+                        border.color: nw_storage.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: nw_storage.activeFocus ? 2 : 1
                         radius: 4
-                        visible: tb_minio.activeFocus // tb_minio.visualFocus       Виден только при фокусе
+                        visible: nw_storage.activeFocus // nw_storage.visualFocus       Виден только при фокусе
                     }
                     Behavior on color { ColorAnimation { duration: 200 } }
                 }

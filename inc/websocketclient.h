@@ -46,20 +46,15 @@ public:
     explicit WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObject *parent = nullptr);
     Q_INVOKABLE void connectToServer(/*const QString &url*/);
     QString lastReceivedPath() const;
-//    Q_INVOKABLE QStringList getBucketsListRequest() const;
     /*Q_INVOKABLE*/ void getFilesFoldersListfromBucketRequest(const QString &path);
     int getFilesOnlyListfromBucketRequest(const QString &path);
     Q_INVOKABLE int deleteFileFromBucketRequest(const QString &filePath);
-//    void getFilesListfromBucketRequest2(const QString &bucket) const;
-//    Q_INVOKABLE int addFileRequest(const QStringList &filePath);
     Q_INVOKABLE int addFileRequest(const QString &filePath, const QString &path);
     void deleteMinioBucketsRequest(const QStringList &buckets);
     int deleteFileFromServerRequest(const QStringList &fileData);
 
     void sendBinaryMessage(const QByteArray &data);
-//    void wsTokenConnect(QString token);
-//    void wsConnect();
-//    bool isConnected() const;
+
     AuthConnectState authConnectionState() const { return m_authConnectState; }
 
     Q_INVOKABLE void loginRequested(const QString &login, const QString &passw);
@@ -73,18 +68,14 @@ signals:
     void bucketsReceived(const QStringList &buckets);
     void filesReceived(const QList<QStringList> &paths);
 
+    void errReceived();
+
     void serverResponseReceived(const pict_data::ServerEnvelope &response);
     void authResponseReceived(const pict_data::AuthResponse &response);
     void authResponseReceived2(const QByteArray &response);
-//    void authResponseReceived(const pict_data::AuthResponse &response);
-//    void serverMessageReceived(const pict_data::ServerEnvelope &message);
-//    void disconnected();
-//    void isConnectedChanged();
-//    void tokenExpiredChanged();
     void authConnectionStateChanged();
 
 public slots:
-//    void connectToServer2();
     void disconnectFromServer();
 private slots:
     void onConnected();
@@ -109,14 +100,9 @@ private:
 
     bool m_pongReceived;
     void setConnectionState(AuthConnectState newState);
-    // void connectToServer();
-    // void onConnected();
-    // void onDisconnected();
     void onErrorOccurred(QAbstractSocket::SocketError error);
-    // void attemptReconnectionWithBackoff();
 
     const int RECONNECT_INTERVAL = 5000;
     const int PING_INTERVAL = 30000;
 };
-//  Q_DECLARE_METATYPE(WebSocketClient::AuthConnectState)
 #endif // WEBSOCKETCLIENT_H

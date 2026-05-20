@@ -247,6 +247,39 @@ public:
         }
         return 0;
     }
+
+    Q_INVOKABLE int insertImages(const QVariantList &lf) {
+        qDebug() << "insertImages(const QVariantList &lf)";
+        QVector<ImageItem> ImItm;
+        for(const QVariant &v : lf) {
+            QVariantMap map = v.toMap();
+            bool isDir = map["isDir"].toBool();
+            bool isNetwork = map["isNetwork"].toBool();
+            if(isNetwork && !isDir){
+                QUrl url = QUrl::fromUserInput(map["path"].toString());
+                QString pathForQml = url.toString();
+                // beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+                qDebug() << "int insertImage(const QVariantMap &map) cleanNetworkFilePath" << cleanNetworkFilePath(pathForQml);
+                ImItm.append({map["name"].toString(), pathForQml, cleanNetworkFilePath(pathForQml), isNetwork, isDir, map["mongoId"].toString()});
+                qDebug() << "m_imageItems.append isNet name: " << map["name"].toString() << "  pathForQml: " << pathForQml;
+                //endInsertRows(); // This triggers the QML view update
+            }
+            if(!isNetwork && !isDir){
+                QUrl url = QUrl::fromUserInput(map["path"].toString());
+                QString pathForQml = url.toString();
+                // beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+                qDebug() << "int insertImage(const QVariantMap &map) cleanLocalFilePath" << cleanLocalFilePath(pathForQml);
+                ImItm.append({map["name"].toString(), pathForQml, cleanLocalFilePath(pathForQml), isNetwork, isDir, map["mongoId"].toString()});
+                qDebug() << "m_imageItems.append name: " << map["name"].toString() << "  pathForQml: " << pathForQml;
+                //endInsertRows(); // This triggers the QML view update
+            }
+        }
+        beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count() + ImItm.size() - 1);
+        m_imageItems.append(ImItm);
+        endInsertRows();
+        return 0;
+    }
+
     Q_INVOKABLE void copyToClipboard(const QString &text) {
         QGuiApplication::clipboard()->setText(text);
     }

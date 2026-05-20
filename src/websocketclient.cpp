@@ -93,18 +93,7 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
         Q_UNUSED(elapsedTime);
         Q_UNUSED(payload);
         m_pongReceived = true;
-        qDebug() << "Понг получен. Соединение стабильно.";
     });
-    // connect(this, &WebSocketClient::disconnected, m_authHandler, &AuthHandler::logout);
-    // Перехватываем успешный вход, чтобы автоматически запустить сокет
-    // connect(m_authHandler, &AuthHandler::loginSuccess, this, &WebSocketClient::connectToServer);
-
-    // Перехватываем выход, чтобы разорвать соединение
-    // connect(m_authHandler, &AuthHandler::loggedInChanged, this, [this](){
-    //     if (!m_authHandler->loggedIn()) {
-    //         disconnectFromServer();
-    //     }
-    // });
     connectToServer();
 }
 
@@ -403,6 +392,9 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
 void WebSocketClient::sendBinaryMessage(const QByteArray &data) {
     if (m_webSocket && m_webSocket->isValid()) {
         m_webSocket->sendBinaryMessage(data);
+    }
+    else {
+        emit errReceived();
     }
 }
 

@@ -49,12 +49,53 @@ ApplicationWindow {
 
     CustomFileDialog {
         id: customDialog
-        onOpenPathsSelected:(paths) => {
-            if(paths){
-                tf.content = paths[0]
-                for(var path of paths)
-                    processPath(path)
+        // onOpenPathsSelected:(paths) => {
+        //     if(paths){
+        //         tf.content = paths[0]
+        //         for(var path of paths)
+        //             processPath(path)
+        //     }
+        // }
+        onOpenIndexSelected:(index) => {
+            console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
+            if(index>=0 && index<storageModel.rowCount()){
+                let img = storageModel.get(index);
+                let imgPath = img.path;
+                let prefix = "file:///";
+                if(!img.isMinio && !imgPath.startsWith(prefix)){
+                    mainImageSource = prefix + imgPath
+                }
+                else mainImageSource = imgPath
+                //  console.log("onOpenIndexSelected: ", imgPath);
+                let data = storageModel.getData(index);
+                //  console.log("onOpenIndexSelected: ", index);
+                imageModel.insertImage(data);
             }
+            else console.log("Путь не распознан или не существует 1");
+        }
+        onOpenIndicesSelected:(indices) => {
+            let maxindx = storageModel.rowCount()
+            let arr = []
+            let succ = 0
+            for(let indx of indices) {
+                console.log("onOpenIndicesSelected indx: ", indx)
+                if(indx>=0 && indx < maxindx){
+                    if(!succ){
+                        let img = storageModel.get(indx);
+                        let imgPath = img.path;
+                        let prefix = "file:///";
+                        if(!img.isMinio && !imgPath.startsWith(prefix)){
+                            mainImageSource = prefix + imgPath
+                        }
+                        else mainImageSource = imgPath
+                        succ = 1
+                    }
+                    //  console.log("onOpenIndexSelected: ", imgPath);
+                    let data = storageModel.getData(indx)
+                    arr.push(data)
+                }
+            }
+            imageModel.insertImages(arr);
         }
     }
 
@@ -79,7 +120,7 @@ ApplicationWindow {
         // }
 
         onOpenIndexSelected:(index) => {
-            //  console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
+            console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
             if(index>=0 && index<storageModel.rowCount()){
                 let img = storageModel.get(index);
                 let imgPath = img.path;
