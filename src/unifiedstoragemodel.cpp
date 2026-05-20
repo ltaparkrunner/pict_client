@@ -4,7 +4,15 @@ UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHn
     : QAbstractListModel{parent}
     , wsclient (wsc)
     , msghandler (svrHndlr)
-{}
+{
+    connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+    connect(wsclient, &WebSocketClient::errReceived, this, [=](){
+        qDebug() << " errReceived";
+        beginResetModel();
+        m_items.clear();
+        endResetModel();
+    });
+}
 
 void UnifiedStorageModel::enterLocal(QString path) {
     beginResetModel();
@@ -27,10 +35,6 @@ void UnifiedStorageModel::enterLocal(QString path) {
 
 void UnifiedStorageModel::enterNetStore(QString path) {
         connect(msghandler, &MsgHandler::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
-        connect(wsclient, &WebSocketClient::errReceived, this, [=](){
-            qDebug() << " errReceived";
-
-        });
         msghandler->getBucketsListRequest();
 }
 
@@ -38,7 +42,7 @@ void UnifiedStorageModel::enterMinioBucket(const QString &path) {
     qDebug() << "UnifiedStorageModel::enterMinioBucket and request";
     // connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
     // wsclient->getFilesFoldersListfromBucketRequest(path/*, usmodel*/);
-    connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
+
     msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
 }
 

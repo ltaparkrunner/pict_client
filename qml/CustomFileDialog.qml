@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Effects
 import QtQuick.Controls.Basic
+import pict_client
 
 Window {
     id: root
@@ -81,7 +82,7 @@ Window {
             }
             spacing: 4
             TabButton {
-                text: "Локально"
+                text: "Local"
                 id: tb_local
 //                focus: true
                 focusPolicy:Qt.ClickFocus
@@ -91,7 +92,7 @@ Window {
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        //storageModel.enterLocal("/"); TODO: right to write
+                        //  storageModel.enterLocal("/"); TODO: right to write
                         root.lastSelectedTab=0
                     }
                 }
@@ -161,10 +162,10 @@ Window {
                     nw_storage.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
-                    if (activeFocus) {
-                        storageModel.enterNetStore("main-bucket");
-                        root.lastSelectedTab=1
-                    }
+                    // if (activeFocus) {
+                    //     storageModel.enterNetStore("main-bucket");
+                    //     root.lastSelectedTab=1
+                    // }
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
@@ -366,6 +367,14 @@ Window {
                         root.openIndexSelected(index)
                         root.close()
                     }
+                }
+            }
+            Item {
+                anchors.fill: parent
+                visible: ((wsClient.authConnectionState !== WebSocketClient.Authorized) && (nw_storage.activeFocus))
+                Text {
+                    anchors.centerIn: parent
+                    text: "No network connection."
                 }
             }
         }
