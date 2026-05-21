@@ -46,7 +46,7 @@ public:
 
     // Логика навигации
     Q_INVOKABLE void loadRoot();          // Показать выбор: "Local" и "MinIO"
-    Q_INVOKABLE void enterLocal(QString path); // Зайти в локальную папку
+    Q_INVOKABLE void enterLocal(const QString &path); // Зайти в локальную папку
     Q_INVOKABLE void enterNetStore(QString path);        // Зайти в список бакетов MinIO
 //    Q_INVOKABLE void enterNetStore2(const QString &path);        // Зайти в список бакетов MinIO
     Q_INVOKABLE void enterMinioBucket(const QString &path);

@@ -13,8 +13,8 @@ Window {
 //    standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: "."
-    property string currentLocalPath: "/home"
-    property string currentNetworkPath: "http://minio:9000/"
+    // property string currentLocalPath: "/home"
+    // property string currentNetworkPath: "http://minio:9000/"
 //    property string currentPath: "/"
 
 //    signal openPathsSelected(list<string> path)
@@ -89,7 +89,8 @@ Window {
 //                focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    storageModel.enterLocal("/")   // TODO:
+                    console.log("currentLocalPath: ", currentLocalPath)
+                    storageModel.enterLocal(currentLocalPath)   // TODO:
                     tb_local.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
@@ -346,7 +347,10 @@ Window {
                     //root.
                     if (model.isDir) {
                         if (model.isMinio) storageModel.enterMinioBucket(model.name)
-                        else storageModel.enterLocal(model.path)
+                        else {
+                            console.log("model.path: ", model.path)
+                            storageModel.enterLocal(model.path)
+                        }
                         //  console.log("acceptSelection: ", grid)
                         grid.currentIndex = 0
                         // parent.currentItem = 0
@@ -358,12 +362,16 @@ Window {
                     }
                 }
                 function acceptSelectionEnterFolder(index) {
+                    if(!model.isMinio && model.isDir) {
+                        rootWnd.currentLocalPath = model.path;
+                        console.log("rootWnd.currentLocalPath = ",rootWnd.currentLocalPath);
+                    }
                     root.currentSelectedPath = model.path
                     //root.
                     if (model.isDir) {
                         console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
                         storageModel.enterFolder(index)
-                        GridView.view.currentIndex = 0;
+                        GridView.view.currentIndex = 0;  // TODO:
                     } else {
                         //  console.log(currentSelectedPath);
                         root.openIndexSelected(index)

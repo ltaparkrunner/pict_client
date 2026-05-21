@@ -16,10 +16,15 @@ UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHn
     connect(msghandler, &MsgHandler::writeUrlsToLocal, this, &UnifiedStorageModel::writeUrlsToLocal);
 }
 
-void UnifiedStorageModel::enterLocal(QString path) {
+void UnifiedStorageModel::enterLocal(const QString &path) {
+    qDebug() << "UnifiedStorageModel::enterLocal: " << path;
     beginResetModel();
     m_items.clear();
-    QDir dir(path);
+    QDir dir{path};
+    if(!dir.exists()){
+        QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+        dir = QDir{defaultPath};
+    }
 
     QStringList filters;
     filters << "*.jpg" << "*.jpeg" << "*.png" << "*.gif" << "*.bmp" << "*.webp";
@@ -374,10 +379,49 @@ Q_INVOKABLE void UnifiedStorageModel::successToQML(const QString &msg){
 }
 
 Q_INVOKABLE void UnifiedStorageModel::errorToQML(const QString &msg){
-    qDebug() << "Error when executing command";
+    qCritical() << "Error when executing command";
+}
+
+#include <QString>
+#include <QDir>
+#include <QFileInfo>
+
+bool checkAndRenameFile(const QString &folderPath, const QString &sourceFileName, const QString &targetFileName) {
+    QDir dir(folderPath);
+
+    // Проверяем существование папки и исходного файла
+    if (!dir.exists() || !dir.exists(sourceFileName)) {
+        return false;
+    }
+
+    QString finalName = targetFileName;
+
+    // Если целевой файл уже существует, подбираем имя вида name(number).ext
+    if (dir.exists(targetFileName)) {
+        QFileInfo fileInfo(targetFileName);
+        QString baseName = fileInfo.completeBaseName();
+        QString extension = fileInfo.suffix();
+
+        // Добавляем точку перед расширением, если оно есть
+        if (!extension.isEmpty()) {
+            extension = "." + extension;
+        }
+
+        int counter = 1;
+        // Цикл работает, пока файл с новым именем существует
+        while (dir.exists(baseName + "(" + QString::number(counter) + ")" + extension)) {
+            counter++;
+        }
+
+        finalName = baseName + "(" + QString::number(counter) + ")" + extension;
+    }
+
+    // Переименовываем исходный файл в целевое (или уникальное) имя
+    return dir.rename(sourceFileName, finalName);
 }
 
 int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
+    qDebug() << "UnifiedStorageModel::writeUrlsToLocal" << paths[0];
     if(m_parentItem.isDirectory && !m_parentItem.isMinio){
         QFileInfo checkPath{m_parentItem.path};
         if(checkPath.exists() && checkPath.isDir() && checkPath.isWritable()){
@@ -389,6 +433,7 @@ int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
 
                 // Подписываемся на результат
                 QObject::connect(downloader, &FileDownloader::downloadFinished, [downloader](const QString &path) {
+
                     qDebug() << "Готово! Файл сохранен в:" << path;
                     downloader->deleteLater(); // Безопасно удаляем объект из памяти
                 });
@@ -402,6 +447,9 @@ int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
                 downloader->downloadFile(QUrl(urlpath), m_parentItem.path);
             }
         }
+        else qCritical() << "Smth wrong with folder." << m_parentItem.path;
     }
+    else qCritical() << "Smth wrong with folder." << m_parentItem.path;
     return 0;
 }
+

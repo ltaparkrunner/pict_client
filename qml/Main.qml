@@ -7,6 +7,7 @@ import QtQuick.Controls.Basic
 import QtQuick.Dialogs
 import QtQuick.Effects
 import QtQuick.Shapes
+import QtCore
 import pict_client //1.0
 
 ApplicationWindow {
@@ -17,6 +18,15 @@ ApplicationWindow {
     minimumWidth: 400
     minimumHeight: 300
     title: "Fixed Left, Flexible Right"
+
+    property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
+    property string currentNetworkPath: "http://minio:9000/"
+
+    Settings {
+        category: "General"
+        // Связываем свойство QSettings со свойством окна
+        property alias currentLocalPath: rootWnd.currentLocalPath
+    }
 
     Connections {
         target: imageModel
@@ -360,7 +370,7 @@ ApplicationWindow {
                     Layout.preferredWidth: 1
                     onClicked: {
                         wsClient.connectToServer()
-                        storageModel.enterLocal("/"); // TODO:??
+                        storageModel.enterLocal(currentLocalPath); // TODO:??
                         customDialog.show();
                     }
                 }
@@ -370,7 +380,7 @@ ApplicationWindow {
                     Layout.preferredWidth: 1
                     onClicked: {
                         wsClient.connectToServer()
-                        storageModel.enterLocal("/");
+                        storageModel.enterLocal(currentLocalPath);
                         secondCustomDialog.show();
                     }
                 }
