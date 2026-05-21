@@ -378,25 +378,30 @@ Q_INVOKABLE void UnifiedStorageModel::errorToQML(const QString &msg){
 }
 
 int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
-    for(const QUrl &urlpath : paths ){
-        FileDownloader *downloader = new FileDownloader(); // Создаем экземпляр
+    if(m_parentItem.isDirectory && !m_parentItem.isMinio){
+        QFileInfo checkPath{m_parentItem.path};
+        if(checkPath.exists() && checkPath.isDir() && checkPath.isWritable()){
+            for(const QUrl &urlpath : paths ){
+                FileDownloader *downloader = new FileDownloader(); // Создаем экземпляр
 
-        // Находим стандартную папку "Загрузки" на ПК (Windows/Linux)
-        QString localDir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+                // Находим стандартную папку "Загрузки" на ПК (Windows/Linux)
+                // QString localDir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
 
-        // Подписываемся на результат
-        QObject::connect(downloader, &FileDownloader::downloadFinished, [downloader](const QString &path) {
-            qDebug() << "Готово! Файл сохранен в:" << path;
-            downloader->deleteLater(); // Безопасно удаляем объект из памяти
-        });
+                // Подписываемся на результат
+                QObject::connect(downloader, &FileDownloader::downloadFinished, [downloader](const QString &path) {
+                    qDebug() << "Готово! Файл сохранен в:" << path;
+                    downloader->deleteLater(); // Безопасно удаляем объект из памяти
+                });
 
-        QObject::connect(downloader, &FileDownloader::downloadError, [downloader](const QString &err) {
-            qCritical() << "Ошибка скачивания из Minio:" << err;
-            downloader->deleteLater();
-        });
+                QObject::connect(downloader, &FileDownloader::downloadError, [downloader](const QString &err) {
+                    qCritical() << "Ошибка скачивания из Minio:" << err;
+                    downloader->deleteLater();
+                });
 
-        // Запуск скачивания
-        downloader->downloadFile(QUrl(urlpath), localDir);
+                // Запуск скачивания
+                downloader->downloadFile(QUrl(urlpath), m_parentItem.path);
+            }
+        }
     }
     return 0;
 }
