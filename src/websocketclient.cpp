@@ -235,7 +235,8 @@ void WebSocketClient::onErrorOccurred(QAbstractSocket::SocketError error) {
         }
         //  qWarning() << "Authentication failed. Token is likely invalid.";
     }
-    else if(m_authConnectState != AuthConnectState::UserDisconnecting)
+    else if(m_authConnectState != AuthConnectState::UserDisconnecting
+                   && m_authConnectState != AuthConnectState::NoConnection)
         setConnectionState(AuthConnectState::ExternalDisconnecting);
     // if (m_webSocket->state() != QAbstractSocket::ConnectedState && !m_reconnectTimer.isActive()) {
     //     m_reconnectTimer.start(RECONNECT_INTERVAL);

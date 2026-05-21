@@ -40,6 +40,18 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         if(response.status() == "success") emit resultSuccess(response.content());
         else emit resultError(response.content());
     }
+    else if(data.contentField() == pict_data:: ServerEnvelope::ContentFields::FilesIdsResponse){
+        qDebug() << "pict_data:: ServerEnvelope::ContentFields::FilesIdsResponse info.url()";
+        const auto &response = data.filesIdsResponse();
+        qDebug() << "response: " << response.files()[0].url();
+        QVector<QUrl> urls;
+
+        for(const auto &info : response.files()) {
+            qDebug() << "info.url" << info.url();
+            urls.append(info.url());
+        }
+        emit writeUrlsToLocal(urls);
+    }
 }
 
 Q_INVOKABLE int MsgHandler::getBucketsListRequest() const{
@@ -169,4 +181,16 @@ int MsgHandler::deleteFileFromServerRequest(const QStringList &fileData){
         return 0;
     }
     return -1;
+}
+
+int MsgHandler::getFilesRequest(const QStringList &paths, const QStringList &ids, const QString &arrival){
+    pict_data::ClientEnvelope cenv;
+    pict_data::FilesIds message;
+    message.setMongoIds(ids);
+    cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
+    cenv.setFilesIdsRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = cenv.serialize(&serializer);
+    /*qint64 sz = */ m_client->sendBinaryMessage(data);
+    return 0;
 }

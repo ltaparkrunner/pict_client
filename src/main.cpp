@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
     //  AuthHandler authHandler;
     // Expose the instance to QML context
     //  engine.rootContext()->setContextProperty("authHandler", &authHandler);
+    QString homeDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+    qDebug() << "Home Directory:" << homeDir;
     engine.rootContext()->setContextProperty("wsClient", &wsClient);
     engine.rootContext()->setContextProperty("imageModel", &imodel);
     engine.rootContext()->setContextProperty("FileHelper", &fileHlp);

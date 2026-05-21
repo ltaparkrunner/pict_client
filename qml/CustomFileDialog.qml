@@ -13,6 +13,8 @@ Window {
 //    standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: "."
+    property string currentLocalPath: "/home"
+    property string currentNetworkPath: "http://minio:9000/"
 //    property string currentPath: "/"
 
 //    signal openPathsSelected(list<string> path)

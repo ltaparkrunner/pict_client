@@ -65,6 +65,7 @@ public:
     Q_INVOKABLE int writeImagesToFolder(const QVariantList &lf, QString path);
     Q_INVOKABLE void successToQML(const QString &msg);
     Q_INVOKABLE void errorToQML(const QString &msg);
+    int writeUrlsToLocal(const QVector<QUrl> &paths);
 signals:
     void udsmToIm(QString, QString, bool, bool, QString);
 private:

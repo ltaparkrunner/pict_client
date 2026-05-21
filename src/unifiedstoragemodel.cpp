@@ -1,4 +1,5 @@
 #include "unifiedstoragemodel.h"
+#include "filedownloader.h"
 
 UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHndlr, QObject *parent)
     : QAbstractListModel{parent}
@@ -12,6 +13,7 @@ UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHn
         m_items.clear();
         endResetModel();
     });
+    connect(msghandler, &MsgHandler::writeUrlsToLocal, this, &UnifiedStorageModel::writeUrlsToLocal);
 }
 
 void UnifiedStorageModel::enterLocal(QString path) {
@@ -260,6 +262,7 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
 Q_INVOKABLE int UnifiedStorageModel::writeToFolder(const QStringList &ls){
     qDebug() << "int UnifiedStorageModel::writeToFolder";
     if(!m_parentItem.isMinio && m_parentItem.isDirectory){
+
         return 0;
     }
     else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) {
@@ -279,7 +282,7 @@ Q_INVOKABLE int UnifiedStorageModel::writeToFolder(const QStringList &ls){
 }
 
 Q_INVOKABLE int UnifiedStorageModel::deleteIndices(const QList<int> &indxs){
-    qDebug() << "int UnifiedStorageModel::writeToFolder";
+    qDebug() << "int UnifiedStorageModel::deleteIndices";
     for(int indx : indxs){
         if(m_items[indx].isMinio && !m_items[indx].isDirectory){
             QStringList sl;
@@ -333,8 +336,17 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::getData(int indx){
 }
 
 Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf, QString path){
-    qDebug() << "int UnifiedStorageModel::writeToFolder";
+    qDebug() << "int UnifiedStorageModel::writeImagesToFolder";
     if(!m_parentItem.isMinio && m_parentItem.isDirectory){
+        QStringList paths;
+        QStringList ids;
+        for(const QVariant &v : lf){
+            QVariantMap item = v.toMap();
+            //  qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();
+            paths.append(item["path"].toString());
+            ids.append(item["mongoId"].toString());
+        }
+        msghandler->getFilesRequest(paths, ids, m_parentItem.path);
         return 0;
     }
     else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) {
@@ -346,7 +358,7 @@ Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf,
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory) {
-        qDebug() << "int UnifiedStorageModel::writeToFolder 2";
+        qDebug() << "int UnifiedStorageModel::writeImagesToFolder 2";
         for(const QVariant &v : lf){
             QVariantMap item = v.toMap();
             qDebug() << item["path"].toString() << "  " << item["mongoId"].toString() << " target folder: " << m_parentItem.path;
@@ -363,4 +375,28 @@ Q_INVOKABLE void UnifiedStorageModel::successToQML(const QString &msg){
 
 Q_INVOKABLE void UnifiedStorageModel::errorToQML(const QString &msg){
     qDebug() << "Error when executing command";
+}
+
+int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
+    for(const QUrl &urlpath : paths ){
+        FileDownloader *downloader = new FileDownloader(); // Создаем экземпляр
+
+        // Находим стандартную папку "Загрузки" на ПК (Windows/Linux)
+        QString localDir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+
+        // Подписываемся на результат
+        QObject::connect(downloader, &FileDownloader::downloadFinished, [downloader](const QString &path) {
+            qDebug() << "Готово! Файл сохранен в:" << path;
+            downloader->deleteLater(); // Безопасно удаляем объект из памяти
+        });
+
+        QObject::connect(downloader, &FileDownloader::downloadError, [downloader](const QString &err) {
+            qCritical() << "Ошибка скачивания из Minio:" << err;
+            downloader->deleteLater();
+        });
+
+        // Запуск скачивания
+        downloader->downloadFile(QUrl(urlpath), localDir);
+    }
+    return 0;
 }

@@ -5,7 +5,8 @@
 #include <QString>
 #include <QDebug>
 #include <QtProtobuf/QProtobufSerializer>
-#include <websocketclient.h>
+//#include <QUrl>
+#include "websocketclient.h"
 
 
 class MsgHandler : public QObject {
@@ -14,8 +15,10 @@ public:
     explicit MsgHandler(WebSocketClient *client, QObject *parent = nullptr);
 
     Q_INVOKABLE int getBucketsListRequest() const;
-    int addFileRequest(const QString &path, const QString &id, const QString &depart);
+    int addFileRequest(const QString &path, const QString &id, const QString &arrival);
     int getFilesFoldersListfromBucketRequest(const QString &path);
+    //  int getFileRequest(const QString &path, const QString &id, const QString &arrival);
+    int getFilesRequest(const QStringList &path, const QStringList &id, const QString &arrival);
     // int getFilesOnlyListfromBucketRequest(const QString &path);
 
     // Q_INVOKABLE int addFileRequest(const QString &filePath, const QString &path);
@@ -28,6 +31,7 @@ signals:
     void pathsReceived(const QList<QStringList> &paths);
     void resultSuccess(const QString &msg);
     void resultError(const QString &msg);
+    void writeUrlsToLocal(const QVector<QUrl> &paths);
 public slots:
 
 private slots:
