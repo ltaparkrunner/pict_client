@@ -371,7 +371,7 @@ ApplicationWindow {
                     }
                 }
                 Button {
-                    text: "Open file/folder"
+                    text: "File dialog"
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
                     onClicked: {
@@ -384,16 +384,16 @@ ApplicationWindow {
                         // customDialog.open()
                     }
                 }
-                Button {
-                    text: "Write file/folder"
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
-                    onClicked: {
-                        wsClient.connectToServer()
-                        storageModel.enterLocal(currentLocalPath);
-                        secondCustomDialog.show();
-                    }
-                }
+                // Button {
+                //     text: "Write file/folder"
+                //     Layout.fillWidth: true
+                //     Layout.preferredWidth: 1
+                //     onClicked: {
+                //         wsClient.connectToServer()
+                //         storageModel.enterLocal(currentLocalPath);
+                //         secondCustomDialog.show();
+                //     }
+                // }
             }
         }
 

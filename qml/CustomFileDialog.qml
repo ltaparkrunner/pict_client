@@ -260,7 +260,9 @@ Window {
                 active: true // Всегда видна при прокрутке
                 policy: ScrollBar.AsNeeded  //AlwaysOn // Или AsNeeded
                 implicitHeight: 14
+                visible: size < 1.0
                 contentItem: Rectangle {
+                    // visible: ScrollBar.AsNeeded
                     implicitWidth: 100
                     implicitHeight: 12
                     radius: 6
@@ -451,6 +453,89 @@ Window {
                         radius: 4
                         visible: btn_opn.visualFocus // Виден только при фокусе
                     }
+                }
+            }
+            Button {
+                id: btn_wrt
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                text: "Write"
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 15
+                    font.weight: parent.checked ? Font.DemiBold : Font.Normal
+                    color: parent.checked ? "#616161" : (parent.hovered ? "#555" : "#888")
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+                onClicked: {
+                    let li = []
+                    //  console.log("gridView2.model.length: ", gridView2.model.length, "gridView2.model.rowCount()", gridView2.model.rowCount())
+                    //  console.log("imageModel.rowCount(): ", imageModel.rowCount(), " ", data.cleanPath, " ")
+                    for(let i=0; i<imageModel.rowCount(); i++){
+                        var data = imageModel.get(i);
+                        console.log("imageModel.get(",i ,")= ", data.cleanPath, " ", data.mongoId);
+                        li.push( {"path":data.cleanPath, "mongoId":data.mongoId});
+                    }
+                    console.log("btn_wrt onClicked: ", li[0], "  ", currentSelectedPath)
+                    root.writeImages(li, currentSelectedPath);
+                    root.close()
+                }
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "#f0f0f0")   //"transparent")
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3
+                        // color: "transparent"
+                        // border.color: "#2196F3"
+                        // border.width: 2
+                        // radius: 6
+                        color: btn_wrt.enabled ? "transparent" : "#353535"
+                        border.color: btn_wrt.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: btn_wrt.activeFocus ? 2 : 1
+                        radius: 4
+                        visible: btn_wrt.visualFocus // Виден только при фокусе
+                    }
+                }
+            }
+            Button {
+                id: btn_dlt
+                Layout.fillWidth: true
+                Layout.preferredWidth: 1
+                text: "Delete";
+                contentItem: Text {
+                    text: parent.text
+                    font.pixelSize: 15
+                    font.weight: parent.checked ? Font.DemiBold : Font.Normal
+                    color: parent.checked ? "#616161" : (parent.hovered ? "#555" : "#888")
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+
+                    Behavior on color { ColorAnimation { duration: 200 } }
+                }
+                background: Rectangle {
+                    anchors.fill: parent
+                    color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "#f0f0f0")  //"transparent")
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: -3 // Рамка чуть шире самой кнопки
+                        color: btn_dlt.enabled ? "transparent" : "#353535"
+                        border.color: btn_dlt.activeFocus ? "#21be2b" : "#bdbebf"
+                        border.width: btn_dlt.activeFocus ? 2 : 1
+                        radius: 4
+                        visible: btn_dlt.visualFocus // Виден только при фокусе
+                    }
+                }
+                onClicked: {
+                    console.log("delete onClicked")
+                    root.deletePathsSelected(selectedIndices);
+                    console.log("delete indicesToPaths(selectedIndices)", selectedIndices)
+                    root.close()
                 }
             }
             Button {
