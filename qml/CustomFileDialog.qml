@@ -6,20 +6,23 @@ import QtQuick.Controls.Basic
 import pict_client
 
 Window {
-    id: root
+    id: customFileDlg
     title: "Selecting an object (Locally / Network storage)"
     width: 500; height: 400
 //    modal: false
 //    standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: "."
+    property alias textFld: customFileDlg.currentSelectedPath
     // property string currentLocalPath: "/home"
     // property string currentNetworkPath: "http://minio:9000/"
 //    property string currentPath: "/"
 
 //    signal openPathsSelected(list<string> path)
+    property alias currentTabIndex: tabBar.currentIndex
     signal openIndicesSelected(list<int> inds)
     signal openIndexSelected(int index)
+    //signal tabSelected(int tabIndex)
     property int lastSelectedTab: 0
     property var selectedIndices: []
 //    property var selectedPaths: []
@@ -36,8 +39,9 @@ Window {
         spacing: 2
         // TextField of selected path
         TextField {
+            id: textf
             Layout.fillWidth: true
-            text: root.currentSelectedPath
+            text: customFileDlg.currentSelectedPath
             placeholderText: "Nothing is selected"
 
             font.pixelSize: 15
@@ -66,7 +70,7 @@ Window {
         TabBar {
             id: tabBar
             Layout.fillWidth: true
-            currentIndex: root.lastSelectedTab
+            // currentIndex: customFileDlg.lastSelectedTab
             focus: true
             focusPolicy: Qt.StrongFocus
             onActiveFocusChanged: {
@@ -96,7 +100,7 @@ Window {
                 onActiveFocusChanged: {
                     if (activeFocus) {
                         //  storageModel.enterLocal("/"); TODO: right to write
-                        root.lastSelectedTab=0
+                        customFileDlg.lastSelectedTab=0
                     }
                 }
                 Keys.onPressed: (event) => {
@@ -167,7 +171,7 @@ Window {
                 onActiveFocusChanged: {
                     // if (activeFocus) {
                     //     storageModel.enterNetStore("main-bucket");
-                    //     root.lastSelectedTab=1
+                    //     customFileDlg.lastSelectedTab=1
                     // }
                 }
                 Keys.onPressed: (event) => {
@@ -343,8 +347,8 @@ Window {
                     }
                 }
                 function acceptSelection(grid) {
-                    root.currentSelectedPath = model.path
-                    //root.
+                    customFileDlg.currentSelectedPath = model.path
+                    //customFileDlg.
                     if (model.isDir) {
                         if (model.isMinio) storageModel.enterMinioBucket(model.name)
                         else {
@@ -356,9 +360,10 @@ Window {
                         // parent.currentItem = 0
                     } else {
                         console.log(currentSelectedPath);
-                        //root.openPathsSelected([currentSelectedPath]);
-                        root.openIndicesSelected([index])
-                        root.close()
+                        //customFileDlg.openPathsSelected([currentSelectedPath]);
+                        customFileDlg.openIndicesSelected([index])
+                        rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                        customFileDlg.close()
                     }
                 }
                 function acceptSelectionEnterFolder(index) {
@@ -366,16 +371,17 @@ Window {
                         rootWnd.currentLocalPath = model.path;
                         console.log("rootWnd.currentLocalPath = ",rootWnd.currentLocalPath);
                     }
-                    root.currentSelectedPath = model.path
-                    //root.
+                    customFileDlg.currentSelectedPath = model.path
+                    //customFileDlg.
                     if (model.isDir) {
                         console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
                         storageModel.enterFolder(index)
                         GridView.view.currentIndex = 0;  // TODO:
                     } else {
                         //  console.log(currentSelectedPath);
-                        root.openIndexSelected(index)
-                        root.close()
+                        customFileDlg.openIndexSelected(index)
+                        rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                        customFileDlg.close()
                     }
                 }
             }
@@ -417,12 +423,14 @@ Window {
                         //     console.log("storageModel.get(index).path", storageModel.get(index).path)
                         //     selectedPaths.push(storageModel.get(index).path)
                         // }
-                        //  root.openPathsSelected(selectedPaths);
-                        root.openIndicesSelected(selectedIndices);
+                        //  customFileDlg.openPathsSelected(selectedPaths);
+                        customFileDlg.openIndicesSelected(selectedIndices);
                     }
-                    else //root.openPathsSelected([currentSelectedPath]);
-                        root.openIndicesSelected([selectedIndices]);
-                    root.close() }
+                    else //customFileDlg.openPathsSelected([currentSelectedPath]);
+                        customFileDlg.openIndicesSelected([selectedIndices]);
+                    //customFileDlg.tabSelected(tabBar.currentIndex)
+                    rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                    customFileDlg.close() }
                 background: Rectangle {
                     anchors.fill: parent
                     color: parent.down ? "#f0f0f0" : (parent.hovered ? "#f8f8f8" : "#f0f0f0")   //"transparent")
@@ -468,7 +476,9 @@ Window {
                     }
                 }
                 onClicked: {
-                    root.close()
+                    //customFileDlg.tabSelected(tabBar.currentIndex)
+                    rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                    customFileDlg.close()
                 }
             }
         }

@@ -21,6 +21,7 @@ ApplicationWindow {
 
     property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string currentNetworkPath: "http://minio:9000/"
+    property int currentCustomDlgTb: 0
 
     Settings {
         category: "General"
@@ -59,15 +60,8 @@ ApplicationWindow {
 
     CustomFileDialog {
         id: customDialog
-        // onOpenPathsSelected:(paths) => {
-        //     if(paths){
-        //         tf.content = paths[0]
-        //         for(var path of paths)
-        //             processPath(path)
-        //     }
-        // }
         onOpenIndexSelected:(index) => {
-            console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
+            //  console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
             if(index>=0 && index<storageModel.rowCount()){
                 let img = storageModel.get(index);
                 let imgPath = img.path;
@@ -370,7 +364,10 @@ ApplicationWindow {
                     Layout.preferredWidth: 1
                     onClicked: {
                         wsClient.connectToServer()
+                        customDialog.currentTabIndex = 0
                         storageModel.enterLocal(currentLocalPath); // TODO:??
+                        customDialog.textFld = currentLocalPath
+                        // else storageModel.enterNetStore("main-bucket")
                         customDialog.show();
                     }
                 }
@@ -453,7 +450,7 @@ ApplicationWindow {
                                 }
                                 onEntered: {
                                     floatingInfo.targetItem = imageDelegate;
-                                    infoText.text = model.cleanPath; // Передаем путь из модели
+                                    infoText.text = model ? model.cleanPath : ""; // Передаем путь из модели
                                     floatingInfo.updatePosition();
                                 }
 
