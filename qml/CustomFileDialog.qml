@@ -6,9 +6,12 @@ import QtQuick.Controls.Basic
 import pict_client
 
 Window {
+//Dialog {
     id: customFileDlg
     title: "Selecting an object (Locally / Network storage)"
-    width: 500; height: 400
+    width: 800; height: 500
+    flags: Qt.Dialog | Qt.WindowStaysOnTopHint
+    modality: Qt.ApplicationModal
 //    modal: false
 //    standardButtons: Dialog.Cancel | Dialog.Open
 
@@ -336,6 +339,7 @@ Window {
                     }
                     onDoubleClicked: {
                         //acceptSelection(gridView)
+                        customFileDlg.selectedIndices = []
                         acceptSelectionEnterFolder(index)
                         //mouse.accepted = true;
                     }
@@ -363,6 +367,7 @@ Window {
                         //customFileDlg.openPathsSelected([currentSelectedPath]);
                         customFileDlg.openIndicesSelected([index])
                         rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                        customFileDlg.selectedIndices = []
                         customFileDlg.close()
                     }
                 }
@@ -381,6 +386,7 @@ Window {
                         //  console.log(currentSelectedPath);
                         customFileDlg.openIndexSelected(index)
                         rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                        customFileDlg.selectedIndices = []
                         customFileDlg.close()
                     }
                 }
@@ -430,6 +436,7 @@ Window {
                         customFileDlg.openIndicesSelected([selectedIndices]);
                     //customFileDlg.tabSelected(tabBar.currentIndex)
                     rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                    customFileDlg.selectedIndices = []
                     customFileDlg.close() }
                 background: Rectangle {
                     anchors.fill: parent
@@ -478,6 +485,7 @@ Window {
                 onClicked: {
                     //customFileDlg.tabSelected(tabBar.currentIndex)
                     rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                    customFileDlg.selectedIndices = []
                     customFileDlg.close()
                 }
             }

@@ -15,7 +15,7 @@
 //     MinioBucket
 // };
 // For now:         localFile    LocalDir     MinioBucket       MinioFile      MinioDirInServer   MinioDirVirtual
-// isDirectory        false      true          X                 false           true              true
+// isDirectory        false      true          X/true            false           true              true
 // isMinio            false      false         true              true            true              true
 
 // isMinioBucket       X          X            true              false           false             false

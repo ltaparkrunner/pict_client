@@ -81,25 +81,37 @@ ApplicationWindow {
             let maxindx = storageModel.rowCount()
             let arr = []
             let succ = 0
+            let dir = 0
+            let dirToGo
             for(let indx of indices) {
                 console.log("onOpenIndicesSelected indx: ", indx)
                 if(indx>=0 && indx < maxindx){
-                    if(!succ){
-                        let img = storageModel.get(indx);
-                        let imgPath = img.path;
-                        let prefix = "file:///";
-                        if(!img.isMinio && !imgPath.startsWith(prefix)){
-                            mainImageSource = prefix + imgPath
+                    let img = storageModel.get(indx);
+                    if(!img.isDir && !img.isMinioBucket && !img.VirtualDir) {
+                        if(!succ){
+                            let imgPath = img.path;
+                            let prefix = "file:///";
+                            if(!img.isMinio && !imgPath.startsWith(prefix)){
+                                mainImageSource = prefix + imgPath
+                            }
+                            else mainImageSource = imgPath
+                            succ = 1
                         }
-                        else mainImageSource = imgPath
-                        succ = 1
+                        let data = storageModel.getData(indx)
+                        arr.push(data)
                     }
-                    //  console.log("onOpenIndexSelected: ", imgPath);
-                    let data = storageModel.getData(indx)
-                    arr.push(data)
+                    else if((dir===0) && (img.isDir ||  img.isMinioBucket)){
+                        dirToGo = {indx:indx, isDir:img.isDir, isMinio:img.isMinio, isBucket:img.isMinioBucket}; dir = 1;
+                    }
                 }
             }
             imageModel.insertImages(arr);
+            if(dirToGo.isDir && !dirToGo.isMinio)   {
+                    console.log("storageModel.enterLocal(dirToGo.indx", dirToGo.indx)
+                    storageModel.enterLocal(dirToGo.indx)
+                }
+            else if(dirToGo.isBucket)     storageModel.enterMinioBucket(dirToGo.indx)
+            else if(dirToGo.isDir && dirToGo.isMinio && !dirToGo.isBucket)  storageModel.enterNetStore(dirToGo.indx)
         }
     }
 
@@ -369,6 +381,7 @@ ApplicationWindow {
                         customDialog.textFld = currentLocalPath
                         // else storageModel.enterNetStore("main-bucket")
                         customDialog.show();
+                        // customDialog.open()
                     }
                 }
                 Button {
