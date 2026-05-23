@@ -36,22 +36,6 @@ ApplicationWindow {
             //  console.log("Получено из C++:", url)
         }
     }
-    // Connections {
-    //     target: wsClient
-    //     function onDisconnected(){
-    //         //  console.log("function onShowLoginRequired()")
-    //         loginWarn.open()
-    //     }
-    // }
-
-    // Connections {
-    //     target: authHandler
-    //     function onSuccAuth(errMsg){
-
-    //     }
-    //     // function onLogoff(msg){
-    //     // }
-    // }
 
     WarnDialog{
         clientBackend: wsClient
@@ -112,6 +96,22 @@ ApplicationWindow {
                 }
             else if(dirToGo.isBucket)     storageModel.enterMinioBucket(dirToGo.indx)
             else if(dirToGo.isDir && dirToGo.isMinio && !dirToGo.isBucket)  storageModel.enterNetStore(dirToGo.indx)
+        }
+        onWriteImages: (lf, path) => {
+            //  console.log("onWritePathsSelected paths: ", path)
+            storageModel.writeImagesToFolder(lf, path);
+        }
+        onDeletePathsSelected:(indices) => {
+            if(indices){
+                //  console.log("onDeletePathsSelected:(paths)", indices[0])
+                storageModel.deleteIndices(indices)
+            }
+            // else {
+            //     msgNothingToDo.text = "You must select a folder to save the images."
+            //     msgNothingToDo.open()
+            // }
+            // tf.content = currentSelectedPath
+            // processPath(currentSelectedPath)
         }
     }
 
@@ -367,7 +367,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
                     onClicked: {
-                        FileHelper.deleteMinioBuckets(["pictures"])
+                        // FileHelper.deleteMinioBuckets(["pictures"]) TODO:
                     }
                 }
                 Button {
@@ -384,16 +384,6 @@ ApplicationWindow {
                         // customDialog.open()
                     }
                 }
-                // Button {
-                //     text: "Write file/folder"
-                //     Layout.fillWidth: true
-                //     Layout.preferredWidth: 1
-                //     onClicked: {
-                //         wsClient.connectToServer()
-                //         storageModel.enterLocal(currentLocalPath);
-                //         secondCustomDialog.show();
-                //     }
-                // }
             }
         }
 

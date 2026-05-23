@@ -17,15 +17,17 @@ UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHn
 }
 
 void UnifiedStorageModel::enterLocal(const QString &path) {
-    qDebug() << "UnifiedStorageModel::enterLocal: " << path;
+    qDebug() << "UnifiedStorageModel::enterLocal: " << path << "m_parentItem" << m_parentItem.path;
+
     beginResetModel();
     m_items.clear();
     QDir dir{path};
     if(!dir.exists()){
         QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
         dir = QDir{defaultPath};
+        m_parentItem = {dir.dirName(), defaultPath, true, false, false, false, ""};
     }
-
+    else m_parentItem = {dir.dirName(), dir.absolutePath(), true, false, false, false, ""};
     QStringList filters;
     filters << "*.jpg" << "*.jpeg" << "*.png" << "*.gif" << "*.bmp" << "*.webp";
 
@@ -310,6 +312,14 @@ Q_INVOKABLE int UnifiedStorageModel::deleteIndices(const QList<int> &indxs){
             connect(msghandler, &MsgHandler::resultSuccess, this, &UnifiedStorageModel::successToQML);
             msghandler->deleteFileFromServerRequest(sl);
         }
+        if(!m_items[indx].isMinio && !m_items[indx].isDirectory){
+            QFileInfo fileInfo(m_items[indx].path);
+            QString dirPath = fileInfo.absolutePath();
+            qDebug() << "Directory path: " << dirPath;
+            QDir dir{dirPath};
+            bool success = dir.remove(m_items[indx].name);
+            if(!success)qDebug() << "int UnifiedStorageModel::deleteIndices something went wrong";
+        }
     }
     return 0;
 }
@@ -341,8 +351,10 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::getData(int indx){
 }
 
 Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf, QString path){
-    qDebug() << "int UnifiedStorageModel::writeImagesToFolder";
+    qDebug() << "int UnifiedStorageModel::writeImagesToFolder: " << m_parentItem.path <<
+        "  isMinio: " << m_parentItem.isMinio << "  isDir: " << m_parentItem.isDirectory;
     if(!m_parentItem.isMinio && m_parentItem.isDirectory){
+        qDebug() << "!m_parentItem.isMinio && m_parentItem.isDirectory";
         QStringList paths;
         QStringList ids;
         for(const QVariant &v : lf){
@@ -355,6 +367,7 @@ Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf,
         return 0;
     }
     else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) {
+        qDebug() << "m_parentItem.isMinio && m_parentItem.isMinioBucket";
         for(const QVariant &v : lf){
             QVariantMap item = v.toMap();
             qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();

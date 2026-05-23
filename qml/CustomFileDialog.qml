@@ -8,7 +8,7 @@ import pict_client
 Window {
 //Dialog {
     id: customFileDlg
-    title: "Selecting an object (Locally / Network storage)"
+    title: "Selecting an object (Local / Network storage)"
     width: 800; height: 500
     flags: Qt.Dialog | Qt.WindowStaysOnTopHint
     modality: Qt.ApplicationModal
@@ -25,7 +25,9 @@ Window {
     property alias currentTabIndex: tabBar.currentIndex
     signal openIndicesSelected(list<int> inds)
     signal openIndexSelected(int index)
-    //signal tabSelected(int tabIndex)
+    signal writeImages(var lf, string destPath);
+    signal deletePathsSelected(list<int> indices)
+
     property int lastSelectedTab: 0
     property var selectedIndices: []
 //    property var selectedPaths: []
@@ -224,10 +226,6 @@ Window {
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -3 // Рамка чуть шире самой кнопки
-                        // color: "transparent"
-                        // border.color: "#2196F3"
-                        // border.width: 2
-                        // radius: 6
                         color: nw_storage.enabled ? "transparent" : "#353535"
                         border.color: nw_storage.activeFocus ? "#21be2b" : "#bdbebf"
                         border.width: nw_storage.activeFocus ? 2 : 1
@@ -434,9 +432,8 @@ Window {
                         //  customFileDlg.openPathsSelected(selectedPaths);
                         customFileDlg.openIndicesSelected(selectedIndices);
                     }
-                    else //customFileDlg.openPathsSelected([currentSelectedPath]);
+                    else
                         customFileDlg.openIndicesSelected([selectedIndices]);
-                    //customFileDlg.tabSelected(tabBar.currentIndex)
                     rootWnd.currentCustomDlgTb = tabBar.currentIndex
                     customFileDlg.selectedIndices = []
                     customFileDlg.close() }
@@ -481,8 +478,8 @@ Window {
                         li.push( {"path":data.cleanPath, "mongoId":data.mongoId});
                     }
                     console.log("btn_wrt onClicked: ", li[0], "  ", currentSelectedPath)
-                    root.writeImages(li, currentSelectedPath);
-                    root.close()
+                    customFileDlg.writeImages(li, currentSelectedPath);
+                    customFileDlg.close()
                 }
                 background: Rectangle {
                     anchors.fill: parent
@@ -533,9 +530,9 @@ Window {
                 }
                 onClicked: {
                     console.log("delete onClicked")
-                    root.deletePathsSelected(selectedIndices);
+                    customFileDlg.deletePathsSelected(selectedIndices);
                     console.log("delete indicesToPaths(selectedIndices)", selectedIndices)
-                    root.close()
+                    customFileDlg.close()
                 }
             }
             Button {
@@ -568,7 +565,6 @@ Window {
                     }
                 }
                 onClicked: {
-                    //customFileDlg.tabSelected(tabBar.currentIndex)
                     rootWnd.currentCustomDlgTb = tabBar.currentIndex
                     customFileDlg.selectedIndices = []
                     customFileDlg.close()
