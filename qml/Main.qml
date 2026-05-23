@@ -22,7 +22,12 @@ ApplicationWindow {
     property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string currentNetworkPath: "http://minio:9000/"
     property int currentCustomDlgTb: 0
-
+    property var fileNames: [
+        "../icons/cherry-blossom.png",
+        "../icons/pink-cosmos.png",
+        "../icons/morning-glory.png",
+        "../icons/rose.png"
+    ]
     Settings {
         category: "General"
         // Связываем свойство QSettings со свойством окна
@@ -260,8 +265,12 @@ ApplicationWindow {
                             visible: false
 
                             function getCurrentUserImage() {
-                                //if (!rootWnd.loginService.loggedIn)
+                                if(wsClient.authConnectionState !== WebSocketClient.Authorized)
                                     return "../icons/user.svg";
+                                else {//return "../icons/cherry-blossom.png"
+                                    var index = Math.floor(Math.random() * fileNames.length);
+                                    return fileNames[index]
+                                }
                                 // for (let i = 0; i < users.data.length; i++) {
                                 //     if (users.data[i].email === loginService.user)
                                 //         return users.data[i].avatar;

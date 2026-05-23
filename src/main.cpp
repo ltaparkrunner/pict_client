@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QIcon>
 
 #include "listStringModel.h"
 #include "filehelper.h"
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
     app.setOrganizationDomain("Alex@Co");
     app.setApplicationName("Alex@Co");
 
+    app.setWindowIcon(QIcon("../icons/clover_transparent.png"));
     AuthHandler authHandler{};//(/*&wsClient*/);
 
     WebSocketClient wsClient(&authHandler, QUrl("wss://localhost:8082"));

@@ -1,18 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(pict_client_app VERSION 0.1 LANGUAGES CXX)
+project(pictStore VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Quick WebSockets Protobuf)
 
 qt_standard_project_setup(REQUIRES 6.6)
-
-qt_add_executable(pict_client_app #${PROJECT_NAME}
+set(CMAKE_AUTORCC ON)
+qt_add_executable(${PROJECT_NAME} #pictStore #${PROJECT_NAME}
     assets/message.proto
     assets/howTo.txt
     vcpkg.json
     src/main.cpp
+#    resources.qrc
 )
 
 qt_add_qml_module(${PROJECT_NAME}
@@ -35,7 +36,11 @@ qt_add_qml_module(${PROJECT_NAME}
         RESOURCES icons/login.svg icons/logout.svg icons/user.svg
         QML_FILES qml/NetworkDialog.qml
         SOURCES
-        SOURCES
+        RESOURCES icons/clover_transparent.png
+        RESOURCES icons/cherry-blossom.png
+        RESOURCES icons/pink-cosmos.png
+        RESOURCES icons/morning-glory.png
+        RESOURCES icons/rose.png
         RESOURCES icons/userMask.svg
         QML_FILES qml/UserLogin.qml
         QML_FILES qml/UserLogoff.qml
@@ -79,3 +84,6 @@ install(TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+#file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/images"
+#     DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
