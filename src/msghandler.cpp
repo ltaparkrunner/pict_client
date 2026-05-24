@@ -164,6 +164,48 @@ int MsgHandler::getFilesFoldersListfromBucketRequest(const QString &netPath, con
     return 0;
 }
 
+int MsgHandler::getFilesFoldersListfromBucketRequest2(const QString &netPath, const bool isDir){
+    qDebug() << "int getFilesFoldersListfromBucketRequest(const QString &path, const bool isDir)" << netPath;
+    QUrl netUrl(netPath);
+    QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    if (path.startsWith('/')) {
+        path.remove(0, 1);
+    }
+
+    QStringList parts = path.split('/');
+    QString bucket = parts.takeFirst();
+    //  qsizetype bucketIdx = path.indexOf(bucket);
+    QString folder = "";
+    qDebug() << "parts.length(): " << parts.length() << parts[2] << " / "; // << parts[3];
+    if(parts.length()>3)   folder = parts.mid(2).join('/');
+
+    // if (bucketIdx != -1) {
+    //     qsizetype startPos = bucketIdx + bucket.length();
+    //     qsizetype endPos = path.lastIndexOf('/');
+    //     if (endPos > startPos) {
+    //         if (path.at(startPos) == '/') {
+    //             startPos++;
+    //         }
+    //         qsizetype length = endPos - startPos;
+    //         folder = path.sliced(startPos, length);
+    //     }
+    // }
+
+    qDebug() << "bucket: " << bucket << " folder " << folder;
+    pict_data::ClientEnvelope cenv;
+    pict_data::FilesFoldersListRequest message;
+    message.setFolderName(folder);
+    //    message.setBucketName(bucket);
+    //    message.setUserLogin("Ivon");
+
+    cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
+    cenv.setListRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = cenv.serialize(&serializer);
+    /*qint64 sz =*/ m_client->sendBinaryMessage(data);
+    return 0;
+}
+
 int MsgHandler::deleteFileFromServerRequest(const QStringList &fileData){
     if(fileData.size() >= 4) {
         pict_data::ClientEnvelope cenv;

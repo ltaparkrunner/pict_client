@@ -1,3 +1,5 @@
+what is difference between UnifiedStorageModel::openFolderImages    ------------   UnifiedStorageModel::enterFolder
+
 mistake of writing and reading from folders. problem with creating reading and writing and deleting to folders. Wrong folders names, while writing, while reading.
 
 1 добавлениеб writing

@@ -199,7 +199,7 @@ Q_INVOKABLE int UnifiedStorageModel::openFolderImages(int indx){  // show folder
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
-        qDebug() << " m_parentItem: " << m_items[indx].path;
+        qDebug() << " m_parentItem: " << m_items[indx].path << "UnifiedStorageModel::openFolderImages";
         // connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
         // wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
         connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
@@ -242,7 +242,7 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
         return 0;
     }
     else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) { // Minio Bucket
-        qDebug() << " m_parentItem: " << m_parentItem.path;
+        qDebug() << " m_parentItem: " << m_parentItem.path << "first enter";
 //        connect(wsclient, &WebSocketClient::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
 //        wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.name /*, usmodel*/);
         connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
@@ -250,11 +250,11 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
-        // qDebug() << " m_parentItem: " << m_parentItem.path <<
+        qDebug() << " m_parentItem: " << m_parentItem.path << "UnifiedStorageModel::enterFolder";
         //     "m_items[indx].isMinio" << m_parentItem.isMinio << "m_items[indx].isDir" << m_parentItem.isDirectory;
         connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
     //    wsclient->getFilesFoldersListfromBucketRequest(m_parentItem.path /*, usmodel*/);
-        msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path, m_parentItem.name  /*, usmodel*/);
+        msghandler->getFilesFoldersListfromBucketRequest2(m_parentItem.path, true  /*, usmodel*/);
         return 0;               // Minio simple folder
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && m_parentItem.isVirtualDir) {
