@@ -1,3 +1,7 @@
+mistake of writing and reading from folders. problem with creating reading and writing and deleting to folders. Wrong folders names, while writing, while reading.
+
+1 добавлениеб writing
+
 once more how to enter and switch between the windows in FileCustomDialog.
 What a message in Network Store
 

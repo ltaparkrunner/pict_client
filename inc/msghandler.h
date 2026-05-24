@@ -15,13 +15,12 @@ public:
     explicit MsgHandler(WebSocketClient *client, QObject *parent = nullptr);
 
     Q_INVOKABLE int getBucketsListRequest() const;
-    int addFileRequest(const QString &path, const QString &id, const QString &arrival);
-    int getFilesFoldersListfromBucketRequest(const QString &path);
+    int addFileRequest(const QString &path, const QString &id, const QString &arrival, const QString &fname);
+    int getFilesFoldersListfromBucketRequest(const QString &path, const QString &name);
     //  int getFileRequest(const QString &path, const QString &id, const QString &arrival);
     int getFilesRequest(const QStringList &path, const QStringList &id, const QString &arrival);
     // int getFilesOnlyListfromBucketRequest(const QString &path);
 
-    // Q_INVOKABLE int addFileRequest(const QString &filePath, const QString &path);
     // int deleteMinioBucketsRequest(const QStringList &buckets);
     int deleteFileFromServerRequest(const QStringList &fileData);
 

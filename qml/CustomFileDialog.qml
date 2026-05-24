@@ -39,6 +39,29 @@ Window {
         }
     }
 
+    Menu {
+        id: contextMenuGridView
+        MenuItem {
+            text: "create folder"
+            onTriggered: {
+                folderDialog.open()
+            }
+        }
+        MenuSeparator { }
+        MenuItem {
+            text: "Preferences"
+            onTriggered: console.log("Действие: Свойства")
+        }
+    }
+
+    FolderDialog {
+        id: folderDialog
+        onFolderAccepted: (name) => {
+//            storageModel.addVirtual(name, customFileDlg.currentSelectedPath);
+            storageModel.addVirtual(name, customFileDlg.currentSelectedPath);
+        }
+    }
+
     ColumnLayout {
         anchors.fill: parent
         spacing: 2
@@ -275,6 +298,19 @@ Window {
             highlightMoveDuration: 0
             highlight: Rectangle { color: "gainsboro"; radius: 2} //; z:2 }
             highlightFollowsCurrentItem: true
+
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons:Qt.RightButton
+                // Важно: не блокируем прокрутку GridView
+                //  acceptedButtons: Qt.NoButton
+                onClicked: (mouse) => {
+                    if (mouse.button === Qt.RightButton) {
+                        // 3. Вызываем меню в координатах курсора
+                        contextMenuGridView.popup()
+                    }
+                }
+            }
 
             delegate: ItemDelegate {
                 width: gridView.cellWidth - 4

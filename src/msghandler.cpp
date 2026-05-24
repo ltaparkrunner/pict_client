@@ -67,7 +67,7 @@ Q_INVOKABLE int MsgHandler::getBucketsListRequest() const{
     return 0;
 }
 
-int MsgHandler::addFileRequest(const QString &filepath, const QString &id, const QString &netFolderPath){
+int MsgHandler::addFileRequest(const QString &filepath, const QString &id, const QString &netFolderPath, const QString &fname){
     qDebug() << "MsgHandler::addFileRequest" << filepath << " " << id << "  " << netFolderPath;
     pict_data::ClientEnvelope cenv;
     pict_data::AddFileRequest message;
@@ -107,13 +107,13 @@ int MsgHandler::addFileRequest(const QString &filepath, const QString &id, const
             folder = path.sliced(startPos, length);
         }
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder;
+    qDebug() << "bucket: " << bucket << " folder " << folder << "fname" << fname;
 
 
     message.setFileName(fileName);
 //    message.setUserLogin("Ivon");
 //    message.setBucketName(bucket);
-    message.setFolder(folder);
+    message.setFolder(fname);
     message.setInfo(completeSuffix);
     message.setData(fileData);
 
@@ -125,7 +125,7 @@ int MsgHandler::addFileRequest(const QString &filepath, const QString &id, const
     return 0;
 }
 
-int MsgHandler::getFilesFoldersListfromBucketRequest(const QString &netPath){
+int MsgHandler::getFilesFoldersListfromBucketRequest(const QString &netPath, const QString &fname){
     qDebug() << "MsgHandler::getFilesFoldersListfromBucketRequest(const QString &minioPath)" << netPath;
     QUrl netUrl(netPath);
     QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
@@ -148,11 +148,11 @@ int MsgHandler::getFilesFoldersListfromBucketRequest(const QString &netPath){
             folder = path.sliced(startPos, length);
         }
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder;
+    qDebug() << "bucket: " << bucket << " folder " << folder << ", fname: " << fname;
 
     pict_data::ClientEnvelope cenv;
     pict_data::FilesFoldersListRequest message;
-    message.setFolderName(folder);
+    message.setFolderName(fname);
 //    message.setBucketName(bucket);
 //    message.setUserLogin("Ivon");
 

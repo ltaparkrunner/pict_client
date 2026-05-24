@@ -23,7 +23,7 @@ Window {
     }
 //    signal openPathsSelected(string path)
     signal openIndexSelected(int index)
-    signal writePathsSelected(list<string> listPath, list<string> destPath)
+    //  signal writePathsSelected(list<string> listPath, list<string> destPath)
     //  signal writeImages(list<[string, string]>, string destPath);
     signal writeImages(var lf, string destPath);
 //    li.push( {"path":i.cleanPath, "mongoId:":i.mongoId});

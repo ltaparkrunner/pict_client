@@ -132,7 +132,7 @@ ApplicationWindow {
             wsClient.connectToServer()
         }
     }
-
+/*
     SecondCustomFileDialog {
         id: secondCustomDialog
         // onOpenPathsSelected:(paths) => {
@@ -158,10 +158,10 @@ ApplicationWindow {
             else console.log("Путь не распознан или не существует 1");
         }
         // root.writePathSelected(ls, currentSelectedPath)
-        onWritePathsSelected:(ls, paths) => {
-            //  console.log("onWritePathsSelected paths: ", paths)
-            storageModel.writeToFolder(ls)
-        }
+        // onWritePathsSelected:(ls, paths) => {
+        //     //  console.log("onWritePathsSelected paths: ", paths)
+        //     storageModel.writeToFolder(ls)
+        // }
 
         onWriteImages: (lf, path) => {
             //  console.log("onWritePathsSelected paths: ", path)
@@ -189,6 +189,7 @@ ApplicationWindow {
             }
         }
     }
+*/
 
     UserLogin {
         id: userLogin
