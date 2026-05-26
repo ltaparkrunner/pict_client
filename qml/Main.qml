@@ -111,12 +111,7 @@ ApplicationWindow {
                 //  console.log("onDeletePathsSelected:(paths)", indices[0])
                 storageModel.deleteIndices(indices)
             }
-            // else {
-            //     msgNothingToDo.text = "You must select a folder to save the images."
-            //     msgNothingToDo.open()
-            // }
             // tf.content = currentSelectedPath
-            // processPath(currentSelectedPath)
         }
     }
 
@@ -177,7 +172,7 @@ ApplicationWindow {
                 msgNothingToDo.text = "You must select a folder to save the images."
                 msgNothingToDo.open()
             }
-            tf.content = currentSelectedPath
+            tf.tfContent = currentSelectedPath
             processPath(currentSelectedPath)
         }
         // Check if the files are in the target folder
@@ -233,12 +228,11 @@ ApplicationWindow {
             RowLayout{
                 TextField {
                     id: tf
-                    property string content: ""
+                    property string tfContent: ""
                     placeholderText: "Open/Write file/folder"
                     Layout.fillWidth: true
                     Layout.preferredWidth: 4
-                    //  text: content
-                    text: content
+                    text: tfContent
                     background: Rectangle {
                         implicitWidth: 200
                         implicitHeight: 40
@@ -451,7 +445,7 @@ ApplicationWindow {
                                 onDoubleClicked: {
                                     let img = imageModel.get(index)
                                     mainImageSource = img.path
-                                    tf.content = img.cleanPath
+                                    tf.tfContent = img.cleanPath
                                 }
                                 onClicked: (mouse) => {
                                     if (mouse.button === Qt.RightButton) {
@@ -492,9 +486,7 @@ ApplicationWindow {
                                 return path.substring(0, partSize) + "..." + path.substring(path.length - partSize);
                             }
                         }
-                        ScrollBar.vertical: ScrollBar {}
-                        // onActiveFocusChanged: if (!activeFocus) tf.content = mainImageSource
-                    }
+                        ScrollBar.vertical: ScrollBar {}                    }
                     Rectangle {
                         id: floatingInfo
                         width: imageGrid.width
@@ -570,8 +562,8 @@ ApplicationWindow {
                     // MouseArea {
                     //     anchors.fill: parent
                     //     hoverEnabled: true
-                    //     onEntered: {  largeImgRect.savedString = tf.content
-                    //         tf.content = mainImageSource
+                    //     onEntered: {  largeImgRect.savedString = tf.tfContent
+                    //         tf.tfContent = mainImageSource
                     //     }
                     // }
                 }
@@ -744,5 +736,8 @@ ApplicationWindow {
                 console.log("Путь не распознан или не существует");
             }
         }
+    }
+    Component.onCompleted:{
+        tf.tfContent = currentLocalPath
     }
 }

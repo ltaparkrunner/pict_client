@@ -24,14 +24,14 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ListResponse) {
         const auto &response = data.listResponse();
         QList<QStringList> sl;
+        for (const auto &info : response.folders()) {
+            sl.append({info.folderName(), info.url(), "folder", ""});
+            qDebug() << "folderName: " << info.folderName() << "  url: " << info.url();
+        }
         for (const auto &info : response.files()) {
             sl.append({info.fileName(), info.url(), "file", info.mongoId()});
             qDebug() << "fileName: " << info.fileName() << "  url: " << info.url() <<
                 "  mongoId: " << info.mongoId() << "  ";
-        }
-        for (const auto &info : response.folders()) {
-            sl.append({info.folderName(), info.url(), "folder", ""});
-            qDebug() << "folderName: " << info.folderName() << "  url: " << info.url();
         }
         emit pathsReceived(sl);
     }
