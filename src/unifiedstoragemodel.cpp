@@ -344,7 +344,7 @@ Q_INVOKABLE int UnifiedStorageModel::deleteIndices(const QList<int> &indxs){
             qDebug() << "Directory path: " << dirPath;
             QDir dir{dirPath};
             bool success = dir.remove(m_items[indx].name);
-            if(!success)qDebug() << "int UnifiedStorageModel::deleteIndices something went wrong";
+            if(!success) qDebug() << "int UnifiedStorageModel::deleteIndices something went wrong";
         }
     }
     return 0;
@@ -492,59 +492,13 @@ int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
     return 0;
 }
 
-Q_INVOKABLE QVariantMap UnifiedStorageModel::infoPathTextField(const QString &path){
+Q_INVOKABLE bool UnifiedStorageModel::NetStorePath(const QString &path){
     // to check if the way is a local or network dir or file and if file(local or network (http://minio:9000/))
     // then open in main window, if dir then open in customFileDialog
-    QString prefix = "http://minio:9000/";
-
-    QVariantMap map;// = {"", "", "", false,false};
+    // QString prefix = "http://minio:9000/";
     if(path.startsWith(prefix)) {
-        QUrl qurl(path);
-        QString cleanPath = qurl.path();
-        if (cleanPath.startsWith('/')) {
-            cleanPath.remove(0, 1);
-        }
-        msghandler -> getPathInfo(cleanPath);
+        msghandler -> getNetStore(path);
+        return true;
     }  // if exist and file, if exist and dir
-    else {
-        QFileInfo checkPath(path);
-        if (checkPath.exists()) {
-            if (checkPath.isFile()) {
-                //qDebug() << "It's a file!";
-                QString ext = checkPath.suffix().toLower();
-                if (allowedExtensions.contains(ext)) {
-                    map["name"] = checkPath.fileName();
-                    map["path"] = checkPath.absoluteFilePath();
-                    map["mongoId"] = "";
-                    map["isNetwork"] = false;
-                    map["isDir"] = false;
-                    //return map;
-                }
-                else {
-                    map["name"] = "";
-                    map["path"] = "";
-                    map["mongoId"] = "";
-                    map["isNetwork"] = false;
-                    map["isDir"] = false;
-                    //return map;
-                }
-            } else if (checkPath.isDir()) {
-                QVariantMap map;
-                map["name"] = checkPath.fileName();
-                qDebug() << " checkPath.fileName(): " << checkPath.fileName() << "  checkPath.absolutePath(): " << checkPath.absolutePath();
-                map["path"] = checkPath.absolutePath();
-                map["mongoId"] = "";
-                map["isNetwork"] = false;
-                map["isDir"] = true;
-                //return map;
-            }
-        } else {
-            map["name"] = "";
-            map["path"] = "";
-            map["mongoId"] = "";
-            map["isNetwork"] = false;
-            map["isDir"] = false;
-        }
-    }
-    return map;
+    else return false;
 }

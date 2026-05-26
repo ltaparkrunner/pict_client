@@ -381,10 +381,32 @@ ApplicationWindow {
                     onClicked: {
                         wsClient.connectToServer()
                         customDialog.currentTabIndex = 0
-                        storageModel.enterLocal(tf.tfContent); // TODO:??
-                        customDialog.textFld = currentLocalPath
+                        if(tf.text && tf.text.trim().length > 0) {
+                            let type = FileHelper.checkPathType(tf.text);
+                            if (type === FileHelperType.LocalFile) {
+                                console.log("Это локальный файл");
+                                imageModel.addImagePath(tf.text)
+                            } else if (type === FileHelperType.LocalFolder) {
+                                console.log("Это локальная папка");
+                                storageModel.enterLocal(tf.text)
+                                customDialog.show();
+                            } else if (type === FileHelperType.MinioBucket) {
+                                console.log("Это бакет MinIO");
+                                storageModel.NetStorePath(tf.text)
+                                customDialog.show();
+                            } else if (type === FileHelperType.MinioFile) {
+                                console.log("Это объект (файл) в MinIO");
+                                storageModel.NetStorePath(tf.text)
+                            } else {
+                                console.log("Путь не распознан или не существует");
+                            }
+                        }
+
+                        //storageModel.infoPathTextField(tf.tfContent);
+                        // storageModel.enterLocal(tf.tfContent); // TODO:??
+                        //customDialog.textFld = currentLocalPath
                         // else storageModel.enterNetStore("main-bucket")
-                        customDialog.show();
+                        //customDialog.show();
                         // customDialog.open()
                     }
                 }

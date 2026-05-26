@@ -254,11 +254,32 @@ int MsgHandler::getFilesRequest(const QStringList &paths, const QStringList &ids
     return 0;
 }
 
-int MsgHandler::getPathInfo(const QString &netPath){
+int MsgHandler::getNetStore(const QString &netPath){
+    QUrl netUrl(netPath);
+    QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    if (path.startsWith('/')) {
+        path.remove(0, 1);
+    }
+
+    QStringList parts = path.split('/');
+    QString bucket = parts.takeFirst();
+    qsizetype bucketIdx = path.indexOf(bucket);
+    QString fPath = "";
+    if (bucketIdx != -1) {
+        qsizetype startPos = bucketIdx + bucket.length();
+        qsizetype endPos = path.lastIndexOf('/');
+        if (endPos > startPos) {
+            if (path.at(startPos) == '/') {
+                startPos++;
+            }
+            qsizetype length = endPos - startPos;
+            fPath = path.sliced(startPos, length);
+        }
+    }
     pict_data::ClientEnvelope cenv;
     pict_data::PathInfoRequest message;
 
-    message.setNetPath(netPath);
+    message.setNetPath(fPath);
     cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
     cenv.setPathInfRequest(message);
     QProtobufSerializer serializer;

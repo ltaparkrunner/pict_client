@@ -99,6 +99,7 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
 
 Q_INVOKABLE void WebSocketClient::connectToServer(/*const QString &url*/) {
     qDebug() << "WebSocketClient::connectToServer";
+    if (m_webSocket && m_webSocket->state() == QAbstractSocket::ConnectedState) return;
 //    if (!m_authHandler || !m_authHandler->loggedIn()) return;
     setConnectionState(AuthConnectState::Connecting);
     // m_tokenExpiredDetected = false;

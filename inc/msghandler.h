@@ -20,7 +20,7 @@ public:
     int getFilesFoldersListfromBucketRequest2(const QString &path, const bool isDir);
     //  int getFileRequest(const QString &path, const QString &id, const QString &arrival);
     int getFilesRequest(const QStringList &path, const QStringList &id, const QString &arrival);
-    int getPathInfo(const QString &netPath);
+    int getNetStore(const QString &netPath);
     // int getFilesOnlyListfromBucketRequest(const QString &path);
 
     // int deleteMinioBucketsRequest(const QStringList &buckets);
