@@ -52,6 +52,23 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         }
         emit writeUrlsToLocal(urls);
     }
+    else if(data.contentField() == pict_data:: ServerEnvelope::ContentFields::PathInfResponse){
+        qDebug() << "pict_data:: ServerEnvelope::ContentFields::FilesIdsResponse info.url()";
+        const auto &response = data.pathInfResponse();
+        if(response.result() == "file") {
+            qDebug() << "fileTempPath" << response.netStorePath();
+            emit pathInfoResp('f',response.netStorePath());
+        }
+        else if (response.result() == "folder") {
+            qDebug() << "folder";
+            emit pathInfoResp('d', response.netPath());
+        }
+        else if (response.result() == "not_exist") {
+            qDebug() << "not_exist";
+            emit pathInfoResp('n', "");
+        }
+
+    }
 }
 
 Q_INVOKABLE int MsgHandler::getBucketsListRequest() const{
@@ -231,6 +248,19 @@ int MsgHandler::getFilesRequest(const QStringList &paths, const QStringList &ids
     message.setMongoIds(ids);
     cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
     cenv.setFilesIdsRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = cenv.serialize(&serializer);
+    /*qint64 sz = */ m_client->sendBinaryMessage(data);
+    return 0;
+}
+
+int MsgHandler::getPathInfo(const QString &netPath){
+    pict_data::ClientEnvelope cenv;
+    pict_data::PathInfoRequest message;
+
+    message.setNetPath(netPath);
+    cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
+    cenv.setPathInfRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = cenv.serialize(&serializer);
     /*qint64 sz = */ m_client->sendBinaryMessage(data);

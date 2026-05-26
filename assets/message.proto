@@ -57,6 +57,16 @@ message FilesOnlyListRequest {
 //  string userLogin = 3;
 }
 
+message PathInfoRequest {
+    string netPath = 1;
+}
+
+message PathInfoResponse {
+    string netPath = 1;
+    string netStorePath = 2;
+    string result = 3;
+}
+
 message FileInfo {
   string fileName = 1;
   string mongoId = 2;
@@ -166,6 +176,7 @@ message ClientEnvelope {
     FilesOnlyListRequest filesListRequest = 5;
     FilesIds filesIdsRequest = 6;
 //    FilesByIdsRequest filesIdsRequest2 = 7;
+    PathInfoRequest pathInfRequest = 7;
     BucketsRequest reqUserBuckets = 8;
     DeleteFileRequest deleteFile = 9;
     DeleteFolderRequest deleteFolder = 10;
@@ -193,5 +204,6 @@ message ServerEnvelope {
     BucketsList buckets = 8;
     AuthResponse authResponse = 9;
     FilesOnlyListResponse filesIdsResponse = 10;
+    PathInfoResponse pathInfResponse = 11;
   }
 }

@@ -381,7 +381,7 @@ ApplicationWindow {
                     onClicked: {
                         wsClient.connectToServer()
                         customDialog.currentTabIndex = 0
-                        storageModel.enterLocal(currentLocalPath); // TODO:??
+                        storageModel.enterLocal(tf.tfContent); // TODO:??
                         customDialog.textFld = currentLocalPath
                         // else storageModel.enterNetStore("main-bucket")
                         customDialog.show();
@@ -644,17 +644,6 @@ ApplicationWindow {
 
                 text: {
                     if (!wsClient) return "Инициализация..."
-                    //  console.log("wsClient.authConnectionState: ", wsClient.authConnectionState, " wsClient.Idle: ", wsClient.Idle)
-                    // for (var property in wsClient) {
-                    //     try {
-                    //         // Выводим имя свойства и его текущее значение
-                    //         console.log(property + " : " + obj[property])
-                    //     } catch (e) {
-                    //         // Некоторые свойства Qt защищены от чтения в рантайме
-                    //         console.log(property + " : [Ошибка чтения: " + e.message + "]")
-                    //     }
-                    // }
-                    //  console.log(JSON.stringify(wsClient, null, 2))
                     switch (wsClient.authConnectionState) {
                         case WebSocketClient.Idle: return "Отключено"
                         case WebSocketClient.Connecting: return "Подключение по сети..."

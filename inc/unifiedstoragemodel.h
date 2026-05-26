@@ -52,6 +52,7 @@ public:
     Q_INVOKABLE void enterMinioBucket(const QString &path);
     Q_INVOKABLE int openFolderImages(int indx);
     Q_INVOKABLE int enterFolder(int indx);
+    Q_INVOKABLE QVariantMap infoPathTextField(const QString &path);
     Q_INVOKABLE int deleteIndices(const QList<int> &indxs);
     //  Q_INVOKABLE int writeToFolder(const QStringList &ls);
     Q_INVOKABLE void minioPathsToQML(const QList<QStringList> &paths);
@@ -72,6 +73,7 @@ private:
     StorageItem m_parentItem;
     WebSocketClient *wsclient;
     MsgHandler *msghandler;
+    const QStringList allowedExtensions = {"jpg", "jpeg", "png", "bmp", "gif"};
 };
 
 #endif // UNifIEDSTORAGEMODEL_H
