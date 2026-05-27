@@ -52,7 +52,7 @@ public:
     Q_INVOKABLE void enterMinioBucket(const QString &path);
     Q_INVOKABLE int openFolderImages(int indx);
     Q_INVOKABLE int enterFolder(int indx);
-    Q_INVOKABLE bool NetStorePath(const QString &path);
+    Q_INVOKABLE bool getNetPath(const QString &path);
     Q_INVOKABLE int deleteIndices(const QList<int> &indxs);
     //  Q_INVOKABLE int writeToFolder(const QStringList &ls);
     Q_INVOKABLE void minioPathsToQML(const QList<QStringList> &paths);
@@ -66,8 +66,10 @@ public:
     Q_INVOKABLE void successToQML(const QString &msg);
     Q_INVOKABLE void errorToQML(const QString &msg);
     int writeUrlsToLocal(const QVector<QUrl> &paths);
+
 signals:
     void udsmToIm(QString, QString, bool, bool, QString);
+    void openNetStoreDialog(const int sel, const QString &netPath);
 private:
     QVector<StorageItem> m_items;
     StorageItem m_parentItem;

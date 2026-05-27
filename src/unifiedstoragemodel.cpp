@@ -14,6 +14,8 @@ UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHn
         endResetModel();
     });
     connect(msghandler, &MsgHandler::writeUrlsToLocal, this, &UnifiedStorageModel::writeUrlsToLocal);
+    connect(msghandler, &MsgHandler::pathInfoResp, this, &UnifiedStorageModel::openNetStoreDialog);
+    connect(msghandler, &MsgHandler::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
 }
 
 void UnifiedStorageModel::enterLocal(const QString &path) {
@@ -43,7 +45,6 @@ void UnifiedStorageModel::enterLocal(const QString &path) {
 }
 
 void UnifiedStorageModel::enterNetStore(QString path) {
-        connect(msghandler, &MsgHandler::bucketsReceived, this, &UnifiedStorageModel::minioBucketsToQML);
         msghandler->getBucketsListRequest();
 }
 
@@ -56,6 +57,7 @@ void UnifiedStorageModel::enterMinioBucket(const QString &path) {
 }
 
 void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
+    qDebug() << "UnifiedStorageModel::minioBucketsToQML: " << buckets[0]<< " " << buckets[1];
     beginResetModel();
     m_items.clear();
 
@@ -250,6 +252,7 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
     // if(m_items[indx].name == "..") {
 
     // }
+
     if(!m_parentItem.isMinio && m_parentItem.isDirectory){ // Local Directory
         beginResetModel();
         m_items.clear();
@@ -492,7 +495,7 @@ int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
     return 0;
 }
 
-Q_INVOKABLE bool UnifiedStorageModel::NetStorePath(const QString &path){
+Q_INVOKABLE bool UnifiedStorageModel::getNetPath(const QString &path){
     // to check if the way is a local or network dir or file and if file(local or network (http://minio:9000/))
     // then open in main window, if dir then open in customFileDialog
     // QString prefix = "http://minio:9000/";

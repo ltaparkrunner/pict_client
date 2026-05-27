@@ -42,6 +42,18 @@ ApplicationWindow {
         }
     }
 
+    Connections{
+        target: storageModel
+        function onOpenNetStoreDialog(sel, netPath) {
+            // console.log("function onOpenNetStoreDialog(sel, netPath): ", sel, " ", netPath)
+            if(sel === 100){
+                customDialog.currentTabIndex = 1;
+                customDialog.currentSelectedPath = netPath;
+                customDialog.show();
+            }
+        }
+    }
+
     WarnDialog{
         clientBackend: wsClient
         id: loginWarn
@@ -392,11 +404,12 @@ ApplicationWindow {
                                 customDialog.show();
                             } else if (type === FileHelperType.MinioBucket) {
                                 console.log("Это бакет MinIO");
-                                storageModel.NetStorePath(tf.text)
-                                customDialog.show();
+                                storageModel.getNetPath(tf.text)
+                                // customDialog.currentTabIndex = 1;
+                                // customDialog.show();
                             } else if (type === FileHelperType.MinioFile) {
                                 console.log("Это объект (файл) в MinIO");
-                                storageModel.NetStorePath(tf.text)
+                                storageModel.getNetPath(tf.text)
                             } else {
                                 console.log("Путь не распознан или не существует");
                             }

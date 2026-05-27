@@ -19,6 +19,7 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
             sl.append(info.url());
             qDebug() << "info.url()" << info.url();
         }
+        qDebug() << "emit bucketsReceived(sl)" << sl[0] << " " << sl[1];
         emit bucketsReceived(sl);
     }
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ListResponse) {
@@ -53,14 +54,14 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         emit writeUrlsToLocal(urls);
     }
     else if(data.contentField() == pict_data:: ServerEnvelope::ContentFields::PathInfResponse){
-        qDebug() << "pict_data:: ServerEnvelope::ContentFields::FilesIdsResponse info.url()";
+        qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse info.url()";
         const auto &response = data.pathInfResponse();
         if(response.result() == "file") {
-            qDebug() << "fileTempPath" << response.netStorePath();
-            emit pathInfoResp('f',response.netStorePath());
+            qDebug() << "fileTempPath" << response.netPath();
+            emit pathInfoResp('f',response.netPath());
         }
         else if (response.result() == "folder") {
-            qDebug() << "folder";
+            qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse folder";
             emit pathInfoResp('d', response.netPath());
         }
         else if (response.result() == "not_exist") {
