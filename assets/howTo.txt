@@ -31,7 +31,7 @@ I have customFileDlg. It's a dialog and i have a TextField in it id: textf.
 I need two paths local path and network path, and the variable that point, which of them is choosen.
 and the third path that is for an manually input path.
 
-than
+
 
 And I have a ApplicationWindow {
     id: rootWnd
@@ -53,6 +53,9 @@ transmit to textField, and reflected.
 
 It have to be four or three variables.
 I have
+
+acceptSelectionEnterFolder(index) is a key for the decision.
+
 
 property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
 property string currentNetworkPath: "http://minio:9000/"

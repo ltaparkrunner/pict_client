@@ -26,7 +26,7 @@ ApplicationWindow {
 
     property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string currentNetworkPath: "http://minio:9000/"
-//    property int currentCustomDlgTb: Main.StoreType.Local
+    property int currentCustomDlgTb: Main.StoreType.Local
     property var fileNames: [
         "../icons/cherry-blossom.png",
         "../icons/pink-cosmos.png",
@@ -37,6 +37,8 @@ ApplicationWindow {
         category: "General"
         // Связываем свойство QSettings со свойством окна
         property alias currentLocalPath: rootWnd.currentLocalPath
+        // property alias currentNetworkPath: rootWnd.currentNetworkPath
+        // property alias currentCustomDlgTb: rootWnd.currentCustomDlgTb
     }
 
     Connections {
@@ -725,6 +727,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted:{
+        console.log("currentLocalPath", currentLocalPath)
         tf.tfContent = currentLocalPath
     }
 }
