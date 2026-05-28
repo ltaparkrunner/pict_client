@@ -41,12 +41,15 @@ qt_add_qml_module(${PROJECT_NAME}
         RESOURCES icons/pink-cosmos.png
         RESOURCES icons/morning-glory.png
         RESOURCES icons/rose.png
+        RESOURCES icons/warning.png
+        RESOURCES icons/warning2.png
         RESOURCES icons/userMask.svg
         QML_FILES qml/UserLogin.qml
         QML_FILES qml/UserLogoff.qml
         QML_FILES qml/WarnDialog.qml
         SOURCES inc/authhandler.h
         SOURCES src/authhandler.cpp
+        QML_FILES qml/WarningDialog.qml
 )
 
 qt_add_protobuf(PictSerializer

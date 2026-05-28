@@ -59,6 +59,13 @@ ApplicationWindow {
         id: loginWarn
     }
 
+    WarningDialog {
+        id: warningDialog
+        messageText: "Are you sure you want to delete this file? This action cannot be undone."
+        onAccepted: console.log("User clicked OK")
+        onRejected: console.log("User clicked Cancel")
+    }
+
     CustomFileDialog {
         id: customDialog
         onOpenIndexSelected:(index) => {
@@ -129,75 +136,12 @@ ApplicationWindow {
 
     NetworkDialog {
         id: nwDialog
-        // Связываем свойство диалога напрямую с C++ классом
-        // Предварительно зарегистрировав MyClient в контексте QML под именем myClient
-        isNetworkAvailable: wsClient.authConnectionState //isConnected
-        //  clientBackend: wsClient
-
+        isNetworkAvailable: wsClient.authConnectionState
         onAccepted: {
             // При нажатии "Повторить" инициируем новое подключение
             wsClient.connectToServer()
         }
     }
-/*
-    SecondCustomFileDialog {
-        id: secondCustomDialog
-        // onOpenPathsSelected:(paths) => {
-        //     tf.content = currentSelectedPath
-        //     processPath(currentSelectedPath)
-        // }
-
-        onOpenIndexSelected:(index) => {
-            console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
-            if(index>=0 && index<storageModel.rowCount()){
-                let img = storageModel.get(index);
-                let imgPath = img.path;
-                let prefix = "file:///";
-                if(!img.isMinio && !imgPath.startsWith(prefix)){
-                    mainImageSource = prefix + imgPath
-                }
-                else mainImageSource = imgPath
-                //  console.log("onOpenIndexSelected: ", imgPath);
-                let data = storageModel.getData(index);
-                //  console.log("onOpenIndexSelected: ", index);
-                imageModel.insertImage(data);
-            }
-            else console.log("Путь не распознан или не существует 1");
-        }
-        // root.writePathSelected(ls, currentSelectedPath)
-        // onWritePathsSelected:(ls, paths) => {
-        //     //  console.log("onWritePathsSelected paths: ", paths)
-        //     storageModel.writeToFolder(ls)
-        // }
-
-        onWriteImages: (lf, path) => {
-            //  console.log("onWritePathsSelected paths: ", path)
-            storageModel.writeImagesToFolder(lf, path);
-        }
-
-        onDeletePathsSelected:(indices) => {
-            if(indices){
-                //  console.log("onDeletePathsSelected:(paths)", indices[0])
-                storageModel.deleteIndices(indices)
-            }
-            else {
-                msgNothingToDo.text = "You must select a folder to save the images."
-                msgNothingToDo.open()
-            }
-            tf.tfContent = currentSelectedPath
-            processPath(currentSelectedPath)
-        }
-        // Check if the files are in the target folder
-        function ifFilesInFolder(ls, path){
-            for(const [index, filePath] of ls.entries()){
-                const dir = filePath.substring(0, filePath.lastIndexOf("/"));
-                // console.log("dir = ", dir, "path = ", path)
-                if(dir === path) ls.splice(index, 1);
-            }
-        }
-    }
-*/
-
     UserLogin {
         id: userLogin
     }
@@ -322,8 +266,6 @@ ApplicationWindow {
                         preferredRendererType: Shape.CurveRenderer
                         visible: wsClient.authConnectionState === WebSocketClient.NotAuthorized ||
                                  wsClient.authConnectionState === WebSocketClient.LoggedOut
-                        //  visible: loginButton.hovered || (authHandler ? authHandler.loggedIn : false)
-                        //  visible: !rootWnd.authHandler.loggedIn
                         ShapePath {
                             strokeWidth: 0
                             fillColor: "#667085"
@@ -412,15 +354,10 @@ ApplicationWindow {
                                 storageModel.getNetPath(tf.text)
                             } else {
                                 console.log("Путь не распознан или не существует");
+                                warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;
+                                warningDialog.open()
                             }
                         }
-
-                        //storageModel.infoPathTextField(tf.tfContent);
-                        // storageModel.enterLocal(tf.tfContent); // TODO:??
-                        //customDialog.textFld = currentLocalPath
-                        // else storageModel.enterNetStore("main-bucket")
-                        //customDialog.show();
-                        // customDialog.open()
                     }
                 }
             }

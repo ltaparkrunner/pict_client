@@ -13,15 +13,10 @@ Window {
     flags: Qt.Dialog | Qt.WindowStaysOnTopHint
     modality: Qt.ApplicationModal
 //    modal: false
-//    standardButtons: Dialog.Cancel | Dialog.Open
 
     property string currentSelectedPath: "."
     property alias textFld: customFileDlg.currentSelectedPath
-    // property string currentLocalPath: "/home"
-    // property string currentNetworkPath: "http://minio:9000/"
-//    property string currentPath: "/"
 
-//    signal openPathsSelected(list<string> path)
     property alias currentTabIndex: tabBar.currentIndex
     signal openIndicesSelected(list<int> inds)
     signal openIndexSelected(int index)
@@ -30,7 +25,6 @@ Window {
 
     property int lastSelectedTab: 0
     property var selectedIndices: []
-//    property var selectedPaths: []
 
     onVisibleChanged: {
         if(visible) {
@@ -57,7 +51,6 @@ Window {
     FolderDialog {
         id: folderDialog
         onFolderAccepted: (name) => {
-//            storageModel.addVirtual(name, customFileDlg.currentSelectedPath);
             storageModel.addVirtual(name, customFileDlg.currentSelectedPath);
         }
     }

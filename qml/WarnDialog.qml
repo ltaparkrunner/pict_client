@@ -5,6 +5,7 @@ import QtQuick.Controls.Basic
 
 Dialog {
     required property var clientBackend
+//    property alias txtMsg: txtMsg.text
     id: warnLoginDialog
     modal: true
     anchors.centerIn: parent
@@ -13,6 +14,7 @@ Dialog {
     //  visible: clientBackend.tokenExpired
     Column {
         Text{
+            id: txtMsg
             text: "Login or register"
         }
 
