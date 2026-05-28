@@ -127,10 +127,8 @@ ApplicationWindow {
         }
         onDeletePathsSelected:(indices) => {
             if(indices){
-                //  console.log("onDeletePathsSelected:(paths)", indices[0])
                 storageModel.deleteIndices(indices)
             }
-            // tf.content = currentSelectedPath
         }
     }
 
@@ -192,10 +190,14 @@ ApplicationWindow {
                     background: Rectangle {
                         implicitWidth: 200
                         implicitHeight: 40
-                        color: tf.enabled ? "transparent" : "#353535"
-                        border.color: tf.activeFocus ? "#21be2b" : "#bdbebf"
-                        border.width: tf.activeFocus ? 2 : 1
+                        color: "#ddfbdd"    //tf.enabled ? "transparent" : "#353535"
+                        border.color: (tf.activeFocus || tf.hovered)? "#21be2b" : "#bdbebf"
+                        border.width: (tf.activeFocus || tf.hovered)? 2 : 1
                         radius: 4
+                    }
+                    onAccepted: {
+                        console.log("Пользователь нажал Enter. Введенный текст:", tf.text)
+                        // Здесь ваша логика (например, отправка сообщения или запуск поиска)
                     }
                 }
                 AbstractButton {
@@ -203,12 +205,28 @@ ApplicationWindow {
                     Layout.preferredWidth: 25
                     Layout.preferredHeight: 25
                     hoverEnabled: true
-                    Item {
-                        id: userImageCliped
-                        Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
-                        width: 25
-                        height: 25
 
+                    background: Rectangle {
+                        implicitWidth: loginButton.Layout.preferredWidth
+                        implicitHeight: loginButton.Layout.preferredHeight
+                        radius: width / 2 // Делает рамку идеально круглой
+                        color: "#ddfbdd"    //"transparent"
+                        // Логика цвета и толщины рамки (отслеживает состояния loginButton)
+                        border.color: (loginButton.activeFocus || loginButton.hovered) ? "#21be2b" : "#bdbebf"
+                        border.width: (loginButton.activeFocus || loginButton.hovered) ? 2 : 1
+
+                        // Плавный переход для красивого визуального эффекта
+                        Behavior on border.color { ColorAnimation { duration: 100 } }
+                    }
+
+                    Item {
+//                    Rectangle{
+                        id: userImageCliped
+                        // Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                        // width: 25
+                        // height: 25
+                        anchors.fill: parent
+                        anchors.margins: loginButton.hovered ? 2 : 1
                         Image {
                             id: userImage
                             anchors.fill: parent
@@ -222,10 +240,6 @@ ApplicationWindow {
                                     var index = Math.floor(Math.random() * fileNames.length);
                                     return fileNames[index]
                                 }
-                                // for (let i = 0; i < users.data.length; i++) {
-                                //     if (users.data[i].email === loginService.user)
-                                //         return users.data[i].avatar;
-                                // }
                             }
                         }
 
@@ -300,60 +314,65 @@ ApplicationWindow {
             }
             RowLayout{
                 Button {
-                    text: "Open"
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
-                    onClicked: {
-                        if(tf.text && tf.text.trim().length > 0) {
-                            let type = FileHelper.checkPathType(tf.text);
-                            if (type === FileHelperType.LocalFile) {
-                                console.log("Это локальный файл");
-                            } else if (type === FileHelperType.LocalFolder) {
-                                console.log("Это локальная папка");
-                            } else if (type === FileHelperType.MinioBucket) {
-                                console.log("Это бакет MinIO");
-                            } else if (type === FileHelperType.MinioFile) {
-                                console.log("Это объект (файл) в MinIO");
-                            } else {
-                                console.log("Путь не распознан или не существует");
-                            }
-                        }
-                    }
-                }
-                Button {
-                    text: "Write"
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
-                    onClicked: {
-                        // FileHelper.deleteMinioBuckets(["pictures"]) TODO:
-                    }
-                }
-                Button {
+                    id: fileButton
                     text: "File dialog"
                     Layout.fillWidth: true
                     Layout.preferredWidth: 1
+                    // Настройка шрифта
+                    font.pixelSize: 14
+                    font.weight: Font.Medium
+
+                    // Кастомизация текстового слоя (для управления цветом при наведении)
+                    contentItem: Text {
+                        text: fileButton.text
+                        font: fileButton.font
+                        color: "#2c2c2c"        //fileButton.down ? "#ffffff" : (fileButton.hovered ? "#ffffff" : "#2c2c2c")//"#2c3e50")
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        elide: Text.ElideRight
+
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+
+                    // Кастомизация фоновой подложки кнопки
+                    background: Rectangle {
+                        implicitHeight: 40 // Комфортная высота для клика
+                        radius: 8          // Скругление углов в современном стиле
+
+                        // Плавная смена цвета фона в зависимости от состояния кнопки
+                        color: {
+                            //if (fileButton.down) return "#98fb98"       //return "#1a5276"      // Цвет при клике (темно-синий)
+                            //if (fileButton.hovered) return "#98fb98"    //return "#2980b9"   // Цвет при наведении (акцентный синий)
+                            return "#ddfbdd"    //return "#ebf5fb"                           // Цвет в покое (светло-голубой)
+                        }
+
+                        // Тонкая рамка для структуры в режиме покоя
+                        // border.color: fileButton.hovered ? "transparent" : "#d4e6f1"
+                        // border.width: 1
+                        border.color: (fileButton.activeFocus || fileButton.hovered) ? "#21be2b" : "#bdbebf"
+                        border.width: (fileButton.activeFocus || fileButton.hovered) ? 2 : 1
+                        // Плавная анимация перехода между цветами
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
                     onClicked: {
                         wsClient.connectToServer()
                         customDialog.currentTabIndex = 0
                         if(tf.text && tf.text.trim().length > 0) {
                             let type = FileHelper.checkPathType(tf.text);
                             if (type === FileHelperType.LocalFile) {
-                                console.log("Это локальный файл");
+                                //  console.log("Это локальный файл");
                                 imageModel.addImagePath(tf.text)
                             } else if (type === FileHelperType.LocalFolder) {
-                                console.log("Это локальная папка");
+                                //  console.log("Это локальная папка");
                                 storageModel.enterLocal(tf.text)
                                 customDialog.show();
                             } else if (type === FileHelperType.MinioBucket) {
-                                console.log("Это бакет MinIO");
+                                //  console.log("Это бакет MinIO");
                                 storageModel.getNetPath(tf.text)
-                                // customDialog.currentTabIndex = 1;
-                                // customDialog.show();
                             } else if (type === FileHelperType.MinioFile) {
-                                console.log("Это объект (файл) в MinIO");
+                                //  console.log("Это объект (файл) в MinIO");
                                 storageModel.getNetPath(tf.text)
                             } else {
-                                console.log("Путь не распознан или не существует");
                                 warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;
                                 warningDialog.open()
                             }
@@ -371,9 +390,11 @@ ApplicationWindow {
                 Layout.fillHeight: true
                 Layout.preferredWidth: (parent.width - 330 < 300) ? parent.width / 2 : 330
                 spacing: 5//10
-                Item{
+//                Item{
+                Rectangle{
                     Layout.fillHeight: true
                     Layout.fillWidth: true
+                    color: "#ddfbdd"
                     GridView {
                         property string lastDoubleClickedPath: ""
                         id: imageGrid
@@ -458,7 +479,8 @@ ApplicationWindow {
                                 return path.substring(0, partSize) + "..." + path.substring(path.length - partSize);
                             }
                         }
-                        ScrollBar.vertical: ScrollBar {}                    }
+                        ScrollBar.vertical: ScrollBar {}
+                    }
                     Rectangle {
                         id: floatingInfo
                         width: imageGrid.width
@@ -531,19 +553,10 @@ ApplicationWindow {
                         font.pixelSize: 18
                         visible: mainImageSource === ""
                     }
-                    // MouseArea {
-                    //     anchors.fill: parent
-                    //     hoverEnabled: true
-                    //     onEntered: {  largeImgRect.savedString = tf.tfContent
-                    //         tf.tfContent = mainImageSource
-                    //     }
-                    // }
                 }
             }
         }
     }
-
-//        folder: StandardPaths.writableLocation(StandardPaths.PicturesLocation)
     footer: ToolBar {
         id: statusBar
 

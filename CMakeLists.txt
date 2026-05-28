@@ -28,7 +28,7 @@ qt_add_qml_module(${PROJECT_NAME}
         SOURCES inc/filedownloader.h     src/filedownloader.cpp
         QML_FILES qml/CustomFileDialog.qml
         QML_FILES
-        QML_FILES qml/SecondCustomFileDialog.qml
+        #   QML_FILES qml/SecondCustomFileDialog.qml
         QML_FILES qml/FolderDialog.qml
         SOURCES inc/foldermodel.h
         SOURCES inc/auxilary.h
