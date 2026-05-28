@@ -1,3 +1,65 @@
+
+🇮🇷 Персидские приветствия (фарси)
+В Иране базовым и универсальным приветствием является «салам», а официальные фразы часто связаны с пожеланиями времени суток.
+Фраза на фарси
+        Транскрипция	Значение
+Сала́м	Привет / Здравствуйте
+روز بخیر	Руз бахе́йр	Добрый день
+صبح بخیر	Собх бахе́йр	Доброе утро
+شب بخیر	Шаб бахе́йр	Спокойной ночи
+حال شما چطوره؟	Хале шома чето́ре?	Как ваши дела?
+Дополнительные полезные фразы для поездок доступны в Русско-фарси разговорнике на Тонкостях.
+🇦🇪 Армянские приветствия
+В Армении здороваются тепло, при этом официальное обращение всегда строится на слове «барев».
+Фраза на армянском
+        Транскрипция	Значение
+Բարև	Баре́в	Привет
+Բարև ձեզ	Баре́в дзез	Здравствуйте
+Բարի լույս	Бари́ луйс	Доброе утро
+Բարի օր         Бари́ ор	Добрый день
+Բարի երեկո	Бари́ ереко́	Добрый вечер
+Ознакомиться с дополнительными фразами можно в Материалах по армянскому языку на Викиверситете.
+I have customFileDlg. It's a dialog and i have a TextField in it id: textf.
+
+        TextField {
+            id: textf
+            Layout.fillWidth: true
+            text: customFileDlg.currentSelectedPath
+
+}
+
+I need two paths local path and network path, and the variable that point, which of them is choosen.
+and the third path that is for an manually input path.
+
+than
+
+And I have a ApplicationWindow {
+    id: rootWnd
+    TextField {
+        id: tf
+        property string tfContent: ""
+        placeholderText: "Open/Write file/folder"
+        Layout.fillWidth: true
+        Layout.preferredWidth: 4
+        text: tfContent
+
+
+ than manually inputed it defend using some algorithm whether it network, or local, or manual?
+
+////////////////////////////////
+
+No, path for local and path for network that keeps, and one of tham is reflected, but that is really reflected, and which
+transmit to textField, and reflected.
+
+It have to be four or three variables.
+I have
+
+property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
+property string currentNetworkPath: "http://minio:9000/"
+and I have
+
+
+
 what is difference between UnifiedStorageModel::openFolderImages    ------------   UnifiedStorageModel::enterFolder
 
 mistake of writing and reading from folders. problem with creating reading and writing and deleting to folders. Wrong folders names, while writing, while reading.

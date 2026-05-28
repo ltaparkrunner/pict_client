@@ -19,9 +19,14 @@ ApplicationWindow {
     minimumHeight: 300
     title: "Fixed Left, Flexible Right"
 
+    enum StoreType {
+        Local,
+        Network
+    }
+
     property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string currentNetworkPath: "http://minio:9000/"
-    property int currentCustomDlgTb: 0
+//    property int currentCustomDlgTb: Main.StoreType.Local
     property var fileNames: [
         "../icons/cherry-blossom.png",
         "../icons/pink-cosmos.png",
@@ -48,7 +53,8 @@ ApplicationWindow {
             // console.log("function onOpenNetStoreDialog(sel, netPath): ", sel, " ", netPath)
             if(sel === 100){
                 customDialog.currentTabIndex = 1;
-                customDialog.currentSelectedPath = netPath;
+                //  customDialog.currentSelectedPath = netPath;
+                customDialog.textFld = netPath
                 customDialog.show();
             }
         }
@@ -71,7 +77,7 @@ ApplicationWindow {
         onOpenIndexSelected:(index) => {
             //  console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
             if(index>=0 && index<storageModel.rowCount()){
-                let img = storageModel.get(index);
+                let img = storageModel.get(index)
                 let imgPath = img.path;
                 let prefix = "file:///";
                 if(!img.isMinio && !imgPath.startsWith(prefix)){
@@ -92,7 +98,7 @@ ApplicationWindow {
             let dir = 0
             let dirToGo
             for(let indx of indices) {
-                console.log("onOpenIndicesSelected indx: ", indx)
+                //  console.log("onOpenIndicesSelected indx: ", indx)
                 if(indx>=0 && indx < maxindx){
                     let img = storageModel.get(indx);
                     if(!img.isDir && !img.isMinioBucket && !img.VirtualDir) {
@@ -114,12 +120,13 @@ ApplicationWindow {
                 }
             }
             imageModel.insertImages(arr);
-            if(dirToGo.isDir && !dirToGo.isMinio)   {
-                    console.log("storageModel.enterLocal(dirToGo.indx", dirToGo.indx)
-                    storageModel.enterLocal(dirToGo.indx)
-                }
-            else if(dirToGo.isBucket)     storageModel.enterMinioBucket(dirToGo.indx)
-            else if(dirToGo.isDir && dirToGo.isMinio && !dirToGo.isBucket)  storageModel.enterNetStore(dirToGo.indx)
+            if(dirToGo !== null && dirToGo !== undefined)  // TODO:
+                if(dirToGo.dirToGo.isDir && !dirToGo.isMinio)   {       //TODO: qrc:/qt/qml/pict_client/qml/Main.qml:117: TypeError: Cannot read property 'isDir' of undefined
+                        console.log("storageModel.enterLocal(dirToGo.indx", dirToGo.indx)
+                        storageModel.enterLocal(dirToGo.indx)
+                    }
+                else if(dirToGo.isBucket)     storageModel.enterMinioBucket(dirToGo.indx)
+                else if(dirToGo.isDir && dirToGo.isMinio && !dirToGo.isBucket)  storageModel.enterNetStore(dirToGo.indx)
         }
         onWriteImages: (lf, path) => {
             //  console.log("onWritePathsSelected paths: ", path)
@@ -197,6 +204,7 @@ ApplicationWindow {
                     }
                     onAccepted: {
                         console.log("Пользователь нажал Enter. Введенный текст:", tf.text)
+                        rootWnd.processTFPath()
                         // Здесь ваша логика (например, отправка сообщения или запуск поиска)
                     }
                 }
@@ -355,28 +363,7 @@ ApplicationWindow {
                         Behavior on color { ColorAnimation { duration: 150 } }
                     }
                     onClicked: {
-                        wsClient.connectToServer()
-                        customDialog.currentTabIndex = 0
-                        if(tf.text && tf.text.trim().length > 0) {
-                            let type = FileHelper.checkPathType(tf.text);
-                            if (type === FileHelperType.LocalFile) {
-                                //  console.log("Это локальный файл");
-                                imageModel.addImagePath(tf.text)
-                            } else if (type === FileHelperType.LocalFolder) {
-                                //  console.log("Это локальная папка");
-                                storageModel.enterLocal(tf.text)
-                                customDialog.show();
-                            } else if (type === FileHelperType.MinioBucket) {
-                                //  console.log("Это бакет MinIO");
-                                storageModel.getNetPath(tf.text)
-                            } else if (type === FileHelperType.MinioFile) {
-                                //  console.log("Это объект (файл) в MinIO");
-                                storageModel.getNetPath(tf.text)
-                            } else {
-                                warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;
-                                warningDialog.open()
-                            }
-                        }
+                        rootWnd.processTFPath()
                     }
                 }
             }
@@ -711,6 +698,32 @@ ApplicationWindow {
             }
         }
     }
+    function processTFPath(){
+        // customDialog.textFld = tf.text
+        wsClient.connectToServer()
+        //customDialog.currentTabIndex = currentCustomDlgTb
+        if(tf.text && tf.text.trim().length > 0) {
+            let type = FileHelper.checkPathType(tf.text);
+            if (type === FileHelperType.LocalFile) {
+                //  console.log("Это локальный файл");
+                imageModel.addImagePath(tf.text)
+            } else if (type === FileHelperType.LocalFolder) {
+                //  console.log("Это локальная папка");
+                storageModel.enterLocal(tf.text)
+                customDialog.show();
+            } else if (type === FileHelperType.MinioBucket) {
+                //  console.log("Это бакет MinIO");
+                storageModel.getNetPath(tf.text)
+            } else if (type === FileHelperType.MinioFile) {
+                //  console.log("Это объект (файл) в MinIO");
+                storageModel.getNetPath(tf.text)
+            } else {
+                warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;
+                warningDialog.open()
+            }
+        }
+    }
+
     Component.onCompleted:{
         tf.tfContent = currentLocalPath
     }

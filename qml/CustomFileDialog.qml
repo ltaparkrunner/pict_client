@@ -369,6 +369,7 @@ Window {
                     onDoubleClicked: {
                         //acceptSelection(gridView)
                         customFileDlg.selectedIndices = []
+                        //////////////////
                         acceptSelectionEnterFolder(index)
                         //mouse.accepted = true;
                     }
@@ -464,6 +465,7 @@ Window {
                     else
                         customFileDlg.openIndicesSelected([selectedIndices]);
                     rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                    rootWnd.currentLocalPath =
                     customFileDlg.selectedIndices = []
                     customFileDlg.close() }
                 background: Rectangle {
