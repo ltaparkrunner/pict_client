@@ -34,13 +34,13 @@ ApplicationWindow {
         "../icons/morning-glory.png",
         "../icons/rose.png"
     ]
-    // Settings {
-    //     category: "General"
-    //     // Связываем свойство QSettings со свойством окна
-    //     property alias currentLocalPath: rootWnd.currentLocalPath
-    //     property alias currentNetworkPath: rootWnd.currentNetworkPath
-    //     property alias currentCustomDlgTb: rootWnd.currentCustomDlgTb
-    // }
+    Settings {
+        category: "General"
+        // Связываем свойство QSettings со свойством окна
+        property alias currentLocalPath: rootWnd.currentLocalPath
+        property alias currentNetworkPath: rootWnd.currentNetworkPath
+        property alias currentCustomDlgTb: rootWnd.currentCustomDlgTb
+    }
 
     Connections {
         target: imageModel
@@ -139,6 +139,24 @@ ApplicationWindow {
             if(indices){
                 storageModel.deleteIndices(indices)
             }
+        }
+        onSetRootWndTexts: (ls) => { // signal setRootWndTexts(var ls)
+                               // property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
+                               // property string currentNetworkPath: "http://minio:9000/"
+                               // property int currentCustomDlgTb: 0  //  Main.StoreType.Local
+                               // property string currentPath: tf.tfContent
+            if(ls.DlgTb === "Local") {
+                currentCustomDlgTb = 0;
+                currentPath = ls.currPath;
+                console.log("currentPath: ", currentPath, " tf.tfContent: ", tf.tfContent)
+                currentLocalPath = ls.currPath;
+            }
+            else {
+                currentCustomDlgTb = 1;
+                currentPath = ls.currPath;
+                currentNetworkPath = ls.currPath;
+            }
+            tf.tfContent = currentPath;
         }
     }
 

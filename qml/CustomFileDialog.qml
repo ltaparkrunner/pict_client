@@ -14,14 +14,17 @@ Window {
     modality: Qt.ApplicationModal
 //    modal: false
 
+    property var currentPathObj: {"name": "", "path":".", "isDir":false, "isMinio":false,
+                "isMinioBucket":false, "isVirtualDir":false, "mongoId":""}
     property string currentSelectedPath: "."
-    property alias textFld: customFileDlg.currentSelectedPath
+//    property alias textFld: customFileDlg.currentSelectedPath
 
     property alias currentTabIndex: tabBar.currentIndex
     signal openIndicesSelected(list<int> inds)
     signal openIndexSelected(int index)
     signal writeImages(var lf, string destPath);
     signal deletePathsSelected(list<int> indices)
+    signal setRootWndTexts(var strMap)
 
     property int lastSelectedTab: 0
     property var selectedIndices: []
@@ -396,34 +399,33 @@ Window {
                         console.log(currentSelectedPath);
                         //customFileDlg.openPathsSelected([currentSelectedPath]);
                         customFileDlg.openIndicesSelected([index])
-                        rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                        //  rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                        if(tabBar.currentIndex === 0)  setRootWndTexts({"currPath" : model.path,"DlgTb": "Local"})
+                        else setRootWndTexts({"currPath" : model.path,"DlgTb": "Network"})
                         customFileDlg.selectedIndices = []
                         customFileDlg.close()
                     }
                 }
                 function acceptSelectionEnterFolder(index) {
                     customFileDlg.currentSelectedPath = model.path
-                    console.log("rootWnd.currentPath = ", rootWnd.currentPath)
-                    rootWnd.currentPath = model.path
+//                    console.log("rootWnd.currentPath = ", rootWnd.currentPath)
                     if(!model.isMinio) {
-                        console.log("rootWnd.currentLocalPath = ",rootWnd.currentLocalPath);
-                        rootWnd.currentLocalPath = model.path;
-                        rootWnd.currentCustomDlgTb = 0;
+//                        console.log("rootWnd.currentLocalPath = ",rootWnd.currentLocalPath);
+                        setRootWndTexts({"currPath" : model.path, "DlgTb" : "Local"})
                     }
                     else if(model.isMinio) {
-                        console.log("rootWnd.currentNetworkPath = ",rootWnd.currentNetworkPath);
-                        rootWnd.currentNetworkPath = model.path;
-                        rootWnd.currentCustomDlgTb = 1;
+//                        console.log("rootWnd.currentNetworkPath = ",rootWnd.currentNetworkPath);
+                        setRootWndTexts({"currPath" : model.path, "DlgTb" : "NetWork"})
                     }
                     //customFileDlg.
                     if (model.isDir) {
-                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
+//                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
                         storageModel.enterFolder(index)
                         GridView.view.currentIndex = 0;  // TODO:
                     } else {
                         //  console.log(currentSelectedPath);
                         customFileDlg.openIndexSelected(index)
-                        rootWnd.currentCustomDlgTb = tabBar.currentIndex
+//                        rootWnd.currentCustomDlgTb = tabBar.currentIndex
                         customFileDlg.selectedIndices = []
                         customFileDlg.close()
                     }
@@ -473,8 +475,11 @@ Window {
                     }
                     else
                         customFileDlg.openIndicesSelected([selectedIndices]);
-                    rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                    //  rootWnd.currentCustomDlgTb = tabBar.currentIndex
                     // rootWnd.currentLocalPath = model.path // TODO:
+                    console.log("gridView.model.path : ", gridView.model.path, " ", currentSelectedPath)
+                    if(tabBar.currentIndex === 0)  setRootWndTexts({"currPath" : currentSelectedPath,"DlgTb": "Local"})
+                    else setRootWndTexts({"currPath" : currentSelectedPath,"DlgTb": "Network"})
                     customFileDlg.selectedIndices = []
                     customFileDlg.close() }
                 background: Rectangle {
@@ -605,7 +610,9 @@ Window {
                     }
                 }
                 onClicked: {
-                    rootWnd.currentCustomDlgTb = tabBar.currentIndex
+//                    rootWnd.currentCustomDlgTb = tabBar.currentIndex
+                    if(tabBar.currentIndex === 0)  setRootWndTexts({"currPath" : model.path,"DlgTb": "Local"})
+                    else setRootWndTexts({"currPath" : model.path,"DlgTb": "Network"})
                     customFileDlg.selectedIndices = []
                     customFileDlg.close()
                 }
