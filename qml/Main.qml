@@ -27,19 +27,20 @@ ApplicationWindow {
     property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string currentNetworkPath: "http://minio:9000/"
     property int currentCustomDlgTb: 0  //  Main.StoreType.Local
+    property string currentPath: tf.tfContent
     property var fileNames: [
         "../icons/cherry-blossom.png",
         "../icons/pink-cosmos.png",
         "../icons/morning-glory.png",
         "../icons/rose.png"
     ]
-    Settings {
-        category: "General"
-        // Связываем свойство QSettings со свойством окна
-        property alias currentLocalPath: rootWnd.currentLocalPath
-        property alias currentNetworkPath: rootWnd.currentNetworkPath
-        property alias currentCustomDlgTb: rootWnd.currentCustomDlgTb
-    }
+    // Settings {
+    //     category: "General"
+    //     // Связываем свойство QSettings со свойством окна
+    //     property alias currentLocalPath: rootWnd.currentLocalPath
+    //     property alias currentNetworkPath: rootWnd.currentNetworkPath
+    //     property alias currentCustomDlgTb: rootWnd.currentCustomDlgTb
+    // }
 
     Connections {
         target: imageModel
@@ -191,7 +192,7 @@ ApplicationWindow {
             RowLayout{
                 TextField {
                     id: tf
-                    property string tfContent: ""
+                    property string tfContent: "/home"
                     placeholderText: "Open/Write file/folder"
                     Layout.fillWidth: true
                     Layout.preferredWidth: 4

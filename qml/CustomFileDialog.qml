@@ -402,11 +402,19 @@ Window {
                     }
                 }
                 function acceptSelectionEnterFolder(index) {
-                    if(!model.isMinio && model.isDir) {
-                        rootWnd.currentLocalPath = model.path;
-                        console.log("rootWnd.currentLocalPath = ",rootWnd.currentLocalPath);
-                    }
                     customFileDlg.currentSelectedPath = model.path
+                    console.log("rootWnd.currentPath = ", rootWnd.currentPath)
+                    rootWnd.currentPath = model.path
+                    if(!model.isMinio) {
+                        console.log("rootWnd.currentLocalPath = ",rootWnd.currentLocalPath);
+                        rootWnd.currentLocalPath = model.path;
+                        rootWnd.currentCustomDlgTb = 0;
+                    }
+                    else if(model.isMinio) {
+                        console.log("rootWnd.currentNetworkPath = ",rootWnd.currentNetworkPath);
+                        rootWnd.currentNetworkPath = model.path;
+                        rootWnd.currentCustomDlgTb = 1;
+                    }
                     //customFileDlg.
                     if (model.isDir) {
                         console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
@@ -419,6 +427,7 @@ Window {
                         customFileDlg.selectedIndices = []
                         customFileDlg.close()
                     }
+                    //  console.log("rootWnd.currentPath = ", rootWnd.currentPath)
                 }
             }
             Item {
@@ -465,7 +474,7 @@ Window {
                     else
                         customFileDlg.openIndicesSelected([selectedIndices]);
                     rootWnd.currentCustomDlgTb = tabBar.currentIndex
-                    rootWnd.currentLocalPath =
+                    // rootWnd.currentLocalPath = model.path // TODO:
                     customFileDlg.selectedIndices = []
                     customFileDlg.close() }
                 background: Rectangle {
