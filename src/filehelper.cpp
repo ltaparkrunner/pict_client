@@ -28,7 +28,7 @@ Q_INVOKABLE bool FileHelper::exists(const QString &path) {
 }
 
 Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
-//    qDebug() << "FileHelper::checkPathType" << path;
+    qDebug() << "FileHelper::checkPathType" << path;
     if (path.isEmpty()) return Unknown;
 
     QUrl url(path);
@@ -46,11 +46,12 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
 //        qDebug() << "if (if (info.isDir()) return LocalFolder;";
         if (info.isFile()) return LocalFile;
     }
-
+    qDebug() << "Is not local.";
     // 2. Проверка MinIO (основана на структуре URL)
     // Обычно формат: http://minio-server:9000/bucket-name/object-name
     if (url.scheme() == "http" || url.scheme() == "https") {
         QString pathStr = url.path();
+        qDebug() << "pathStr: " << pathStr;
         if (pathStr.startsWith("/")) pathStr = pathStr.mid(1); // убираем первый слеш
         QStringList parts = pathStr.split('/', Qt::SkipEmptyParts);
         if (parts.count() == 1) return MinioBucket; // Только имя бакета

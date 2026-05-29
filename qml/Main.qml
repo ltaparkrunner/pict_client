@@ -735,7 +735,7 @@ ApplicationWindow {
             } else if (type === FileHelperType.MinioBucket) {
                 //  console.log("Это бакет MinIO");
                 storageModel.getNetPath(tf.text)
-            } else if (type === FileHelperType.MinioFile) {
+            } else if (type === FileHelperType.MinioFile || type === FileHelperType.MinioFolder) {
                 //  console.log("Это объект (файл) в MinIO");
                 storageModel.getNetPath(tf.text)
             } else {

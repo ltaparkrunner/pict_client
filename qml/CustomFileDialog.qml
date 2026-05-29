@@ -17,7 +17,7 @@ Window {
     property var currentPathObj: {"name": "", "path":".", "isDir":false, "isMinio":false,
                 "isMinioBucket":false, "isVirtualDir":false, "mongoId":""}
     property string currentSelectedPath: "."
-//    property alias textFld: customFileDlg.currentSelectedPath
+    property alias textFld: customFileDlg.currentSelectedPath
 
     property alias currentTabIndex: tabBar.currentIndex
     signal openIndicesSelected(list<int> inds)
