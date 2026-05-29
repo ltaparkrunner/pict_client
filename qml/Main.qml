@@ -746,8 +746,14 @@ ApplicationWindow {
     }
 
     Component.onCompleted:{
-        console.log("currentLocalPath", currentLocalPath)
-        if(currentLocalPath === "") currentLocalPath = Qt.platform.os === "windows" ? "C:/Users" : "/home"
-        tf.tfContent = currentLocalPath
+//        console.log("currentLocalPath", currentLocalPath)currentNetworkPath
+        if(currentCustomDlgTb !== 0 && currentNetworkPath !== "") tf.tfContent = currentNetworkPath;
+        else if((currentCustomDlgTb === 0 || currentNetworkPath === "") && currentLocalPath !== "") {
+            tf.tfContent = currentLocalPath; currentCustomDlgTb = 0;
+        }
+        else {
+            currentLocalPath = Qt.platform.os === "windows" ? "C:/Users" : "/home";
+            currentCustomDlgTb = 0;
+        }
     }
 }

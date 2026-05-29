@@ -610,9 +610,8 @@ Window {
                     }
                 }
                 onClicked: {
-//                    rootWnd.currentCustomDlgTb = tabBar.currentIndex
-                    if(tabBar.currentIndex === 0)  setRootWndTexts({"currPath" : model.path,"DlgTb": "Local"})
-                    else setRootWndTexts({"currPath" : model.path,"DlgTb": "Network"})
+                    if(tabBar.currentIndex === 0)  setRootWndTexts({"currPath" : currentSelectedPath,"DlgTb": "Local"})
+                    else setRootWndTexts({"currPath" : currentSelectedPath,"DlgTb": "Network"})
                     customFileDlg.selectedIndices = []
                     customFileDlg.close()
                 }
