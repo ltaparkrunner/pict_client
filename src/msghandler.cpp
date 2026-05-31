@@ -44,7 +44,7 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
     else if(data.contentField() == pict_data:: ServerEnvelope::ContentFields::FilesIdsResponse){
         qDebug() << "pict_data:: ServerEnvelope::ContentFields::FilesIdsResponse info.url()";
         const auto &response = data.filesIdsResponse();
-        qDebug() << "response: " << response.files()[0].url();
+//        qDebug() << "response: " << response.files()[0].url();
         QVector<QUrl> urls;
 
         for(const auto &info : response.files()) {
@@ -54,19 +54,20 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         emit writeUrlsToLocal(urls);
     }
     else if(data.contentField() == pict_data:: ServerEnvelope::ContentFields::PathInfResponse){
-        qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse info.url()";
         const auto &response = data.pathInfResponse();
-        if(response.result() == "file") {
+        QString res = response.result();
+        qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse info.url(): " << res;
+        if(res == "file") {
             qDebug() << "fileTempPath" << response.netPath();
             emit pathInfoResp('f',response.netPath());
         }
-        else if (response.result() == "folder") {
+        else if (res == "folder") {
             qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse folder";
             emit pathInfoResp('d', response.netPath());
         }
-        else if (response.result() == "not_exist") {
+        else if (res == "not exist") {
             qDebug() << "not_exist";
-            emit pathInfoResp('n', "");
+            emit pathInfoResp('n', response.netPath());
         }
 
     }
@@ -194,7 +195,8 @@ int MsgHandler::getFilesFoldersListfromBucketRequest2(const QString &netPath, co
     QString bucket = parts.takeFirst();
     //  qsizetype bucketIdx = path.indexOf(bucket);
     QString folder = "";
-    qDebug() << "parts.length(): " << parts.length() << parts[2] << " / "; // << parts[3];
+    int l = parts.length();
+    qDebug() << "parts.length(): " << parts.length() << parts[l-1] << " / "; // << parts[3];
     if(parts.length()>3)   folder = parts.mid(2).join('/');
 
     // if (bucketIdx != -1) {

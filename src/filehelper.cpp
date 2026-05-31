@@ -54,7 +54,8 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
         qDebug() << "pathStr: " << pathStr;
         if (pathStr.startsWith("/")) pathStr = pathStr.mid(1); // убираем первый слеш
         QStringList parts = pathStr.split('/', Qt::SkipEmptyParts);
-        if (parts.count() == 1) return MinioBucket; // Только имя бакета
+        qDebug() << "pathStr: " << pathStr <<"  parts: " << parts.count();
+        if (parts.count() <= 1) return MinioBucket; // Только имя бакета
         //qDebug() << "after minio check 4";
         if (parts.count() > 1 && path.endsWith('/')) return MinioFolder;    // Бакет + путь к объекту
         return MinioFile;

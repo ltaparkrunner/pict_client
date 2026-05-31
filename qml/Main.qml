@@ -53,12 +53,16 @@ ApplicationWindow {
     Connections{
         target: storageModel
         function onOpenNetStoreDialog(sel, netPath) {
-            // console.log("function onOpenNetStoreDialog(sel, netPath): ", sel, " ", netPath)
+            console.log("function onOpenNetStoreDialog(sel, netPath): ", sel, " ", netPath)
             if(sel === 100){
                 customDialog.currentTabIndex = 1;
                 //  customDialog.currentSelectedPath = netPath;
                 customDialog.textFld = netPath
                 customDialog.show();
+            }
+            if(sel === 110){
+                warningDialog.messageText = "Invalid path: " + netPath
+                warningDialog.open()
             }
         }
     }
@@ -733,10 +737,14 @@ ApplicationWindow {
                 storageModel.enterLocal(tf.text)
                 customDialog.show();
             } else if (type === FileHelperType.MinioBucket) {
-                //  console.log("Это бакет MinIO");
+                console.log("Это бакет MinIO");
+                storageModel.setParent(tf.text, "mb")
+                storageModel.getNetPath(tf.text)
+            } else if(type === FileHelperType.MinioFolder) {
+                storageModel.setParent(tf.text, "md")
                 storageModel.getNetPath(tf.text)
             } else if (type === FileHelperType.MinioFile || type === FileHelperType.MinioFolder) {
-                //  console.log("Это объект (файл) в MinIO");
+                storageModel.setParent(tf.text, "mf")
                 storageModel.getNetPath(tf.text)
             } else {
                 warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;

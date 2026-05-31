@@ -67,6 +67,8 @@ public:
     Q_INVOKABLE void errorToQML(const QString &msg);
     int writeUrlsToLocal(const QVector<QUrl> &paths);
 
+    Q_INVOKABLE void setParent(const QString &path, const QString &type);
+
 signals:
     void udsmToIm(QString, QString, bool, bool, QString);
     void openNetStoreDialog(const int sel, const QString &netPath);
