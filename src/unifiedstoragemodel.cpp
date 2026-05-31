@@ -69,10 +69,10 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
     m_items.clear();
     qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths): " << m_parentItem.path;
     int symbs = m_parentItem.path.count('/');
-    if(symbs <= 4) { m_items.append({"..", "http://minio:9000/", true, true, true, false});
+    if(symbs <=2) { m_items.append({"..", "http://minio:9000/", true, true, true, false});
         qDebug() << "path for ..  " << "http://minio:9000/";
     }
-    else if(symbs <=6) { m_items.append({"..", "http://minio:9000/", true, true, true, false});
+    else if(symbs <=4) { m_items.append({"..", "http://minio:9000/", true, true, true, false});
         qDebug() << "path for ..  " << "http://minio:9000/";
     }
     else {

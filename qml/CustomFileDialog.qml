@@ -372,7 +372,7 @@ Window {
                     onDoubleClicked: {
                         //acceptSelection(gridView)
                         customFileDlg.selectedIndices = []
-                        //////////////////
+//                        console.log("onDoubleClicked");
                         acceptSelectionEnterFolder(index)
                         //mouse.accepted = true;
                     }
@@ -408,7 +408,7 @@ Window {
                 }
                 function acceptSelectionEnterFolder(index) {
                     customFileDlg.currentSelectedPath = model.path
-//                    console.log("rootWnd.currentPath = ", rootWnd.currentPath)
+                    console.log("function acceptSelectionEnterFolder(index)", index, "   ", model.path)
                     if(!model.isMinio) {
 //                        console.log("rootWnd.currentLocalPath = ",rootWnd.currentLocalPath);
                         setRootWndTexts({"currPath" : model.path, "DlgTb" : "Local"})

@@ -196,21 +196,12 @@ int MsgHandler::getFilesFoldersListfromBucketRequest2(const QString &netPath, co
     //  qsizetype bucketIdx = path.indexOf(bucket);
     QString folder = "";
     int l = parts.length();
-    qDebug() << "parts.length(): " << parts.length() << parts[l-1] << " / "; // << parts[3];
-    if(parts.length()>3)   folder = parts.mid(2).join('/');
 
-    // if (bucketIdx != -1) {
-    //     qsizetype startPos = bucketIdx + bucket.length();
-    //     qsizetype endPos = path.lastIndexOf('/');
-    //     if (endPos > startPos) {
-    //         if (path.at(startPos) == '/') {
-    //             startPos++;
-    //         }
-    //         qsizetype length = endPos - startPos;
-    //         folder = path.sliced(startPos, length);
-    //     }
-    // }
-
+    qDebug() << "parts" << parts << "parts.length(): " << parts.length() << parts[l-1] << " / "; // << parts[3];
+    if(parts.length()>1) {
+        folder = parts.join('/');
+        qDebug() << "parts.mid(2).join('/')" << parts.join('/');
+    }
     qDebug() << "bucket: " << bucket << " folder " << folder;
     pict_data::ClientEnvelope cenv;
     pict_data::FilesFoldersListRequest message;
