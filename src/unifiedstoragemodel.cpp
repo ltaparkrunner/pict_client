@@ -505,3 +505,17 @@ Q_INVOKABLE void UnifiedStorageModel::setParent(const QString &fullPath, const Q
     if(type == "md") m_parentItem = {fileInfo.fileName(), fullPath, true, true, false, false};
     if(type == "mf") m_parentItem = {fileInfo.fileName(), fullPath, false, true, false, false};
 }
+
+Q_INVOKABLE QVariantMap UnifiedStorageModel::getParent(){
+    QVariantMap res;
+
+    //    Вручную наполняем карту данными
+    res["name"] = m_parentItem.name;
+    res["path"] = m_parentItem.path;
+    res["isDir"] = m_parentItem.isDirectory;
+    res["isMinio"] = m_parentItem.isMinio;
+    res["isMinioBucket"] = m_parentItem.isMinioBucket;
+    res["isVirtualDir"] = m_parentItem.isVirtualDir;
+    res["mongoId"] = m_parentItem.mongoId;
+    return res;
+}

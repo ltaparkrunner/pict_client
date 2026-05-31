@@ -68,6 +68,7 @@ public:
     int writeUrlsToLocal(const QVector<QUrl> &paths);
 
     Q_INVOKABLE void setParent(const QString &path, const QString &type);
+    Q_INVOKABLE QVariantMap getParent();
 
 signals:
     void udsmToIm(QString, QString, bool, bool, QString);

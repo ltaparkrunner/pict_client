@@ -125,6 +125,9 @@ Window {
                     if (activeFocus) {
                         //  storageModel.enterLocal("/"); TODO: right to write
                         customFileDlg.lastSelectedTab=0
+                        var parentPath = storageModel.getParent()
+                        console.log( "storageModel.getParent().path", parentPath.path)
+                        //  customFileDlg.currentSelectedPath = gridView.model.path
                     }
                 }
                 Keys.onPressed: (event) => {
@@ -193,10 +196,13 @@ Window {
                     nw_storage.forceActiveFocus()
                 }
                 onActiveFocusChanged: {
-                    // if (activeFocus) {
+                    if (activeFocus) {
+                        var parentPath = storageModel.getParent()
+                        console.log( "storageModel.getParent().path", parentPath.path)
                     //     storageModel.enterNetStore("main-bucket");
                     //     customFileDlg.lastSelectedTab=1
-                    // }
+                    }
+                    // if (activeFocus) customFileDlg.currentSelectedPath = gridView.model.path
                 }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {

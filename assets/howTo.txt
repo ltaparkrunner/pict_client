@@ -10,6 +10,11 @@ when switch between Local/Network no TextField switching   TODO:
 
 else if remake as a switch in js.
 then the virtual folder in TextField
+
+close files that from over user.
+
+
+
 can create folder in a bucket list
 
 🇮🇷 Персидские приветствия (фарси)
