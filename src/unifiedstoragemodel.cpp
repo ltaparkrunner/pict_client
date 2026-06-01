@@ -498,6 +498,17 @@ Q_INVOKABLE bool UnifiedStorageModel::getNetPath(const QString &path){
     else return false;
 }
 
+// Q_INVOKABLE bool UnifiedStorageModel::getNetfolder(const QString &path){
+//     // to check if the way is a local or network dir or file and if file(local or network (http://minio:9000/))
+//     // then open in main window, if dir then open in customFileDialog
+//     // QString prefix = "http://minio:9000/";
+//     if(path.startsWith(prefix)) {
+//         msghandler -> getNetStore(path);
+//         return true;
+//     }  // if exist and file, if exist and dir
+//     else return false;
+// }
+
 Q_INVOKABLE void UnifiedStorageModel::setParent(const QString &fullPath, const QString &type){
     QFileInfo fileInfo(fullPath);
     qDebug() << "UnifiedStorageModel::setParent fileInfo.fileName():" << fileInfo.fileName();

@@ -3,6 +3,9 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtQuick.Effects
 import QtQuick.Controls.Basic
+import Qt.labs.platform 1.1
+import com.myapp.helpers 1.0
+import QtCore
 import pict_client
 
 Window {
@@ -54,6 +57,13 @@ Window {
             text: "Preferences"
             onTriggered: console.log("Действие: Свойства")
         }
+    }
+
+    WarningDialog {
+        id: warningDialog
+        messageText: "Are you sure you want to delete this file? This action cannot be undone."
+        onAccepted: console.log("User clicked OK")
+        onRejected: console.log("User clicked Cancel")
     }
 
     FolderDialog {
@@ -123,7 +133,6 @@ Window {
 //                focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    console.log("rootWnd.currentLocalPath: ", rootWnd.currentLocalPath);
                     console.log("currentLocalPath: ", currentLocalPath)
                     storageModel.enterLocal(currentLocalPath)   // TODO:
                     tb_local.forceActiveFocus()
@@ -198,11 +207,20 @@ Window {
                 focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    // console.log("rootWnd.currentNetworkPath: ", rootWnd.currentNetworkPath);
                     console.log("currentNetworkPath: ", currentNetworkPath);
-                    //  storageModel.enterNetStore("main-bucket")
-                    //  storageModel.enterMinioBucket(currentNetworkPath)
-                    storageModel.getNetPath(currentNetworkPath)
+                    let type = FileHelper.checkPathType(currentNetworkPath);
+                    if (type === FileHelperType.MinioBucket) {
+                        storageModel.setParent(currentNetworkPath, "mb")
+                        console.log("before storageModel.getNetPath(",currentNetworkPath, ")")
+                        storageModel.getNetPath(currentNetworkPath)
+                    } else if(type === FileHelperType.MinioFolder) {
+                        storageModel.setParent(currentNetworkPath, "md")
+                        console.log("before storageModel.getNetPath(",currentNetworkPath, ")")
+                        storageModel.getNetPath(currentNetworkPath)
+                    } else {
+                        warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;
+                        warningDialog.open()
+                    }
                     nw_storage.forceActiveFocus()
                 }
                 Keys.onPressed: (event) => {
@@ -392,14 +410,16 @@ Window {
                 }
                 function acceptSelection(grid) {
                     //customFileDlg.currentSelectedPath = model.path
-                    if(tabBar.currentIndex === 0) currentLocalPath = model.path;
-                    else currentNetworkPath = model.path;
+                    // if(tabBar.currentIndex === 0) currentLocalPath = model.path;
+                    // else currentNetworkPath = model.path;
                     if (model.isDir) {
                         if (model.isMinio) {
+                            currentNetworkPath = model.path
                             console.log("tabBar.currentIndex: ", tabBar.currentIndex, " model.path: ", model.path)
                             storageModel.enterMinioBucket(model.name)
                         }
                         else {
+                            currentLocalPath = model.path;
                             console.log("tabBar.currentIndex: ", tabBar.currentIndex, " model.path: ", model.path)
                             storageModel.enterLocal(model.path)
                         }
@@ -418,18 +438,29 @@ Window {
                 }
                 function acceptSelectionEnterFolder(index) {
 //                    customFileDlg.currentSelectedPath = model.path
-                    if(tabBar.currentIndex === 0) currentLocalPath = model.path;
-                    else currentNetworkPath = model.path;
+                    if(tabBar.currentIndex === 0) {
+                        console.log("acceptSelectionEnterFolder: tabBar.currentIndex: ", tabBar.currentIndex,
+                        " model.path: ", model.path)
+                        currentLocalPath = model.path;
+                    }
+                    else {
+                        console.log("acceptSelectionEnterFolder: tabBar.currentIndex: ", tabBar.currentIndex,
+                        " model.path: ", model.path)
+                        currentNetworkPath = model.path;
+                    }
                     console.log("function acceptSelectionEnterFolder(index)", index, "   ", model.path)
                     console.log("tabBar.currentIndex: ", tabBar.currentIndex)
                     setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
 
                     if (model.isDir) {
-//                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
+                        console.log("SecondCustomFileDialog function acceptSelection(index) tabBar.currentIndex: ", tabBar.currentIndex,
+                        "currentNetworkPath: ", currentNetworkPath, "  before storageModel.enterFolder(index)")
                         storageModel.enterFolder(index)
                         GridView.view.currentIndex = 0;  // TODO:
                     } else {
                         //  console.log(currentSelectedPath);
+                        console.log("SecondCustomFileDialog function acceptSelection(index) tabBar.currentIndex: ", tabBar.currentIndex,
+                        "currentNetworkPath: ", currentNetworkPath, " before customFileDlg.openIndexSelected(index)")
                         customFileDlg.openIndexSelected(index)
 //                        rootWnd.currentCustomDlgTb = tabBar.currentIndex
                         customFileDlg.selectedIndices = []

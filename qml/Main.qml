@@ -182,7 +182,7 @@ ApplicationWindow {
                 tf.tfContent = localPath;
             }
             else {
-                parentCustomDlgTb = 0;
+                parentCustomDlgTb = 1;
                 parentNetworkPath = networkPath;
                 tf.tfContent = networkPath;
             }
@@ -785,12 +785,12 @@ ApplicationWindow {
             } else if (type === FileHelperType.MinioBucket) {
                 console.log("Это бакет MinIO");
                 parentCustomDlgTb = 1;
-                customDialog.currentTabIndex = 1;
+                //customDialog.currentTabIndex = 1;
                 storageModel.setParent(tf.text, "mb")
                 storageModel.getNetPath(tf.text)
             } else if(type === FileHelperType.MinioFolder) {
                 parentCustomDlgTb = 1;
-                customDialog.currentTabIndex = 1;
+                //customDialog.currentTabIndex = 1;
                 storageModel.setParent(tf.text, "md")
                 storageModel.getNetPath(tf.text)
             } else if (type === FileHelperType.MinioFile) {
