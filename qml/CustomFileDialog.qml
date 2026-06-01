@@ -123,11 +123,10 @@ Window {
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        //  storageModel.enterLocal("/"); TODO: right to write
                         customFileDlg.lastSelectedTab=0
-                        var parentPath = storageModel.getParent()
-                        console.log( "storageModel.getParent().path", parentPath.path)
-                        //  customFileDlg.currentSelectedPath = gridView.model.path
+                        // var parentPath = storageModel.getParent()
+                        // console.log( "storageModel.getParent().path", parentPath.path)
+                        // customFileDlg.currentSelectedPath = parentPath.path
                     }
                 }
                 Keys.onPressed: (event) => {
@@ -195,15 +194,13 @@ Window {
                     storageModel.enterNetStore("main-bucket")
                     nw_storage.forceActiveFocus()
                 }
-                onActiveFocusChanged: {
-                    if (activeFocus) {
-                        var parentPath = storageModel.getParent()
-                        console.log( "storageModel.getParent().path", parentPath.path)
-                    //     storageModel.enterNetStore("main-bucket");
-                    //     customFileDlg.lastSelectedTab=1
-                    }
-                    // if (activeFocus) customFileDlg.currentSelectedPath = gridView.model.path
-                }
+                // onActiveFocusChanged: {
+                //     if (activeFocus) {
+                //         var parentPath = storageModel.getParent()
+                //         console.log( "storageModel.getParent().path", parentPath.path)
+                //         customFileDlg.currentSelectedPath = parentPath.path
+                //     }
+                // }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         gridView.forceActiveFocus()

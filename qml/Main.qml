@@ -735,6 +735,7 @@ ApplicationWindow {
             } else if (type === FileHelperType.LocalFolder) {
                 //  console.log("Это локальная папка");
                 storageModel.enterLocal(tf.text)
+                customDialog.textFld = tf.text;
                 customDialog.show();
             } else if (type === FileHelperType.MinioBucket) {
                 console.log("Это бакет MinIO");
