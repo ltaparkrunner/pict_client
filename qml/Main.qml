@@ -19,15 +19,10 @@ ApplicationWindow {
     minimumHeight: 300
     title: "Fixed Left, Flexible Right"
 
-    // enum StoreType {
-    //     Local,
-    //     Network
-    // }
-
     property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string currentNetworkPath: "http://minio:9000/"
     property int currentCustomDlgTb: 0  //  Main.StoreType.Local
-    property string currentPath: tf.tfContent
+//    property string currentPath: tf.tfContent
     property var fileNames: [
         "../icons/cherry-blossom.png",
         "../icons/pink-cosmos.png",
@@ -144,23 +139,20 @@ ApplicationWindow {
                 storageModel.deleteIndices(indices)
             }
         }
-        onSetRootWndTexts: (ls) => { // signal setRootWndTexts(var ls)
-                               // property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
-                               // property string currentNetworkPath: "http://minio:9000/"
-                               // property int currentCustomDlgTb: 0  //  Main.StoreType.Local
-                               // property string currentPath: tf.tfContent
+        onSetRootWndTexts: (ls) => {
             if(ls.DlgTb === "Local") {
                 currentCustomDlgTb = 0;
-                currentPath = ls.currPath;
-                console.log("currentPath: ", currentPath, " tf.tfContent: ", tf.tfContent)
+                //  currentPath = ls.currPath;
+                //  console.log("currentPath: ", currentPath, " tf.tfContent: ", tf.tfContent)
                 currentLocalPath = ls.currPath;
             }
             else {
                 currentCustomDlgTb = 1;
-                currentPath = ls.currPath;
+                //  currentPath = ls.currPath;
                 currentNetworkPath = ls.currPath;
             }
-            tf.tfContent = currentPath;
+            tf.tfContent = ls.currPath;
+            console.log("ls.currPath: ", ls.currPath, " tf.tfContent: ", tf.tfContent)
         }
     }
 
@@ -215,6 +207,7 @@ ApplicationWindow {
                 TextField {
                     id: tf
                     property string tfContent: "/home"
+                    property string lastSavedText: ""
                     placeholderText: "Open/Write file/folder"
                     Layout.fillWidth: true
                     Layout.preferredWidth: 4
@@ -227,10 +220,26 @@ ApplicationWindow {
                         border.width: (tf.activeFocus || tf.hovered)? 2 : 1
                         radius: 4
                     }
+                    onActiveFocusChanged: {
+                        if (activeFocus) {
+                            // Store the text exactly as it was when editing started
+                            lastSavedText = tf.text
+                        }
+                    }
                     onAccepted: {
                         console.log("Пользователь нажал Enter. Введенный текст:", tf.text)
                         rootWnd.processTFPath()
                         // Здесь ваша логика (например, отправка сообщения или запуск поиска)
+                    }
+                    onEditingFinished: {
+                        if (tf.text !== lastSavedText) {
+                            console.log("Text actually changed to:", tf.text, "  ", lastSavedText)
+
+                            // Sync the baseline value so consecutive focus losses don't re-trigger logic
+                            lastSavedText = tf.text
+                        } else {
+                            console.log("Finished editing, but no changes were made.")
+                        }
                     }
                 }
                 AbstractButton {

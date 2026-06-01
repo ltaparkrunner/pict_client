@@ -16,6 +16,9 @@ close files that from over user.
 rewrite TextFields manipulation.
 
 can create folder in a bucket list
+compare qml: rootWnd.currentNetworkPath:  http://minio:9000/images/ and currentNetworkPath how does they work with turning off
+the same with rootWnd.currentLocalPath, and currentLocalPath.
+
 
 🇮🇷 Персидские приветствия (фарси)
 В Иране базовым и универсальным приветствием является «салам», а официальные фразы часто связаны с пожеланиями времени суток.

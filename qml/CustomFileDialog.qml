@@ -65,7 +65,8 @@ Window {
         TextField {
             id: textf
             Layout.fillWidth: true
-            text: customFileDlg.currentSelectedPath
+            //text: customFileDlg.currentSelectedPath
+            text: tabBar.currentIndex === 0 ? currentLocalPath : currentNetworkPath
             placeholderText: "Nothing is selected"
 
             font.pixelSize: 15
@@ -117,6 +118,7 @@ Window {
 //                focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
+                    console.log("rootWnd.currentLocalPath: ", rootWnd.currentLocalPath);
                     console.log("currentLocalPath: ", currentLocalPath)
                     storageModel.enterLocal(currentLocalPath)   // TODO:
                     tb_local.forceActiveFocus()
@@ -191,7 +193,10 @@ Window {
                 focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    storageModel.enterNetStore("main-bucket")
+                    console.log("rootWnd.currentNetworkPath: ", rootWnd.currentNetworkPath);
+                    console.log("currentNetworkPath: ", currentNetworkPath);
+                    //storageModel.enterNetStore("main-bucket")
+                    storageModel.enterMinioBucket(currentNetworkPath)
                     nw_storage.forceActiveFocus()
                 }
                 // onActiveFocusChanged: {
