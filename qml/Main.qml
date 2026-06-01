@@ -19,9 +19,12 @@ ApplicationWindow {
     minimumHeight: 300
     title: "Fixed Left, Flexible Right"
 
-    property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
-    property string currentNetworkPath: "http://minio:9000/"
-    property int currentCustomDlgTb: 0  //  Main.StoreType.Local
+    // property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
+    // property string currentNetworkPath: "http://minio:9000/"
+    property string parentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
+    property string parentNetworkPath: "http://minio:9000/"
+//     property int currentCustomDlgTb: 0  //  Main.StoreType.Local
+    property int parentCustomDlgTb: 0  //  Main.StoreType.Local
 //    property string currentPath: tf.tfContent
     property var fileNames: [
         "../icons/cherry-blossom.png",
@@ -32,9 +35,9 @@ ApplicationWindow {
     Settings {
         category: "General"
         // Связываем свойство QSettings со свойством окна
-        property alias currentLocalPath: rootWnd.currentLocalPath
-        property alias currentNetworkPath: rootWnd.currentNetworkPath
-        property alias currentCustomDlgTb: rootWnd.currentCustomDlgTb
+        property alias parentLocalPath: rootWnd.parentLocalPath
+        property alias parentNetworkPath: rootWnd.parentNetworkPath
+        property alias parentCustomDlgTb: rootWnd.parentCustomDlgTb
     }
 
     Connections {
@@ -52,7 +55,9 @@ ApplicationWindow {
             if(sel === 100){
                 customDialog.currentTabIndex = 1;
                 //  customDialog.currentSelectedPath = netPath;
-                customDialog.textFld = netPath
+                // customDialog.textFld = netPath TODO
+                // customDialog.currentNetworkPath = netPath
+                parentNetworkPath = netPath
                 customDialog.show();
             }
             if(sel === 110){
@@ -76,6 +81,22 @@ ApplicationWindow {
 
     CustomFileDialog {
         id: customDialog
+
+        Binding {
+            target: customDialog
+            property: "currentLocalPath"
+            value: rootWnd.parentLocalPath
+        }
+        Binding {
+            target: customDialog
+            property: "currentNetworkPath"
+            value: rootWnd.parentNetworkPath
+        }
+        Binding {
+            target: customDialog
+            property: "currentTabIndex"
+            value: rootWnd.parentCustomDlgTb
+        }
         onOpenIndexSelected:(index) => {
             //  console.log("onOpenIndexSelected: ", index, " rows: ", storageModel.rowCount())
             if(index>=0 && index<storageModel.rowCount()){
@@ -139,20 +160,32 @@ ApplicationWindow {
                 storageModel.deleteIndices(indices)
             }
         }
-        onSetRootWndTexts: (ls) => {
-            if(ls.DlgTb === "Local") {
-                currentCustomDlgTb = 0;
-                //  currentPath = ls.currPath;
-                //  console.log("currentPath: ", currentPath, " tf.tfContent: ", tf.tfContent)
-                currentLocalPath = ls.currPath;
+        // onSetRootWndTexts: (ls) => {
+        //     if(ls.DlgTb === "Local") {
+        //         parentCustomDlgTb = 0;
+        //         //  currentPath = ls.currPath;
+        //         //  console.log("currentPath: ", currentPath, " tf.tfContent: ", tf.tfContent)
+        //         parentLocalPath = ls.currPath;
+        //     }
+        //     else {
+        //         parentCustomDlgTb = 1;
+        //         //  currentPath = ls.currPath;
+        //         parentNetworkPath = ls.currPath;
+        //     }
+        //     tf.tfContent = ls.currPath;
+        //     console.log("ls.currPath: ", ls.currPath, " tf.tfContent: ", tf.tfContent)
+        // }
+        onSetParentPaths:(tbIndx, localPath, networkPath) => {
+            if(tbIndx === 0) {
+                parentCustomDlgTb = 0;
+                parentLocalPath = localPath;
+                tf.tfContent = localPath;
             }
             else {
-                currentCustomDlgTb = 1;
-                //  currentPath = ls.currPath;
-                currentNetworkPath = ls.currPath;
+                parentCustomDlgTb = 0;
+                parentNetworkPath = networkPath;
+                tf.tfContent = networkPath;
             }
-            tf.tfContent = ls.currPath;
-            console.log("ls.currPath: ", ls.currPath, " tf.tfContent: ", tf.tfContent)
         }
     }
 
@@ -233,9 +266,7 @@ ApplicationWindow {
                     }
                     onEditingFinished: {
                         if (tf.text !== lastSavedText) {
-                            console.log("Text actually changed to:", tf.text, "  ", lastSavedText)
-
-                            // Sync the baseline value so consecutive focus losses don't re-trigger logic
+//                            console.log("Text actually changed to:", tf.text, "  ", lastSavedText)
                             lastSavedText = tf.text
                         } else {
                             console.log("Finished editing, but no changes were made.")
@@ -714,28 +745,28 @@ ApplicationWindow {
             }
         }
     }
-    function processDeletePath(currentSelectedPath) {
-        if(path) {
-            let type = FileHelper.checkPathType(path);
-            if (type === FileHelperType.LocalFile) {
-                imageGrid.model.addImagePath(path)
-                mainImageSource = imageGrid.model.resolvePath(path)
-            } else if (type === FileHelperType.LocalFolder) {
-                mainImageSource = imageGrid.model.addFilesFromFolder(path)
-            } else if (type === FileHelperType.MinioBucket) {
-                mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
-            } else if (type === FileHelperType.MinioFile) {
-                console.log("Это объект (файл) в MinIO", path);
-                mainImageSource = imageGrid.model.addMinioImagePath(path)
-            } else {
-                console.log("Путь не распознан или не существует");
-            }
-        }
-    }
+    // function processDeletePath(currentSelectedPath) {
+    //     if(path) {
+    //         let type = FileHelper.checkPathType(path);
+    //         if (type === FileHelperType.LocalFile) {
+    //             imageGrid.model.addImagePath(path)
+    //             mainImageSource = imageGrid.model.resolvePath(path)
+    //         } else if (type === FileHelperType.LocalFolder) {
+    //             mainImageSource = imageGrid.model.addFilesFromFolder(path)
+    //         } else if (type === FileHelperType.MinioBucket) {
+    //             mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
+    //         } else if (type === FileHelperType.MinioFile) {
+    //             console.log("Это объект (файл) в MinIO", path);
+    //             mainImageSource = imageGrid.model.addMinioImagePath(path)
+    //         } else {
+    //             console.log("Путь не распознан или не существует");
+    //         }
+    //     }
+    // }
     function processTFPath(){
         // customDialog.textFld = tf.text
         wsClient.connectToServer()
-        //customDialog.currentTabIndex = currentCustomDlgTb
+        //customDialog.currentTabIndex = parentCustomDlgTb
         if(tf.text && tf.text.trim().length > 0) {
             let type = FileHelper.checkPathType(tf.text);
             if (type === FileHelperType.LocalFile) {
@@ -744,16 +775,25 @@ ApplicationWindow {
             } else if (type === FileHelperType.LocalFolder) {
                 //  console.log("Это локальная папка");
                 storageModel.enterLocal(tf.text)
-                customDialog.textFld = tf.text;
+                parentCustomDlgTb = 0;
+                // customDialog.
+                // customDialog.currentTabIndex = 0;
+                // customDialog.textFld = tf.text;
+                //customDialog.currentLocalPath = tf.text
+                parentLocalPath = tf.text;
                 customDialog.show();
             } else if (type === FileHelperType.MinioBucket) {
                 console.log("Это бакет MinIO");
+                parentCustomDlgTb = 1;
+                customDialog.currentTabIndex = 1;
                 storageModel.setParent(tf.text, "mb")
                 storageModel.getNetPath(tf.text)
             } else if(type === FileHelperType.MinioFolder) {
+                parentCustomDlgTb = 1;
+                customDialog.currentTabIndex = 1;
                 storageModel.setParent(tf.text, "md")
                 storageModel.getNetPath(tf.text)
-            } else if (type === FileHelperType.MinioFile || type === FileHelperType.MinioFolder) {
+            } else if (type === FileHelperType.MinioFile) {
                 storageModel.setParent(tf.text, "mf")
                 storageModel.getNetPath(tf.text)
             } else {
@@ -765,13 +805,13 @@ ApplicationWindow {
 
     Component.onCompleted:{
 //        console.log("currentLocalPath", currentLocalPath)currentNetworkPath
-        if(currentCustomDlgTb !== 0 && currentNetworkPath !== "") tf.tfContent = currentNetworkPath;
-        else if((currentCustomDlgTb === 0 || currentNetworkPath === "") && currentLocalPath !== "") {
-            tf.tfContent = currentLocalPath; currentCustomDlgTb = 0;
+        if(parentCustomDlgTb !== 0 && parentNetworkPath !== "") tf.tfContent = parentNetworkPath;
+        else if((parentCustomDlgTb === 0 || parentNetworkPath === "") && parentLocalPath !== "") {
+            tf.tfContent = parentLocalPath; parentCustomDlgTb = 0;
         }
         else {
-            currentLocalPath = Qt.platform.os === "windows" ? "C:/Users" : "/home";
-            currentCustomDlgTb = 0;
+            parentLocalPath = Qt.platform.os === "windows" ? "C:/Users" : "/home";
+            parentCustomDlgTb = 0;
         }
     }
 }

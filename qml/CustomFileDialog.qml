@@ -16,23 +16,28 @@ Window {
 
     property var currentPathObj: {"name": "", "path":".", "isDir":false, "isMinio":false,
                 "isMinioBucket":false, "isVirtualDir":false, "mongoId":""}
-    property string currentSelectedPath: "."
-    property alias textFld: customFileDlg.currentSelectedPath
+    //property alias currentTabIndex: tabBar.currentIndex
+    property string currentLocalPath: "/home/"
+    property string currentNetworkPath: ""
+    property int currentTabIndex: 0//tabBar.currentIndex
 
-    property alias currentTabIndex: tabBar.currentIndex
     signal openIndicesSelected(list<int> inds)
     signal openIndexSelected(int index)
     signal writeImages(var lf, string destPath);
     signal deletePathsSelected(list<int> indices)
-    signal setRootWndTexts(var strMap)
+//    signal setRootWndTexts(var strMap)
+    signal setParentPaths(int tbIndx, string localPath, string networkPath)
 
-    property int lastSelectedTab: 0
+//    property int lastSelectedTab: 0
     property var selectedIndices: []
 
     onVisibleChanged: {
         if(visible) {
-            lastSelectedTab = 0
+//            lastSelectedTab = 0
+            console.log("currentTabIndex", currentTabIndex)
+            tabBar.setCurrentIndex(currentTabIndex)
             tabBar.forceActiveFocus()
+
         }
     }
 
@@ -54,7 +59,8 @@ Window {
     FolderDialog {
         id: folderDialog
         onFolderAccepted: (name) => {
-            storageModel.addVirtual(name, customFileDlg.currentSelectedPath);
+            storageModel.addVirtual(name, tabBar.currentIndex === 0 ? currentLocalPath : currentNetworkPath);
+//            storageModel.addVirtual(name, customFileDlg.currentSelectedPath);
         }
     }
 
@@ -95,7 +101,6 @@ Window {
         TabBar {
             id: tabBar
             Layout.fillWidth: true
-            // currentIndex: customFileDlg.lastSelectedTab
             focus: true
             focusPolicy: Qt.StrongFocus
             onActiveFocusChanged: {
@@ -125,7 +130,7 @@ Window {
                 }
                 onActiveFocusChanged: {
                     if (activeFocus) {
-                        customFileDlg.lastSelectedTab=0
+                        //  customFileDlg.lastSelectedTab=0
                         // var parentPath = storageModel.getParent()
                         // console.log( "storageModel.getParent().path", parentPath.path)
                         // customFileDlg.currentSelectedPath = parentPath.path
@@ -193,19 +198,13 @@ Window {
                 focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    console.log("rootWnd.currentNetworkPath: ", rootWnd.currentNetworkPath);
+                    // console.log("rootWnd.currentNetworkPath: ", rootWnd.currentNetworkPath);
                     console.log("currentNetworkPath: ", currentNetworkPath);
-                    //storageModel.enterNetStore("main-bucket")
-                    storageModel.enterMinioBucket(currentNetworkPath)
+                    //  storageModel.enterNetStore("main-bucket")
+                    //  storageModel.enterMinioBucket(currentNetworkPath)
+                    storageModel.getNetPath(currentNetworkPath)
                     nw_storage.forceActiveFocus()
                 }
-                // onActiveFocusChanged: {
-                //     if (activeFocus) {
-                //         var parentPath = storageModel.getParent()
-                //         console.log( "storageModel.getParent().path", parentPath.path)
-                //         customFileDlg.currentSelectedPath = parentPath.path
-                //     }
-                // }
                 Keys.onPressed: (event) => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         gridView.forceActiveFocus()
@@ -392,40 +391,39 @@ Window {
                     }
                 }
                 function acceptSelection(grid) {
-                    customFileDlg.currentSelectedPath = model.path
-                    //customFileDlg.
+                    //customFileDlg.currentSelectedPath = model.path
+                    if(tabBar.currentIndex === 0) currentLocalPath = model.path;
+                    else currentNetworkPath = model.path;
                     if (model.isDir) {
-                        if (model.isMinio) storageModel.enterMinioBucket(model.name)
+                        if (model.isMinio) {
+                            console.log("tabBar.currentIndex: ", tabBar.currentIndex, " model.path: ", model.path)
+                            storageModel.enterMinioBucket(model.name)
+                        }
                         else {
-                            console.log("model.path: ", model.path)
+                            console.log("tabBar.currentIndex: ", tabBar.currentIndex, " model.path: ", model.path)
                             storageModel.enterLocal(model.path)
                         }
                         //  console.log("acceptSelection: ", grid)
                         grid.currentIndex = 0
                         // parent.currentItem = 0
                     } else {
-                        console.log(currentSelectedPath);
+                        console.log("tabBar.currentIndex: ", tabBar.currentIndex, " currentLocalPath: ", currentLocalPath,
+                                " currentNetworkPath: ", currentNetworkPath);
                         //customFileDlg.openPathsSelected([currentSelectedPath]);
                         customFileDlg.openIndicesSelected([index])
-                        //  rootWnd.currentCustomDlgTb = tabBar.currentIndex
-                        if(tabBar.currentIndex === 0)  setRootWndTexts({"currPath" : model.path,"DlgTb": "Local"})
-                        else setRootWndTexts({"currPath" : model.path,"DlgTb": "Network"})
+                        setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
                         customFileDlg.selectedIndices = []
                         customFileDlg.close()
                     }
                 }
                 function acceptSelectionEnterFolder(index) {
-                    customFileDlg.currentSelectedPath = model.path
+//                    customFileDlg.currentSelectedPath = model.path
+                    if(tabBar.currentIndex === 0) currentLocalPath = model.path;
+                    else currentNetworkPath = model.path;
                     console.log("function acceptSelectionEnterFolder(index)", index, "   ", model.path)
-                    if(!model.isMinio) {
-//                        console.log("rootWnd.currentLocalPath = ",rootWnd.currentLocalPath);
-                        setRootWndTexts({"currPath" : model.path, "DlgTb" : "Local"})
-                    }
-                    else if(model.isMinio) {
-//                        console.log("rootWnd.currentNetworkPath = ",rootWnd.currentNetworkPath);
-                        setRootWndTexts({"currPath" : model.path, "DlgTb" : "NetWork"})
-                    }
-                    //customFileDlg.
+                    console.log("tabBar.currentIndex: ", tabBar.currentIndex)
+                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
+
                     if (model.isDir) {
 //                        console.log("SecondCustomFileDialog function acceptSelection(index) model.isDir ")
                         storageModel.enterFolder(index)
@@ -437,7 +435,6 @@ Window {
                         customFileDlg.selectedIndices = []
                         customFileDlg.close()
                     }
-                    //  console.log("rootWnd.currentPath = ", rootWnd.currentPath)
                 }
             }
             Item {
@@ -473,21 +470,15 @@ Window {
                 onClicked: {
                     if(selectedIndices){
                         console.log("selectedIndices", selectedIndices)
-                        // var selectedPaths = []
-                        // for(let index of selectedIndices) {
-                        //     console.log("storageModel.get(index).path", storageModel.get(index).path)
-                        //     selectedPaths.push(storageModel.get(index).path)
-                        // }
-                        //  customFileDlg.openPathsSelected(selectedPaths);
                         customFileDlg.openIndicesSelected(selectedIndices);
                     }
                     else
                         customFileDlg.openIndicesSelected([selectedIndices]);
-                    //  rootWnd.currentCustomDlgTb = tabBar.currentIndex
                     // rootWnd.currentLocalPath = model.path // TODO:
-                    console.log("gridView.model.path : ", gridView.model.path, " ", currentSelectedPath)
-                    if(tabBar.currentIndex === 0)  setRootWndTexts({"currPath" : currentSelectedPath,"DlgTb": "Local"})
-                    else setRootWndTexts({"currPath" : currentSelectedPath,"DlgTb": "Network"})
+                    console.log("gridView.model.path : ", gridView.model.path)
+                    console.log("tabBar.currentIndex: ", tabBar.currentIndex, " currentLocalPath: ", currentLocalPath,
+                            " currentNetworkPath: ", currentNetworkPath);
+                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
                     customFileDlg.selectedIndices = []
                     customFileDlg.close() }
                 background: Rectangle {
@@ -523,15 +514,13 @@ Window {
                 }
                 onClicked: {
                     let li = []
-                    //  console.log("gridView2.model.length: ", gridView2.model.length, "gridView2.model.rowCount()", gridView2.model.rowCount())
-                    //  console.log("imageModel.rowCount(): ", imageModel.rowCount(), " ", data.cleanPath, " ")
                     for(let i=0; i<imageModel.rowCount(); i++){
                         var data = imageModel.get(i);
                         console.log("imageModel.get(",i ,")= ", data.cleanPath, " ", data.mongoId);
                         li.push( {"path":data.cleanPath, "mongoId":data.mongoId});
                     }
-                    console.log("btn_wrt onClicked: ", li[0], "  ", currentSelectedPath)
-                    customFileDlg.writeImages(li, currentSelectedPath);
+                    console.log("btn_wrt onClicked: ", li[0], "  ", tabBar.currentIndex === 0 ? currentLocalPath : currentNetworkPath)
+                    customFileDlg.writeImages(li, tabBar.currentIndex === 0 ? currentLocalPath : currentNetworkPath);
                     customFileDlg.close()
                 }
                 background: Rectangle {
@@ -540,10 +529,7 @@ Window {
                     Rectangle {
                         anchors.fill: parent
                         anchors.margins: -3
-                        // color: "transparent"
-                        // border.color: "#2196F3"
-                        // border.width: 2
-                        // radius: 6
+
                         color: btn_wrt.enabled ? "transparent" : "#353535"
                         border.color: btn_wrt.activeFocus ? "#21be2b" : "#bdbebf"
                         border.width: btn_wrt.activeFocus ? 2 : 1
@@ -618,15 +604,12 @@ Window {
                     }
                 }
                 onClicked: {
-                    if(tabBar.currentIndex === 0)  setRootWndTexts({"currPath" : currentSelectedPath,"DlgTb": "Local"})
-                    else setRootWndTexts({"currPath" : currentSelectedPath,"DlgTb": "Network"})
+                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
                     customFileDlg.selectedIndices = []
                     customFileDlg.close()
                 }
             }
         }
-
     }
-//    onActiveFocusItemChanged: console.log("Фокус сейчас на: " + activeFocusItem)
-//    Component.on
+
 }
