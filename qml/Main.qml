@@ -787,6 +787,7 @@ ApplicationWindow {
                 parentCustomDlgTb = 1;
                 //customDialog.currentTabIndex = 1;
                 storageModel.setParent(tf.text, "mb")
+                console.log("Это бакет MinIO after setParent");
                 storageModel.getNetPath(tf.text)
             } else if(type === FileHelperType.MinioFolder) {
                 parentCustomDlgTb = 1;

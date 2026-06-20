@@ -23,6 +23,7 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         emit bucketsReceived(sl);
     }
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ListResponse) {
+        qDebug() << "pict_data::ServerEnvelope::ContentFields::ListResponse";
         const auto &response = data.listResponse();
         QList<QStringList> sl;
         for (const auto &info : response.folders()) {
@@ -37,6 +38,7 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         emit pathsReceived(sl);
     }
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ServerResp) {
+        qDebug() << "pict_data::ServerEnvelope::ContentFields::ServerResp";
         const auto &response = data.serverResp();
         if(response.status() == "success") emit resultSuccess(response.content());
         else emit resultError(response.content());
@@ -53,7 +55,8 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         }
         emit writeUrlsToLocal(urls);
     }
-    else if(data.contentField() == pict_data:: ServerEnvelope::ContentFields::PathInfResponse){
+    else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::PathInfResponse){
+        qDebug() << "pict_data::ServerEnvelope::ContentFields::PathInfResponse";
         const auto &response = data.pathInfResponse();
         QString res = response.result();
         qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse info.url(): " << res;
@@ -278,6 +281,7 @@ int MsgHandler::getNetStore(const QString &netPath){
     cenv.setPathInfRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = cenv.serialize(&serializer);
+    qDebug() << "Before m_client->sendBinaryMessage(data)";
     /*qint64 sz = */ m_client->sendBinaryMessage(data);
     return 0;
 }

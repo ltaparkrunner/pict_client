@@ -1,3 +1,10 @@
+1. переделать на кнопку File dialog, переделать работу строки. https://minio:9000/ не работает
+только http://minio:9000
+2. Возникли следующие предупреждения при разборе информации о типах QML библиотеки /home/alex-m/wrk/myproj/qt/pict_client/build_dbg/pict_client:
+File "/home/alex-m/wrk/myproj/qt/pict_client/build_dbg/pict_client/pictStore.qmltypes" does not exist.
+3. does not work 2 places: first: both then the new folders creates one and the second, review this.
+they both are in client 100 percent.. ../ folder in new virtual folder
+
 qrc:/qt/qml/pict_client/qml/Main.qml:544:21: QML QQuickImage*: Error transferring http://minio:9000/images/users/6a079e584c0da7000f8af5ed/9645e36b-37e7-4301-82ef-94284539797a-pict2.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=admin%2F20260531%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260531T083952Z&X-Amz-Expires=1700&X-Amz-Signature=f5a84dd961b9c77b8338b9f8d5541d60f99d5387610f7e5a1bef7d080df7ce25&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject - server replied: Not Found
 qrc:/qt/qml/pict_client/qml/Main.qml:433:33: QML QQuickImage: Error transferring http://minio:9000/images/users/6a079e584c0da7000f8af5ed/9645e36b-37e7-4301-82ef-94284539797a-pict2.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=admin%2F20260531%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260531T083952Z&X-Amz-Expires=1700&X-Amz-Signature=f5a84dd961b9c77b8338b9f8d5541d60f99d5387610f7e5a1bef7d080df7ce25&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject - server replied: Not Found
 

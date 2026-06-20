@@ -183,7 +183,8 @@ Q_INVOKABLE int UnifiedStorageModel::addVirtual(const QString &virtFolderName, c
     beginResetModel();
     if(m_parentItem.isMinioBucket) m_items.append({virtFolderName, currPath+virtFolderName + "/", true, true, false, true, ""});
     // Добавляем две виртуальные "папки"
-    else m_items.append({m_parentItem.name+"/"+virtFolderName, currPath+virtFolderName + "/", true, true, false, true, ""});
+//    else m_items.append({m_parentItem.name+"/"+virtFolderName, currPath+virtFolderName + "/", true, true, false, true, ""});
+    else m_items.append({virtFolderName, currPath+virtFolderName + "/", true, true, false, true, ""});
 
     endResetModel();
     qDebug() << "Создаем папку с именем:" << m_parentItem.name+"/"+virtFolderName << "in the folder: " << currPath;
@@ -238,6 +239,7 @@ Q_INVOKABLE int UnifiedStorageModel::openFolderImages(int indx){  // show folder
 Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in File/Folder Dialog
     qDebug() << "int UnifiedStorageModel::enterFolder(StorageItem item): " << m_items[indx].path << "  name: " << m_items[indx].name <<
         "m_items[indx].isMinio" << m_items[indx].isMinio << "m_items[indx].isDir" << m_items[indx].isDirectory;
+    StorageItem prevprevItem = m_parentItem;
     if(indx < m_items.size()) m_parentItem = m_items[indx];
     else return -1;
     qDebug() << " m_parentItem: " << m_parentItem.path << "  isMinioBucket: " << m_parentItem.isMinioBucket;
@@ -279,6 +281,10 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
         qDebug() << "Virtual Minio Folder path: " << m_parentItem.path << "  name: " << m_parentItem.name;
         beginResetModel();
         m_items.clear();
+        m_items.append({"..", prevprevItem.path, prevprevItem.isDirectory, prevprevItem.isMinio,
+                        prevprevItem.isMinioBucket, prevprevItem.isVirtualDir});
+        qDebug() << "Virtual dir, m_parentItem.path: " << prevprevItem.path;
+        //m_items.append({"..", prevprevItem.path, prevprevItemtrue, true, false, true});
         endResetModel();
         return 0;   // Minio simple folder
     }
@@ -491,6 +497,7 @@ Q_INVOKABLE bool UnifiedStorageModel::getNetPath(const QString &path){
     // to check if the way is a local or network dir or file and if file(local or network (http://minio:9000/))
     // then open in main window, if dir then open in customFileDialog
     // QString prefix = "http://minio:9000/";
+    qDebug() << "UnifiedStorageModel::getNetPath prefix: " << prefix << "  path: " << path;
     if(path.startsWith(prefix)) {
         msghandler -> getNetStore(path);
         return true;

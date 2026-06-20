@@ -1,5 +1,7 @@
-import QtQuick 2.15
-import QtQuick.Controls 2.15
+//  import QtQuick 2.15
+import QtQuick
+//  import QtQuick.Controls 2.15
+import QtQuick.Controls
 import QtQuick.Layouts 1.15
 import QtQuick.Effects
 import QtQuick.Controls.Basic
@@ -328,7 +330,8 @@ Window {
                 onClicked: (mouse) => {
                     if (mouse.button === Qt.RightButton) {
                         // 3. Вызываем меню в координатах курсора
-                        contextMenuGridView.popup()
+//                        contextMenuGridView.popup()
+                        contextMenuGridView.open()
                     }
                 }
             }
