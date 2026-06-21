@@ -1,5 +1,6 @@
 #include "unifiedstoragemodel.h"
 #include "filedownloader.h"
+#include "auxilary.h"
 
 UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHndlr, QObject *parent)
     : QAbstractListModel{parent}
@@ -27,9 +28,9 @@ void UnifiedStorageModel::enterLocal(const QString &path) {
     if(!dir.exists()){
         QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
         dir = QDir{defaultPath};
-        m_parentItem = {dir.dirName(), defaultPath, true, false, false, false, ""};
+        m_parentItem = {dir.dirName(), defaultPath, defaultPath, true, false, false, false, ""};
     }
-    else m_parentItem = {dir.dirName(), dir.absolutePath(), true, false, false, false, ""};
+    else m_parentItem = {dir.dirName(), dir.absolutePath(), dir.absolutePath(), true, false, false, false, ""};
     QStringList filters;
     filters << "*.jpg" << "*.jpeg" << "*.png" << "*.gif" << "*.bmp" << "*.webp";
 
@@ -39,7 +40,7 @@ void UnifiedStorageModel::enterLocal(const QString &path) {
     QFileInfoList fullList = dirs + files;
 //    for (auto &info : dir.entryInfoList(QDir::AllEries | QDir::NoDot)) {
     for (const QFileInfo &info : std::as_const(fullList)) {
-        m_items.append({info.fileName(), info.absoluteFilePath(), info.isDir(), false, false, false});
+        m_items.append({info.fileName(), info.absoluteFilePath(), info.absoluteFilePath(), info.isDir(), false, false, false});
     }
     endResetModel();
 }
@@ -59,7 +60,7 @@ void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
     m_items.clear();
 
     for (int i = 0; i < buckets.size(); i += 2) {
-        m_items.append({buckets[i], buckets[i+1], true, true, true, false});
+        m_items.append({buckets[i], buckets[i+1], buckets[i+1], true, true, true, false});
     }
     endResetModel();
 }
@@ -69,10 +70,10 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
     m_items.clear();
     qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths): " << m_parentItem.path;
     int symbs = m_parentItem.path.count('/');
-    if(symbs <=2) { m_items.append({"..", "http://minio:9000/", true, true, true, false});
+    if(symbs <=2) { m_items.append({"..", "http://minio:9000/", "http://minio:9000/", true, true, true, false});
         qDebug() << "path for ..  " << "http://minio:9000/";
     }
-    else if(symbs <=4) { m_items.append({"..", "http://minio:9000/", true, true, true, false});
+    else if(symbs <=4) { m_items.append({"..", "http://minio:9000/", "http://minio:9000/", true, true, true, false});
         qDebug() << "path for ..  " << "http://minio:9000/";
     }
     else {
@@ -86,15 +87,16 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
         // }
         int prevSlashIdx = m_parentItem.path.lastIndexOf('/', -2);
         if (prevSlashIdx != -1) {
-            m_items.append({"..", m_parentItem.path.left(prevSlashIdx + 1), true, true, false, false});
+            m_items.append({"..", m_parentItem.path.left(prevSlashIdx + 1), m_parentItem.path.left(prevSlashIdx + 1), true, true, false, false});
             qDebug() << "m_parentItem.path.left(lastSlashIdx + 1);" << m_parentItem.path.left(prevSlashIdx + 1); // Оставит '/' в конце
         }
-        else {  m_items.append({"..", "http://minio:9000/", true, true, true, false});
+        else {  m_items.append({"..", "http://minio:9000/",  "http://minio:9000/", true, true, true, false});
             qDebug() << "path for ..  " << "http://minio:9000/";
         }
     }
     for (const QStringList& image : paths) {
-        m_items.append({image[0], image[1], (image[2] == "folder")?true:false, true, false, false, image[3]});
+        if(image[2] != "folder") m_items.append({image[0], image[1],  cleanNetworkFilePath(image[1]), false, true, false, false, image[3]});
+        else m_items.append({image[0], image[1],  image[1], true, true, false, false, image[3]});
     }
     endResetModel();
 }
@@ -117,6 +119,8 @@ QVariant UnifiedStorageModel::data(const QModelIndex &index, int role) const {
         return item.name;
     case PathRole:
         return item.path;
+    case CleanPathRole:
+        return item.cleanPath;
     case IsDirRole:
         return item.isDirectory;
     case IsMinioRole:
@@ -137,6 +141,7 @@ QHash<int, QByteArray> UnifiedStorageModel::roleNames() const{
     QHash<int, QByteArray> roles;
     roles[NameRole] = "name";
     roles[PathRole] = "path";
+    roles[CleanPathRole] = "cleanPath";
     roles[IsDirRole] = "isDir";
     roles[IsMinioRole] = "isMinio";
     roles[IsMinioBucketRole] = "isMinioBucket";
@@ -151,8 +156,8 @@ void UnifiedStorageModel::loadRoot() {
     m_items.clear();
 
     // Добавляем две виртуальные "папки"
-    m_items.append({"Локальные файлы", "/", true, false, false, false});
-    m_items.append({"Облако MinIO", "minio_root", true, true, true, false});
+    m_items.append({"Локальные файлы", "/",  "/", true, false, false, false});
+    m_items.append({"Облако MinIO", "minio_root", "minio_root", true, true, true, false});
 
     endResetModel();
 }
@@ -169,6 +174,7 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::get(int row) const {
 //    Вручную наполняем карту данными
     res["name"] = item.name;
     res["path"] = item.path;
+    res["cleanPath"] = item.cleanPath;
     res["isDir"] = item.isDirectory;
     res["isMinio"] = item.isMinio;
     res["isMinioBucket"] = item.isMinioBucket;
@@ -181,10 +187,12 @@ Q_INVOKABLE int UnifiedStorageModel::addVirtual(const QString &virtFolderName, c
     qDebug() << "UnifiedStorageModel::addVirtual currPath: "<< currPath+virtFolderName +"/" << "m_parentItem: " << m_parentItem.path
              << "  parentName: " << m_parentItem.name << "m_parentItem.isMinioBucket: " << m_parentItem.isMinioBucket;
     beginResetModel();
-    if(m_parentItem.isMinioBucket) m_items.append({virtFolderName, currPath+virtFolderName + "/", true, true, false, true, ""});
+    if(m_parentItem.isMinioBucket) m_items.append({virtFolderName, currPath+virtFolderName + "/", currPath+virtFolderName + "/",
+                        true, true, false, true, ""});
     // Добавляем две виртуальные "папки"
 //    else m_items.append({m_parentItem.name+"/"+virtFolderName, currPath+virtFolderName + "/", true, true, false, true, ""});
-    else m_items.append({virtFolderName, currPath+virtFolderName + "/", true, true, false, true, ""});
+    else m_items.append({virtFolderName, currPath+virtFolderName + "/",  currPath+virtFolderName + "/",
+                        true, true, false, true, ""});
 
     endResetModel();
     qDebug() << "Создаем папку с именем:" << m_parentItem.name+"/"+virtFolderName << "in the folder: " << currPath;
@@ -211,7 +219,7 @@ Q_INVOKABLE int UnifiedStorageModel::openFolderImages(int indx){  // show folder
         QFileInfoList fullList = dirs + files;
         //    for (auto &info : dir.entryInfoList(QDir::AllEntries | QDir::NoDot)) {
         for (const QFileInfo &info : std::as_const(fullList)) {
-            m_items.append({info.fileName(), info.absoluteFilePath(), info.isDir(), false, false, false});
+            m_items.append({info.fileName(), info.absoluteFilePath(), info.absoluteFilePath(), info.isDir(), false, false, false});
         }
         endResetModel();
         return 0;
@@ -261,7 +269,7 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
         QFileInfoList fullList = dirs + files;
         //    for (auto &info : dir.entryInfoList(QDir::AllEntries | QDir::NoDot)) {
         for (const QFileInfo &info : std::as_const(fullList)) {
-            m_items.append({info.fileName(), info.absoluteFilePath(), info.isDir(), false, false, false});
+            m_items.append({info.fileName(), info.absoluteFilePath(),  info.absoluteFilePath(), info.isDir(), false, false, false});
         }
         endResetModel();
         return 0;
@@ -281,7 +289,7 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
         qDebug() << "Virtual Minio Folder path: " << m_parentItem.path << "  name: " << m_parentItem.name;
         beginResetModel();
         m_items.clear();
-        m_items.append({"..", prevprevItem.path, prevprevItem.isDirectory, prevprevItem.isMinio,
+        m_items.append({"..", prevprevItem.path,  prevprevItem.path, prevprevItem.isDirectory, prevprevItem.isMinio,
                         prevprevItem.isMinioBucket, prevprevItem.isVirtualDir});
         qDebug() << "Virtual dir, m_parentItem.path: " << prevprevItem.path;
         //m_items.append({"..", prevprevItem.path, prevprevItemtrue, true, false, true});
@@ -369,11 +377,21 @@ QString UnifiedStorageModel::resolveImageIndex(int indx) {
 Q_INVOKABLE QVariantMap UnifiedStorageModel::getData(int indx){
     QVariantMap map;
     StorageItem item = m_items[indx];
+    // map["name"] = item.name;
+    // map["path"] = item.path;
+    // map["cleanPath"] = item.cleanPath;
+    // map["mongoId"] = item.mongoId;
+    // map["isNetwork"] = item.isMinio;
+    // map["isDir"] = item.isDirectory;
+    // map["isV"]
     map["name"] = item.name;
     map["path"] = item.path;
-    map["mongoId"] = item.mongoId;
-    map["isNetwork"] = item.isMinio;
+    map["cleanPath"] = item.cleanPath;
     map["isDir"] = item.isDirectory;
+    map["isMinio"] = item.isMinio;
+    map["isMinioBucket"] = item.isMinioBucket;
+    map["isVirtualDir"] = item.isVirtualDir;
+    map["mongoId"] = item.mongoId;
     return map;
 }
 
@@ -519,9 +537,9 @@ Q_INVOKABLE bool UnifiedStorageModel::getNetPath(const QString &path){
 Q_INVOKABLE void UnifiedStorageModel::setParent(const QString &fullPath, const QString &type){
     QFileInfo fileInfo(fullPath);
     qDebug() << "UnifiedStorageModel::setParent fileInfo.fileName():" << fileInfo.fileName();
-    if(type == "mb") m_parentItem = {fileInfo.fileName(), fullPath, true, true, true, false};
-    if(type == "md") m_parentItem = {fileInfo.fileName(), fullPath, true, true, false, false};
-    if(type == "mf") m_parentItem = {fileInfo.fileName(), fullPath, false, true, false, false};
+    if(type == "mb") m_parentItem = {fileInfo.fileName(), fullPath, fullPath, true, true, true, false};
+    if(type == "md") m_parentItem = {fileInfo.fileName(), fullPath, fullPath, true, true, false, false};
+    if(type == "mf") m_parentItem = {fileInfo.fileName(), fullPath, fullPath, false, true, false, false};
 }
 
 Q_INVOKABLE QVariantMap UnifiedStorageModel::getParent(){
@@ -530,6 +548,7 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::getParent(){
     //    Вручную наполняем карту данными
     res["name"] = m_parentItem.name;
     res["path"] = m_parentItem.path;
+    res["cleanPath"] = m_parentItem.cleanPath;
     res["isDir"] = m_parentItem.isDirectory;
     res["isMinio"] = m_parentItem.isMinio;
     res["isMinioBucket"] = m_parentItem.isMinioBucket;

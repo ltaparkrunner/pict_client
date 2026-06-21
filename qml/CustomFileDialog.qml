@@ -31,7 +31,7 @@ Window {
     signal writeImages(var lf, string destPath);
     signal deletePathsSelected(list<int> indices)
 //    signal setRootWndTexts(var strMap)
-    signal setParentPaths(int tbIndx, string localPath, string networkPath)
+    signal setParentPaths(int tbIndx, string localPath, string networkPath, string nwCleanPath)
 
 //    property int lastSelectedTab: 0
     property var selectedIndices: []
@@ -415,9 +415,11 @@ Window {
                     //customFileDlg.currentSelectedPath = model.path
                     // if(tabBar.currentIndex === 0) currentLocalPath = model.path;
                     // else currentNetworkPath = model.path;
+                    var cleanNwPath
                     if (model.isDir) {
                         if (model.isMinio) {
                             currentNetworkPath = model.path
+                            cleanNwPath = model.cleanPath
                             console.log("tabBar.currentIndex: ", tabBar.currentIndex, " model.path: ", model.path)
                             storageModel.enterMinioBucket(model.name)
                         }
@@ -434,12 +436,13 @@ Window {
                                 " currentNetworkPath: ", currentNetworkPath);
                         //customFileDlg.openPathsSelected([currentSelectedPath]);
                         customFileDlg.openIndicesSelected([index])
-                        setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
+                        setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath, cleanNwPath)
                         customFileDlg.selectedIndices = []
                         customFileDlg.close()
                     }
                 }
                 function acceptSelectionEnterFolder(index) {
+                    var cleanNwPath
 //                    customFileDlg.currentSelectedPath = model.path
                     if(tabBar.currentIndex === 0) {
                         console.log("acceptSelectionEnterFolder: tabBar.currentIndex: ", tabBar.currentIndex,
@@ -448,12 +451,13 @@ Window {
                     }
                     else {
                         console.log("acceptSelectionEnterFolder: tabBar.currentIndex: ", tabBar.currentIndex,
-                        " model.path: ", model.path)
+                        " model.path: ", model.path, "  model.cleanPath: ", model.cleanPath)
                         currentNetworkPath = model.path;
+                        // cleanNwPath = model.cleanPath
                     }
                     console.log("function acceptSelectionEnterFolder(index)", index, "   ", model.path)
                     console.log("tabBar.currentIndex: ", tabBar.currentIndex)
-                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
+                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath, model.cleanPath)
 
                     if (model.isDir) {
                         console.log("SecondCustomFileDialog function acceptSelection(index) tabBar.currentIndex: ", tabBar.currentIndex,
@@ -512,7 +516,8 @@ Window {
                     console.log("gridView.model.path : ", gridView.model.path)
                     console.log("tabBar.currentIndex: ", tabBar.currentIndex, " currentLocalPath: ", currentLocalPath,
                             " currentNetworkPath: ", currentNetworkPath);
-                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
+                    //  cleanNwPath = model.cleanPath
+                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath, currentNetworkPath)
                     customFileDlg.selectedIndices = []
                     customFileDlg.close() }
                 background: Rectangle {
@@ -638,7 +643,7 @@ Window {
                     }
                 }
                 onClicked: {
-                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath)
+                    setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath, currentNetworkPath)
                     customFileDlg.selectedIndices = []
                     customFileDlg.close()
                 }

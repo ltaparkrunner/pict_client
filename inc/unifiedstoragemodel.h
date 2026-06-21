@@ -25,6 +25,7 @@
 struct StorageItem {
     QString name;
     QString path;
+    QString cleanPath;
     bool isDirectory;
     bool isMinio;               // Флаг для отличия локального от облачного
     bool isMinioBucket;
@@ -35,7 +36,7 @@ struct StorageItem {
 class UnifiedStorageModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    enum Roles { NameRole = Qt::UserRole + 2, PathRole, IsDirRole, IsMinioRole,  IsMinioBucketRole, IsVirtualDirRole, MongoIdRole};
+    enum Roles { NameRole = Qt::UserRole + 2, PathRole, CleanPathRole, IsDirRole, IsMinioRole,  IsMinioBucketRole, IsVirtualDirRole, MongoIdRole};
 
     explicit UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHndlr, QObject *parent = nullptr);
     // Основные методы модели

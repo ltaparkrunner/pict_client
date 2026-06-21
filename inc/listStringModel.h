@@ -222,9 +222,10 @@ public:
 
     }
     Q_INVOKABLE int insertImage(const QVariantMap &map) {
-        qDebug() << "insertImage(const QVariantMap &map)";
+        qDebug() << "insertImage(const QVariantMap &map) cleanPath: " << map["cleanPath"] << " isMinio: " <<  map["isMinio"].toBool() ;
         bool isDir = map["isDir"].toBool();
-        bool isNetwork = map["isNetwork"].toBool();
+//        bool isNetwork = map["isNetwork"].toBool();
+        bool isNetwork = map["isMinio"].toBool();
         if(isNetwork && !isDir){
             QUrl url = QUrl::fromUserInput(map["path"].toString());
             QString pathForQml = url.toString();

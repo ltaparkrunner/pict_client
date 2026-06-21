@@ -109,6 +109,7 @@ ApplicationWindow {
                 else mainImageSource = imgPath
                 //  console.log("onOpenIndexSelected: ", imgPath);
                 let data = storageModel.getData(index);
+                console.log("onOpenIndexSelected: cleanPath: ", data.cleanPath, " isMinio: ", data.isMinio)
                 //  console.log("onOpenIndexSelected: ", index);
                 imageModel.insertImage(data);
             }
@@ -175,7 +176,7 @@ ApplicationWindow {
         //     tf.tfContent = ls.currPath;
         //     console.log("ls.currPath: ", ls.currPath, " tf.tfContent: ", tf.tfContent)
         // }
-        onSetParentPaths:(tbIndx, localPath, networkPath) => {
+        onSetParentPaths:(tbIndx, localPath, networkPath, nwCleanPath) => {
             if(tbIndx === 0) {
                 parentCustomDlgTb = 0;
                 parentLocalPath = localPath;
@@ -186,7 +187,7 @@ ApplicationWindow {
                 parentCustomDlgTb = 1;
                 parentNetworkPath = networkPath;
                 console.log("tf.tfContent = localPath 2")
-                tf.tfContent = networkPath;
+                tf.tfContent = nwCleanPath;
             }
         }
     }
