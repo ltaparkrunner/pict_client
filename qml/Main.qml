@@ -179,11 +179,13 @@ ApplicationWindow {
             if(tbIndx === 0) {
                 parentCustomDlgTb = 0;
                 parentLocalPath = localPath;
+                console.log("tf.tfContent = localPath 1")
                 tf.tfContent = localPath;
             }
             else {
                 parentCustomDlgTb = 1;
                 parentNetworkPath = networkPath;
+                console.log("tf.tfContent = localPath 2")
                 tf.tfContent = networkPath;
             }
         }
@@ -490,6 +492,7 @@ ApplicationWindow {
                                 onDoubleClicked: {
                                     let img = imageModel.get(index)
                                     mainImageSource = img.path
+                                    console.log("tf.tfContent = img.cleanPath 3")
                                     tf.tfContent = img.cleanPath
                                 }
                                 onClicked: (mouse) => {
@@ -532,7 +535,11 @@ ApplicationWindow {
                             }
                         }
                         ScrollBar.vertical: ScrollBar {}
+                        // GridView.onAdd: {
+
+                        // }
                     }
+
                     Rectangle {
                         id: floatingInfo
                         width: imageGrid.width

@@ -65,7 +65,7 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
             emit pathInfoResp('f',response.netPath());
         }
         else if (res == "folder") {
-            qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse folder";
+            qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse folder" << response.netPath();
             emit pathInfoResp('d', response.netPath());
         }
         else if (res == "not exist") {
