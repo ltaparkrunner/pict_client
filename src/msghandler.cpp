@@ -89,7 +89,8 @@ Q_INVOKABLE int MsgHandler::getBucketsListRequest() const{
     return 0;
 }
 
-int MsgHandler::addFileRequest(const QString &filepath, const QString &id, const QString &netFolderPath, const QString &fname){
+int MsgHandler::addFileRequest(const QString &netFolderPath, const QString &filepath, const QString &id) {
+//    (const QString &filepath, const QString &id, const QString &netFolderPath, const QString &fname){
     qDebug() << "MsgHandler::addFileRequest" << filepath << " " << id << "  " << netFolderPath;
     pict_data::ClientEnvelope cenv;
     pict_data::AddFileRequest message;
@@ -129,13 +130,13 @@ int MsgHandler::addFileRequest(const QString &filepath, const QString &id, const
             folder = path.sliced(startPos, length);
         }
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder << "fname" << fname;
+    qDebug() << "bucket: " << bucket << " folder " << folder;
 
 
     message.setFileName(fileName);
 //    message.setUserLogin("Ivon");
 //    message.setBucketName(bucket);
-    message.setFolder(fname);
+    message.setFolder(folder);
     message.setInfo(completeSuffix);
     message.setData(fileData);
 

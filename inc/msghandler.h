@@ -15,7 +15,7 @@ public:
     explicit MsgHandler(WebSocketClient *client, QObject *parent = nullptr);
 
     Q_INVOKABLE int getBucketsListRequest() const;
-    int addFileRequest(const QString &path, const QString &id, const QString &arrival, const QString &fname);
+    int addFileRequest(const QString &folder, const QString &path, const QString &id);
     int getFilesFoldersListfromBucketRequest(const QString &path, const QString &name);
     int getFilesFoldersListfromBucketRequest2(const QString &path, const bool isDir);
     //  int getFileRequest(const QString &path, const QString &id, const QString &arrival);

@@ -42,7 +42,6 @@ Window {
             console.log("currentTabIndex", currentTabIndex)
             tabBar.setCurrentIndex(currentTabIndex)
             tabBar.forceActiveFocus()
-
         }
     }
 
@@ -555,8 +554,8 @@ Window {
                     let li = []
                     for(let i=0; i<imageModel.rowCount(); i++){
                         var data = imageModel.get(i);
-                        console.log("imageModel.get(",i ,")= ", data.cleanPath, " ", data.mongoId);
-                        li.push( {"path":data.cleanPath, "mongoId":data.mongoId});
+                        console.log("imageModel.get(",i ,")= ", data.cleanPath, " ", data.mongoId, " isNetwork: ", data.isNetwork, "isDir", data.isDir);
+                        li.push( {"path":data.cleanPath, "mongoId":data.mongoId, "isNetwork":data.isNetwork, "isDir":data.isDir});
                     }
                     console.log("btn_wrt onClicked: ", li[0], "  ", tabBar.currentIndex === 0 ? currentLocalPath : currentNetworkPath)
                     customFileDlg.writeImages(li, tabBar.currentIndex === 0 ? currentLocalPath : currentNetworkPath);

@@ -184,18 +184,20 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::get(int row) const {
 }
 
 Q_INVOKABLE int UnifiedStorageModel::addVirtual(const QString &virtFolderName, const QString &currPath){
-    qDebug() << "UnifiedStorageModel::addVirtual currPath: "<< currPath+virtFolderName +"/" << "m_parentItem: " << m_parentItem.path
+    qDebug() << "UnifiedStorageModel::addVirtual currPath: "<< virtFolderName << "m_parentItem: " << m_parentItem.path
              << "  parentName: " << m_parentItem.name << "m_parentItem.isMinioBucket: " << m_parentItem.isMinioBucket;
     beginResetModel();
     if(m_parentItem.isMinioBucket) m_items.append({virtFolderName, currPath+virtFolderName + "/", currPath+virtFolderName + "/",
                         true, true, false, true, ""});
     // Добавляем две виртуальные "папки"
 //    else m_items.append({m_parentItem.name+"/"+virtFolderName, currPath+virtFolderName + "/", true, true, false, true, ""});
+//    else m_items.append({m_parentItem.name+"/"+virtFolderName, currPath+virtFolderName + "/",  currPath+virtFolderName + "/",
     else m_items.append({virtFolderName, currPath+virtFolderName + "/",  currPath+virtFolderName + "/",
+
                         true, true, false, true, ""});
 
     endResetModel();
-    qDebug() << "Создаем папку с именем:" << m_parentItem.name+"/"+virtFolderName << "in the folder: " << currPath;
+    qDebug() << "Создаем папку с именем:" << virtFolderName << "in the folder: " << currPath;
     return 0;
 }
 
@@ -395,37 +397,54 @@ Q_INVOKABLE QVariantMap UnifiedStorageModel::getData(int indx){
     return map;
 }
 
+// write files to Net or Local
 Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf, QString path){
     qDebug() << "int UnifiedStorageModel::writeImagesToFolder: " << m_parentItem.path <<
         "  isMinio: " << m_parentItem.isMinio << "  isDir: " << m_parentItem.isDirectory;
-    if(!m_parentItem.isMinio && m_parentItem.isDirectory){
+    if(!m_parentItem.isMinio && m_parentItem.isDirectory){  //  to local directory
         qDebug() << "!m_parentItem.isMinio && m_parentItem.isDirectory";
         QStringList paths;
         QStringList ids;
+        QStringList paths2;
         for(const QVariant &v : lf){
             QVariantMap item = v.toMap();
             //  qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();
-            paths.append(item["path"].toString());
-            ids.append(item["mongoId"].toString());
+            if(item["isNetwork"].toBool() && !item["isDir"].toBool()){  // from Network to local
+                paths.append(item["path"].toString());
+                ids.append(item["mongoId"].toString());
+            }
+            else if(!item["isNetwork"].toBool() && !item["isDir"].toBool()){  // from local to local
+                paths2.append(item["path"].toString());
+            }
         }
         msghandler->getFilesRequest(paths, ids, m_parentItem.path);
         return 0;
     }
-    else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) {
+    else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) {   //  to Net bucket
         qDebug() << "m_parentItem.isMinio && m_parentItem.isMinioBucket";
+        QStringList paths;
         for(const QVariant &v : lf){
             QVariantMap item = v.toMap();
             qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();
-            msghandler->addFileRequest(item["path"].toString(), item["mongoId"].toString(), m_parentItem.path, "");
+            if(!item["isNetwork"].toBool() && !item["isDir"].toBool()) // from local to network
+                msghandler->addFileRequest(m_parentItem.path, item["path"].toString(), item["mongoId"].toString());
+            else if(item["isNetwork"].toBool() && !item["isDir"].toBool()) {// from network to network
+                paths.append(item["path"].toString());
+            }
         }
         return 0;
     }
-    else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory) {
-        qDebug() << "int UnifiedStorageModel::writeImagesToFolder 2";
+    else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory) {  //  to Net Directory
+        qDebug() << "int UnifiedStorageModel::writeImagesMinioDirectory";
+        QStringList paths;
         for(const QVariant &v : lf){
-            QVariantMap item = v.toMap();
+            QVariantMap item = v.toMap();if(!item["isNetwork"].toBool() && !item["isDir"].toBool())
             qDebug() << item["path"].toString() << "  " << item["mongoId"].toString() << " target folder: " << m_parentItem.path;
-            msghandler->addFileRequest(item["path"].toString(), item["mongoId"].toString(), m_parentItem.path, m_parentItem.name);
+            if(!item["isNetwork"].toBool() && !item["isDir"].toBool()) // from local to network
+                msghandler->addFileRequest(m_parentItem.path, item["path"].toString(), item["mongoId"].toString());
+            else if(item["isNetwork"].toBool() && !item["isDir"].toBool()) {// from network to network
+                paths.append(item["path"].toString());
+            }
         }
         return 0;
     }
