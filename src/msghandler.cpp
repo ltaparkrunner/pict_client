@@ -286,3 +286,60 @@ int MsgHandler::getNetStore(const QString &netPath){
     /*qint64 sz = */ m_client->sendBinaryMessage(data);
     return 0;
 }
+
+int MsgHandler::rewriteFileRequest(const QString &netFolderPath, const QString &filepath, const QString &id) {
+    //    (const QString &filepath, const QString &id, const QString &netFolderPath, const QString &fname){
+    qDebug() << "MsgHandler::addFileRequest" << filepath << " " << id << "  " << netFolderPath;
+    pict_data::ClientEnvelope cenv;
+    pict_data::RewriteFileRequest message;
+
+    QFile *file = new QFile(filepath);
+    if (!file->open(QIODevice::ReadOnly)) {
+        qDebug() << "Could not open file:" << filepath;
+        delete file;
+        return -1; // Ошибка открытия файла
+    }
+    //    else qDebug() << "Open file: " << path;
+    QByteArray fileData = file->readAll();
+
+    QFileInfo fileInfo(filepath);
+    QString fileName = fileInfo.fileName();
+    QString completeSuffix = fileInfo.completeSuffix();
+
+    /*--------------------*/
+    QUrl netUrl(netFolderPath);
+    QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    if (path.startsWith('/')) {
+        path.remove(0, 1);
+    }
+
+    QStringList parts = path.split('/');
+    QString bucket = parts.takeFirst();
+    qsizetype bucketIdx = path.indexOf(bucket);
+    QString folder = "";
+    if (bucketIdx != -1) {
+        qsizetype startPos = bucketIdx + bucket.length();
+        qsizetype endPos = path.lastIndexOf('/');
+        if (endPos > startPos) {
+            if (path.at(startPos) == '/') {
+                startPos++;
+            }
+            qsizetype length = endPos - startPos;
+            folder = path.sliced(startPos, length);
+        }
+    }
+    qDebug() << "bucket: " << bucket << " folder " << folder;
+
+    message.setFileName(fileName);
+    //    message.setUserLogin("Ivon");
+    //    message.setBucketName(bucket);
+    message.setFolder(folder);
+    message.setMongoId(id);
+
+    cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
+    cenv.setRewriteFileRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = cenv.serialize(&serializer);
+    /*qint64 sz =*/ m_client->sendBinaryMessage(data);
+    return 0;
+}

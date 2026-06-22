@@ -405,7 +405,7 @@ Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf,
         qDebug() << "!m_parentItem.isMinio && m_parentItem.isDirectory";
         QStringList paths;
         QStringList ids;
-        QStringList paths2;
+        // QStringList paths2;
         for(const QVariant &v : lf){
             QVariantMap item = v.toMap();
             //  qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();
@@ -414,7 +414,7 @@ Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf,
                 ids.append(item["mongoId"].toString());
             }
             else if(!item["isNetwork"].toBool() && !item["isDir"].toBool()){  // from local to local
-                paths2.append(item["path"].toString());
+                copyFileWithUniqueName(item["path"].toString(), m_parentItem.cleanPath);
             }
         }
         msghandler->getFilesRequest(paths, ids, m_parentItem.path);
@@ -429,7 +429,8 @@ Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf,
             if(!item["isNetwork"].toBool() && !item["isDir"].toBool()) // from local to network
                 msghandler->addFileRequest(m_parentItem.path, item["path"].toString(), item["mongoId"].toString());
             else if(item["isNetwork"].toBool() && !item["isDir"].toBool()) {// from network to network
-                paths.append(item["path"].toString());
+                msghandler->rewriteFileRequest(m_parentItem.path, item["path"].toString(), item["mongoId"].toString());
+                //  paths.append(item["path"].toString());
             }
         }
         return 0;
@@ -443,7 +444,8 @@ Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf,
             if(!item["isNetwork"].toBool() && !item["isDir"].toBool()) // from local to network
                 msghandler->addFileRequest(m_parentItem.path, item["path"].toString(), item["mongoId"].toString());
             else if(item["isNetwork"].toBool() && !item["isDir"].toBool()) {// from network to network
-                paths.append(item["path"].toString());
+                msghandler->rewriteFileRequest(m_parentItem.path, item["path"].toString(), item["mongoId"].toString());
+                //  paths.append(item["path"].toString());
             }
         }
         return 0;

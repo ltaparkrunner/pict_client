@@ -28,6 +28,12 @@ message AddFolderRequest{
   string info = 3;
 }
 
+message RewriteFileRequest {
+  string fileName = 1;
+  string folder = 2;
+  string mongoId = 3;
+}
+
 message ServerResponse{ // to AddFileRequest
   string content = 1;
   string status = 2;
@@ -168,7 +174,7 @@ message ClientEnvelope {
     CLIENT_MESSAGE = 2;
   }
   Type type = 1;
-  string token = 14;
+  string token = 15;
   oneof content {
     AddFileRequest addFile = 2;
     AddFolderRequest addFolder = 3;
@@ -183,6 +189,7 @@ message ClientEnvelope {
     DeleteBucketRequest deleteBucket = 11;
     RegisterRequest regRequest = 12;
     AuthRequest authRequest = 13;
+    RewriteFileRequest rewriteFileRequest = 14;
   }
 }
 

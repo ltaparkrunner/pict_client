@@ -25,6 +25,7 @@ public:
 
     // int deleteMinioBucketsRequest(const QStringList &buckets);
     int deleteFileFromServerRequest(const QStringList &fileData);
+    int rewriteFileRequest(const QString &folderPath, const QString &filePath, const QString &id);
 
 signals:
     //  void startWebSocket(QString token);
