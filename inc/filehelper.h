@@ -7,6 +7,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include "websocketclient.h"
+#include "auxilary.h"
 #include "globals.h"
 
 class FileHelper : public QObject {

@@ -90,14 +90,15 @@ Q_INVOKABLE QVariantMap FileHelper::extCheckPathType(const QString &path) {
         } // Только имя бакета
         //qDebug() << "after minio check 4";
         if (parts.count() > 1 && path.endsWith('/')) {
-            result["path"] = netPath;
+            result["path"] = extCleanNetworkFilePath(netPath);
+            qDebug() << "MinioFolder result[path]" << result["path"];
             result["type"] = MinioFolder;
             return result;
         }    // Бакет + путь к объекту
-        result["path"] = netPath;
+        result["path"] = extCleanNetworkFilePath(netPath);
         result["type"] = MinioFile;
+        qDebug() << "MinioFile result[path]" << result["path"];
         return result;
-        //qDebug() << "after minio check 5";
     }
     QUrl url(path);
 

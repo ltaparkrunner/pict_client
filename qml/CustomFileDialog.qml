@@ -209,12 +209,20 @@ Window {
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
                     console.log("currentNetworkPath 1: ", currentNetworkPath);
-                    let type = FileHelper.checkPathType(currentNetworkPath);
+//                    let result = FileHelper.extCheckPathType(tf.text);
+                    let result = FileHelper.extCheckPathType(currentNetworkPath);
+                    tf.text = result.path
+                    console.log(" result.path: ", result.path)
+                    let type = result.type
                     if (type === FileHelperType.MinioBucket) {
                         storageModel.setParent(currentNetworkPath, "mb")
                         console.log("before storageModel.getNetPath(",currentNetworkPath, ")")
                         storageModel.getNetPath(currentNetworkPath)
                     } else if(type === FileHelperType.MinioFolder) {
+                        storageModel.setParent(currentNetworkPath, "md")
+                        console.log("before storageModel.getNetPath(",currentNetworkPath, ")")
+                        storageModel.getNetPath(currentNetworkPath)                    
+                    } else if(type === FileHelperType.MinioFile) {
                         storageModel.setParent(currentNetworkPath, "md")
                         console.log("before storageModel.getNetPath(",currentNetworkPath, ")")
                         storageModel.getNetPath(currentNetworkPath)

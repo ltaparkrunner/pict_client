@@ -19,13 +19,12 @@ ApplicationWindow {
     minimumHeight: 300
     title: "Fixed Left, Flexible Right"
 
-    // property string currentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
-    // property string currentNetworkPath: "http://minio:9000/"
     property string parentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string parentNetworkPath: "http://minio:9000/"
-//     property int currentCustomDlgTb: 0  //  Main.StoreType.Local
+//    property string cleanNetworkPath: parentNetworkPath
+
     property int parentCustomDlgTb: 0  //  Main.StoreType.Local
-//    property string currentPath: tf.tfContent
+
     property var fileNames: [
         "../icons/cherry-blossom.png",
         "../icons/pink-cosmos.png",
@@ -37,6 +36,7 @@ ApplicationWindow {
         // Связываем свойство QSettings со свойством окна
         property alias parentLocalPath: rootWnd.parentLocalPath
         property alias parentNetworkPath: rootWnd.parentNetworkPath
+//        property alias parentNetworkPath: rootWnd.cleanNetworkPath
         property alias parentCustomDlgTb: rootWnd.parentCustomDlgTb
     }
 
@@ -50,14 +50,15 @@ ApplicationWindow {
 
     Connections{
         target: storageModel
-        function onOpenNetStoreDialog(sel, netPath) {
-            console.log("function onOpenNetStoreDialog(sel, netPath): ", sel, " ", netPath)
+        function onOpenNetStoreDialog(sel, netPath, cleanPath) {
+            console.log("function onOpenNetStoreDialog(sel, netPath, cleanPath): ", sel, " ", netPath, " ", cleanPath)
             if(sel === 100){
                 customDialog.currentTabIndex = 1;
                 //  customDialog.currentSelectedPath = netPath;
                 // customDialog.textFld = netPath TODO
                 // customDialog.currentNetworkPath = netPath
                 parentNetworkPath = netPath
+//                cleanNetworkPath = cleanPath
                 customDialog.show();
             }
             if(sel === 110){
@@ -172,6 +173,7 @@ ApplicationWindow {
             else {
                 parentCustomDlgTb = 1;
                 parentNetworkPath = networkPath;
+//                cleanNetworkPath = nwCleanPath
                 console.log("tf.tfContent = localPath 2")
                 tf.tfContent = nwCleanPath;
             }

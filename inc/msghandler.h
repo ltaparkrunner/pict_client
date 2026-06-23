@@ -7,6 +7,7 @@
 #include <QtProtobuf/QProtobufSerializer>
 //#include <QUrl>
 #include "websocketclient.h"
+#include "auxilary.h"
 
 
 class MsgHandler : public QObject {
@@ -34,7 +35,7 @@ signals:
     void resultSuccess(const QString &msg);
     void resultError(const QString &msg);
     void writeUrlsToLocal(const QVector<QUrl> &paths);
-    void pathInfoResp(const int, const QString &netPath);
+    void pathInfoResp(const int, const QString &netPath, const QString &cleanNetPath);
 public slots:
 
 private slots:

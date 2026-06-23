@@ -75,7 +75,7 @@ public:
 
 signals:
     void udsmToIm(QString, QString, bool, bool, QString);
-    void openNetStoreDialog(const int sel, const QString &netPath);
+    void openNetStoreDialog(const int sel, const QString &netPath, const QString &cleanPath);
 private:
     QVector<StorageItem> m_items;
     StorageItem m_parentItem;

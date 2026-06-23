@@ -59,18 +59,19 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         qDebug() << "pict_data::ServerEnvelope::ContentFields::PathInfResponse";
         const auto &response = data.pathInfResponse();
         QString res = response.result();
-        qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse info.url(): " << res;
+        QString netP = response.netPath();
+        qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse info.url(): " << res << " cleanPath: " << extCleanNetworkFilePath(netP) ;
         if(res == "file") {
             qDebug() << "fileTempPath" << response.netPath();
-            emit pathInfoResp('f',response.netPath());
+            emit pathInfoResp('f', netP, extCleanNetworkFilePath(netP));
         }
         else if (res == "folder") {
             qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse folder" << response.netPath();
-            emit pathInfoResp('d', response.netPath());
+            emit pathInfoResp('d', netP, extCleanNetworkFilePath(netP));
         }
         else if (res == "not exist") {
             qDebug() << "not_exist";
-            emit pathInfoResp('n', response.netPath());
+            emit pathInfoResp('n',  netP, extCleanNetworkFilePath(netP));
         }
 
     }
