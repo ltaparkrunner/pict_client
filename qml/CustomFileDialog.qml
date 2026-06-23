@@ -211,7 +211,7 @@ Window {
                     console.log("currentNetworkPath 1: ", currentNetworkPath);
 //                    let result = FileHelper.extCheckPathType(tf.text);
                     let result = FileHelper.extCheckPathType(currentNetworkPath);
-                    tf.text = result.path
+                    // tf.text = result.path
                     console.log(" result.path: ", result.path)
                     let type = result.type
                     if (type === FileHelperType.MinioBucket) {

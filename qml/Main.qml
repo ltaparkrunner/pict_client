@@ -21,7 +21,7 @@ ApplicationWindow {
 
     property string parentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string parentNetworkPath: "http://minio:9000/"
-//    property string cleanNetworkPath: parentNetworkPath
+    property string cleanNetworkPath: parentNetworkPath
 
     property int parentCustomDlgTb: 0  //  Main.StoreType.Local
 
@@ -35,8 +35,8 @@ ApplicationWindow {
         category: "General"
         // Связываем свойство QSettings со свойством окна
         property alias parentLocalPath: rootWnd.parentLocalPath
-        property alias parentNetworkPath: rootWnd.parentNetworkPath
-//        property alias parentNetworkPath: rootWnd.cleanNetworkPath
+//        property alias parentNetworkPath: rootWnd.parentNetworkPath
+        property alias parentNetworkPath: rootWnd.cleanNetworkPath
         property alias parentCustomDlgTb: rootWnd.parentCustomDlgTb
     }
 
@@ -58,7 +58,7 @@ ApplicationWindow {
                 // customDialog.textFld = netPath TODO
                 // customDialog.currentNetworkPath = netPath
                 parentNetworkPath = netPath
-//                cleanNetworkPath = cleanPath
+                cleanNetworkPath = cleanPath
                 customDialog.show();
             }
             if(sel === 110){
@@ -164,6 +164,7 @@ ApplicationWindow {
         }
 
         onSetParentPaths:(tbIndx, localPath, networkPath, nwCleanPath) => {
+            console.log("tbIndx: ", tbIndx, " networkPath: ", networkPath, " nwCleanPath: ", nwCleanPath)
             if(tbIndx === 0) {
                 parentCustomDlgTb = 0;
                 parentLocalPath = localPath;
@@ -173,9 +174,9 @@ ApplicationWindow {
             else {
                 parentCustomDlgTb = 1;
                 parentNetworkPath = networkPath;
-//                cleanNetworkPath = nwCleanPath
-                console.log("tf.tfContent = localPath 2")
-                tf.tfContent = nwCleanPath;
+                cleanNetworkPath = nwCleanPath
+                console.log("tf.tfContent = cleanNetworkPath")
+                tf.tfContent = cleanNetworkPath;
             }
         }
     }
@@ -262,6 +263,10 @@ ApplicationWindow {
                         } else {
                             console.log("Finished editing, but no changes were made.")
                         }
+                    }
+                    onTextChanged: {
+                        console.log("Текст изменился:", tf.text)
+                        // Здесь можно вызвать вашу C++ функцию обработки пути
                     }
                 }
                 AbstractButton {
@@ -747,7 +752,7 @@ ApplicationWindow {
 //        if(tf.text && tf.text.trim().length > 0)
         {
             let result = FileHelper.extCheckPathType(tf.text);
-            tf.text = result.path
+            tf.tfContent = result.path
             let type = result.type
             if (type === FileHelperType.LocalFile) {
                 imageModel.addImagePath(tf.text)
@@ -781,6 +786,7 @@ ApplicationWindow {
 //        console.log("currentLocalPath", currentLocalPath)currentNetworkPath
         if(parentCustomDlgTb !== 0 && parentNetworkPath !== "") tf.tfContent = parentNetworkPath;
         else if((parentCustomDlgTb === 0 || parentNetworkPath === "") && parentLocalPath !== "") {
+            console.log("Component.onCompleted: tf.tfContent = parentLocalPath")
             tf.tfContent = parentLocalPath; parentCustomDlgTb = 0;
         }
         else {
