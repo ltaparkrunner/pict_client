@@ -21,7 +21,7 @@ ApplicationWindow {
 
     property string parentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string parentNetworkPath: "http://minio:9000/"
-    property string cleanNetworkPath: parentNetworkPath
+//    property string cleanNetworkPath: parentNetworkPath
 
     property int parentCustomDlgTb: 0  //  Main.StoreType.Local
 
@@ -35,8 +35,8 @@ ApplicationWindow {
         category: "General"
         // Связываем свойство QSettings со свойством окна
         property alias parentLocalPath: rootWnd.parentLocalPath
-//        property alias parentNetworkPath: rootWnd.parentNetworkPath
-        property alias parentNetworkPath: rootWnd.cleanNetworkPath
+        property alias parentNetworkPath: rootWnd.parentNetworkPath
+//        property alias parentNetworkPath: rootWnd.cleanNetworkPath
         property alias parentCustomDlgTb: rootWnd.parentCustomDlgTb
     }
 
@@ -783,7 +783,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted:{
-//        console.log("currentLocalPath", currentLocalPath)currentNetworkPath
+        console.log("parentLocalPath", parentLocalPath,  "parentNetworkPath", parentNetworkPath)
         if(parentCustomDlgTb !== 0 && parentNetworkPath !== "") tf.tfContent = parentNetworkPath;
         else if((parentCustomDlgTb === 0 || parentNetworkPath === "") && parentLocalPath !== "") {
             console.log("Component.onCompleted: tf.tfContent = parentLocalPath")
@@ -791,6 +791,7 @@ ApplicationWindow {
         }
         else {
             parentLocalPath = Qt.platform.os === "windows" ? "C:/Users" : "/home";
+            parentNetworkPath = "https://minio::9000"
             parentCustomDlgTb = 0;
         }
     }

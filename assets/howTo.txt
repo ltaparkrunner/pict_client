@@ -15,8 +15,18 @@ they both are in client 100 percent.. ../ folder in new virtual folder
 
 по 7 пункту:
 
+1. Комментарии и сообщения убрать
+2. Кнопка
+3. Строка при загрузке
+4. не закрывать диалог
+5. переписывание между двумя сетевыми папками(файлами), или двумя дисковыми
+6. Удаление по другому
+
+
+
 int UnifiedStorageModel::writeImagesToFolder 2
-"http://minio:9000/images/USERS/6a35a61f63bac44237061f82/folder2/e6b8ea97-ae60-4988-92bd-441a7962d173.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=admin%2F20260621%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260621T115413Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3b7976e4612cb5b3a0a3f7090fefd113c975e36b87fa41828e05ef911bb5ccd9"    "6a37d0b111ed9bb4b80aa044"  target folder:  "http://minio:9000/images/folder3/"
+"http://minio:9000/images/USERS/6a35a61f63bac442370
+61f82/folder2/e6b8ea97-ae60-4988-92bd-441a7962d173.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=admin%2F20260621%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260621T115413Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3b7976e4612cb5b3a0a3f7090fefd113c975e36b87fa41828e05ef911bb5ccd9"    "6a37d0b111ed9bb4b80aa044"  target folder:  "http://minio:9000/images/folder3/"
 MsgHandler::addFileRequest "http://minio:9000/images/USERS/6a35a61f63bac44237061f82/folder2/e6b8ea97-ae60-4988-92bd-441a7962d173.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=admin%2F20260621%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260621T115413Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3b7976e4612cb5b3a0a3f7090fefd113c975e36b87fa41828e05ef911bb5ccd9"   "6a37d0b111ed9bb4b80aa044"    "http://minio:9000/images/folder3/"
 Could not open file: "http://minio:9000/images/USERS/6a35a61f63bac44237061f82/folder2/e6b8ea97-ae60-4988-92bd-441a7962d173.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=admin%2F20260621%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260621T115413Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3b7976e4612cb5b3a0a3f7090fefd113c975e36b87fa41828e05ef911bb5ccd9"
 "http://minio:9000/images/USERS/6a35a61f63bac44237061f82/folder2/de705e60-29ae-48c3-865a-25d752120743.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=admin%2F20260621%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260621T115413Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3c6dcde21357a7b40a31987d75d7592a1b05b45887740848198e2657640e519a"    "6a37d0b111ed9bb4b80aa045"  target folder:  "http://minio:9000/images/folder3/"
