@@ -28,7 +28,9 @@ public:
         ImageNameRole = Qt::UserRole + 16, ImagePathRole, ImageCleanPathRole, ImageIsNetworkRole, ImageIsDirRole, ImageMongoIdRole
     };
 
-    explicit ImageModel(WebSocketClient *wsc, QObject *parent = nullptr) : QAbstractListModel(parent), wsclient (wsc) {}
+    explicit ImageModel(WebSocketClient *wsc, QObject *parent = nullptr) : QAbstractListModel(parent), wsclient (wsc) {
+        connect(wsclient, &WebSocketClient::filesReceived, this, &ImageModel::minioPathsToQML);
+    }
 
     // 1. Return number of items
     int rowCount(const QModelIndex &parent = QModelIndex()) const override {
@@ -143,7 +145,6 @@ public:
 
     Q_INVOKABLE QStringList addImagesFromMinioBucket(const QString &path) {
         QString fileName = QUrl(path).fileName();
-        connect(wsclient, &WebSocketClient::filesReceived, this, &ImageModel::minioPathsToQML);
         wsclient->getFilesOnlyListfromBucketRequest(fileName/*, imodel*/);
         return {};
     }
@@ -155,7 +156,7 @@ public:
             QString pathForQml = url.toString();
             beginInsertRows(QModelIndex(), m_imageItems.count(),m_imageItems.count());
             qDebug() << "QString minioPathsToQML(const QList<QStringList> &files) cleanNetworkFilePath" << cleanNetworkFilePath(pathForQml);
-            m_imageItems.append({image.at(0), pathForQml, cleanNetworkFilePath(pathForQml), true, false, image.at(3)});
+            m_imageItems.append({image.at(0), pathForQml, extCleanNetworkFilePath(pathForQml), true, false, image.at(3)});
             endInsertRows(); // This triggers the QML view update
         }
         if(!files.isEmpty()) {

@@ -10,6 +10,9 @@ they both are in client 100 percent.. ../ folder in new virtual folder
 7. переписывание между двумя сетевыми папками(файлами), или двумя дисковыми
 8. разные tokenы
 
+1. переделать addresses lines
+2. it looks like it does not check if token is expired
+
 по 7 пункту:
 
 int UnifiedStorageModel::writeImagesToFolder 2

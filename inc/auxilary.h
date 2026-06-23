@@ -10,6 +10,7 @@
 #include <QDebug>
 
 QString cleanNetworkFilePath(QString networkFilePath);
+QString extCleanNetworkFilePath(QString networkFilePath);
 QString cleanLocalFilePath(QString localFilePath);
 QString cleanFilePath(QString filePath, bool isNetwork);
 

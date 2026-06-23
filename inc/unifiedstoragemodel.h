@@ -6,6 +6,7 @@
 #include <QObject>
 #include "websocketclient.h"
 #include "msghandler.h"
+#include "globals.h"
 
 // enum PathType {
 //     Unknown,
@@ -82,6 +83,8 @@ private:
     MsgHandler *msghandler;
     const QStringList allowedExtensions = {"jpg", "jpeg", "png", "bmp", "gif"};
     QString prefix = "http://minio:9000/";
+    const QStringList netPrefixes = Config::netPrefixes();
+    QString workPath;
 };
 
 #endif // UNifIEDSTORAGEMODEL_H

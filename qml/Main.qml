@@ -161,21 +161,7 @@ ApplicationWindow {
                 storageModel.deleteIndices(indices)
             }
         }
-        // onSetRootWndTexts: (ls) => {
-        //     if(ls.DlgTb === "Local") {
-        //         parentCustomDlgTb = 0;
-        //         //  currentPath = ls.currPath;
-        //         //  console.log("currentPath: ", currentPath, " tf.tfContent: ", tf.tfContent)
-        //         parentLocalPath = ls.currPath;
-        //     }
-        //     else {
-        //         parentCustomDlgTb = 1;
-        //         //  currentPath = ls.currPath;
-        //         parentNetworkPath = ls.currPath;
-        //     }
-        //     tf.tfContent = ls.currPath;
-        //     console.log("ls.currPath: ", ls.currPath, " tf.tfContent: ", tf.tfContent)
-        // }
+
         onSetParentPaths:(tbIndx, localPath, networkPath, nwCleanPath) => {
             if(tbIndx === 0) {
                 parentCustomDlgTb = 0;
@@ -753,41 +739,19 @@ ApplicationWindow {
             }
         }
     }
-    // function processDeletePath(currentSelectedPath) {
-    //     if(path) {
-    //         let type = FileHelper.checkPathType(path);
-    //         if (type === FileHelperType.LocalFile) {
-    //             imageGrid.model.addImagePath(path)
-    //             mainImageSource = imageGrid.model.resolvePath(path)
-    //         } else if (type === FileHelperType.LocalFolder) {
-    //             mainImageSource = imageGrid.model.addFilesFromFolder(path)
-    //         } else if (type === FileHelperType.MinioBucket) {
-    //             mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
-    //         } else if (type === FileHelperType.MinioFile) {
-    //             console.log("Это объект (файл) в MinIO", path);
-    //             mainImageSource = imageGrid.model.addMinioImagePath(path)
-    //         } else {
-    //             console.log("Путь не распознан или не существует");
-    //         }
-    //     }
-    // }
+
     function processTFPath(){
-        // customDialog.textFld = tf.text
         wsClient.connectToServer()
-        //customDialog.currentTabIndex = parentCustomDlgTb
-        if(tf.text && tf.text.trim().length > 0) {
-            let type = FileHelper.checkPathType(tf.text);
+//        if(tf.text && tf.text.trim().length > 0)
+        {
+            let result = FileHelper.extCheckPathType(tf.text);
+            tf.text = result.path
+            let type = result.type
             if (type === FileHelperType.LocalFile) {
-                //  console.log("Это локальный файл");
                 imageModel.addImagePath(tf.text)
             } else if (type === FileHelperType.LocalFolder) {
-                //  console.log("Это локальная папка");
                 storageModel.enterLocal(tf.text)
                 parentCustomDlgTb = 0;
-                // customDialog.
-                // customDialog.currentTabIndex = 0;
-                // customDialog.textFld = tf.text;
-                //customDialog.currentLocalPath = tf.text
                 parentLocalPath = tf.text;
                 customDialog.show();
             } else if (type === FileHelperType.MinioBucket) {
@@ -799,7 +763,6 @@ ApplicationWindow {
                 storageModel.getNetPath(tf.text)
             } else if(type === FileHelperType.MinioFolder) {
                 parentCustomDlgTb = 1;
-                //customDialog.currentTabIndex = 1;
                 storageModel.setParent(tf.text, "md")
                 storageModel.getNetPath(tf.text)
             } else if (type === FileHelperType.MinioFile) {

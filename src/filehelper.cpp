@@ -41,9 +41,9 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
         qDebug() << "localPath" << localPath << " is " << info.exists()
                  << " is local file " << info.isFile() << " is local folder" << info.isDir();
         if (!info.exists()) return Unknown;
-//        qDebug() << "if (!info.exists()) return Unknown;";
+        //        qDebug() << "if (!info.exists()) return Unknown;";
         if (info.isDir()) return LocalFolder;
-//        qDebug() << "if (if (info.isDir()) return LocalFolder;";
+        //        qDebug() << "if (if (info.isDir()) return LocalFolder;";
         if (info.isFile()) return LocalFile;
     }
     qDebug() << "Is not local.";
@@ -62,6 +62,98 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
         //qDebug() << "after minio check 5";
     }
     return Unknown;
+}
+
+Q_INVOKABLE QVariantMap FileHelper::extCheckPathType(const QString &path) {
+// Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
+    QString netPath;
+    QVariantMap result;
+    if (path.isEmpty()) {
+        result["path"] = QDir::homePath();
+        result["type"] = LocalFolder;
+        return result;
+    }
+    if(path.startsWith(netPrefixes[0]) || path.startsWith(netPrefixes[1]) || path.startsWith(netPrefixes[2])){
+        netPath = path;
+        qDebug() << "Is not local.";
+        if(netPath.startsWith(netPrefixes[2])) netPath.replace(0, 4, netPrefixes[0]);
+        QUrl url(netPath);
+        QString pathStr = url.path();
+        qDebug() << "pathStr: " << pathStr;
+        if (pathStr.startsWith("/")) pathStr = pathStr.mid(1); // убираем первый слеш
+        QStringList parts = pathStr.split('/', Qt::SkipEmptyParts);
+        qDebug() << "pathStr: " << pathStr <<"  parts: " << parts.count();
+        if (parts.count() <= 1) {
+            result["path"] = netPath;
+            result["type"] = MinioBucket;
+            return result;
+        } // Только имя бакета
+        //qDebug() << "after minio check 4";
+        if (parts.count() > 1 && path.endsWith('/')) {
+            result["path"] = netPath;
+            result["type"] = MinioFolder;
+            return result;
+        }    // Бакет + путь к объекту
+        result["path"] = netPath;
+        result["type"] = MinioFile;
+        return result;
+        //qDebug() << "after minio check 5";
+    }
+    QUrl url(path);
+
+    // 1. Проверка локальной файловой системы
+    if (url.isLocalFile() || path.startsWith("/") || (path.size() > 1 && path[1] == ':')) {
+        QString localPath = url.isLocalFile() ? url.toLocalFile() : path;
+        QFileInfo info(localPath);
+
+        qDebug() << "localPath" << localPath << " is " << info.exists()
+                 << " is local file " << info.isFile() << " is local folder" << info.isDir();
+        if (!info.exists()) {
+            result["path"] = QDir::homePath();
+            result["type"] = LocalFolder;
+            return result;
+        }
+//        qDebug() << "if (!info.exists()) return Unknown;";
+        if (info.isDir()) {
+            result["path"] = path;
+            result["type"] = LocalFolder;
+            return result;
+        }
+//        qDebug() << "if (if (info.isDir()) return LocalFolder;";
+        if (info.isFile()) {
+            result["path"] = path;
+            result["type"] = LocalFile;
+            return result;
+        }
+    }
+    // qDebug() << "Is not local.";
+    // 2. Проверка MinIO (основана на структуре URL)
+    // Обычно формат: http://minio-server:9000/bucket-name/object-name
+    // if (url.scheme() == "http" || url.scheme() == "https") {
+    //     QString pathStr = url.path();
+    //     qDebug() << "pathStr: " << pathStr;
+    //     if (pathStr.startsWith("/")) pathStr = pathStr.mid(1); // убираем первый слеш
+    //     QStringList parts = pathStr.split('/', Qt::SkipEmptyParts);
+    //     qDebug() << "pathStr: " << pathStr <<"  parts: " << parts.count();
+    //     if (parts.count() <= 1) {
+    //         result["path"] = path;
+    //         result["type"] = MinioBucket;
+    //         return result;
+    //     } // Только имя бакета
+    //     //qDebug() << "after minio check 4";
+    //     if (parts.count() > 1 && path.endsWith('/')) {
+    //         result["path"] = path;
+    //         result["type"] = MinioFolder;
+    //         return result;
+    //     }    // Бакет + путь к объекту
+    //     result["path"] = path;
+    //     result["type"] = MinioFile;
+    //     return result;
+    //     //qDebug() << "after minio check 5";
+    // }
+    result["path"] = path;
+    result["type"] = LocalFile;
+    return result;
 }
 
 Q_INVOKABLE bool FileHelper::writeToFile(const QString &fileUrl, const QString &content) {

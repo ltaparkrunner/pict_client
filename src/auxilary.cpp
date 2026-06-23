@@ -1,10 +1,43 @@
 #include "auxilary.h"
+#include <QRegularExpression>
 
 QString cleanNetworkFilePath(QString networkFilePath){
     QUrl url(networkFilePath);
     url.setQuery(QUrlQuery());
     return url.toString();
 }
+
+QString extCleanNetworkFilePath(QString networkFilePath){
+    QUrl url(networkFilePath);
+    url.setQuery(QUrlQuery());
+
+    QStringList parts = url.toString().split('/' /*, Qt::SkipEmptyParts*/);
+
+    // Проверяем, что в пути есть как минимум 4 части
+    if (parts.size() >= 6) {
+        const QString& fourthPart = parts.at(5); // Индекс 3 — это 4-я часть
+
+        // Регулярное выражение: только hex-символы, длина от 24 и более (> 23)
+        static QRegularExpression hexRegex("^[0-9a-fA-F]{24,}$");
+
+        if (hexRegex.match(fourthPart).hasMatch()) {
+            // Удаляем 4-ю часть (индекс 3) и 3-ю часть (индекс 2)
+            // Удаляем дважды индекс 2, так как после первого удаления элементы сдвигаются
+            parts.removeAt(4);
+            parts.removeAt(4);
+        }
+    }
+
+    // Собираем оставшиеся части обратно
+    // Добавляем начальный слэш, если исходный путь был абсолютным (начинался с '/')
+    QString newPath = parts.join("/");
+    if (networkFilePath.startsWith('/')) {
+        newPath = "/" + newPath;
+    }
+    qDebug() << "extCleanNetworkFilePath: " << newPath;
+    return newPath;
+}
+
 QString cleanLocalFilePath(QString localFilePath){
     if (localFilePath.startsWith("file:///")) {
         return QUrl(localFilePath).toLocalFile();

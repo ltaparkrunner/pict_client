@@ -6,6 +6,8 @@ UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHn
     : QAbstractListModel{parent}
     , wsclient (wsc)
     , msghandler (svrHndlr)
+//    , workPath("https://minio:9000")
+    , workPath (netPrefixes[0])
 {
     connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
     connect(wsclient, &WebSocketClient::errReceived, this, [=](){
@@ -77,14 +79,6 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
         qDebug() << "path for ..  " << "http://minio:9000/";
     }
     else {
-        // if (m_parentItem.path.endsWith('/')) {
-        //     // Ищем второй слэш с конца, начиная поиск перед последним символом
-        //     int prevSlashIdx = m_parentItem.path.lastIndexOf('/', -2);
-
-        //     if (prevSlashIdx != -1) {
-        //         m_parentItem.path.truncate(prevSlashIdx + 1); // Оставит '/' в конце
-        //     }
-        // }
         int prevSlashIdx = m_parentItem.path.lastIndexOf('/', -2);
         if (prevSlashIdx != -1) {
             m_items.append({"..", m_parentItem.path.left(prevSlashIdx + 1), m_parentItem.path.left(prevSlashIdx + 1), true, true, false, false});
@@ -95,7 +89,7 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths) {
         }
     }
     for (const QStringList& image : paths) {
-        if(image[2] != "folder") m_items.append({image[0], image[1],  cleanNetworkFilePath(image[1]), false, true, false, false, image[3]});
+        if(image[2] != "folder") m_items.append({image[0], image[1],  extCleanNetworkFilePath(image[1]), false, true, false, false, image[3]});
         else m_items.append({image[0], image[1],  image[1], true, true, false, false, image[3]});
     }
     endResetModel();
@@ -536,9 +530,13 @@ Q_INVOKABLE bool UnifiedStorageModel::getNetPath(const QString &path){
     // to check if the way is a local or network dir or file and if file(local or network (http://minio:9000/))
     // then open in main window, if dir then open in customFileDialog
     // QString prefix = "http://minio:9000/";
-    qDebug() << "UnifiedStorageModel::getNetPath prefix: " << prefix << "  path: " << path;
-    if(path.startsWith(prefix)) {
-        msghandler -> getNetStore(path);
+    qDebug() << "UnifiedStorageModel::getNetPath netPrefixes[0]: " << netPrefixes[0] << " netPrefixes[1]: " << netPrefixes[1] << "  path: " << path;
+    workPath = path;
+    if (path.startsWith(netPrefixes[2], Qt::CaseInsensitive)) {
+        workPath.replace(0, 4, netPrefixes[0]);
+    }
+    if(path.startsWith(netPrefixes[0]) || path.startsWith(netPrefixes[1]) || path.startsWith(netPrefixes[2])) {
+        msghandler -> getNetStore(workPath);
         return true;
     }  // if exist and file, if exist and dir
     else return false;

@@ -50,6 +50,7 @@ qt_add_qml_module(${PROJECT_NAME}
         SOURCES inc/authhandler.h
         SOURCES src/authhandler.cpp
         QML_FILES qml/WarningDialog.qml
+        SOURCES inc/globals.h
 )
 
 qt_add_protobuf(PictSerializer

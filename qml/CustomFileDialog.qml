@@ -208,7 +208,7 @@ Window {
                 focus: true
                 focusPolicy:Qt.ClickFocus
                 onClicked: {
-                    console.log("currentNetworkPath: ", currentNetworkPath);
+                    console.log("currentNetworkPath 1: ", currentNetworkPath);
                     let type = FileHelper.checkPathType(currentNetworkPath);
                     if (type === FileHelperType.MinioBucket) {
                         storageModel.setParent(currentNetworkPath, "mb")
@@ -432,7 +432,7 @@ Window {
                         // parent.currentItem = 0
                     } else {
                         console.log("tabBar.currentIndex: ", tabBar.currentIndex, " currentLocalPath: ", currentLocalPath,
-                                " currentNetworkPath: ", currentNetworkPath);
+                                " currentNetworkPath 2: ", currentNetworkPath);
                         //customFileDlg.openPathsSelected([currentSelectedPath]);
                         customFileDlg.openIndicesSelected([index])
                         setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath, cleanNwPath)
@@ -460,13 +460,13 @@ Window {
 
                     if (model.isDir) {
                         console.log("SecondCustomFileDialog function acceptSelection(index) tabBar.currentIndex: ", tabBar.currentIndex,
-                        "currentNetworkPath: ", currentNetworkPath, "  before storageModel.enterFolder(index)")
+                        "currentNetworkPath 3: ", currentNetworkPath, "  before storageModel.enterFolder(index)")
                         storageModel.enterFolder(index)
                         GridView.view.currentIndex = 0;  // TODO:
                     } else {
                         //  console.log(currentSelectedPath);
                         console.log("SecondCustomFileDialog function acceptSelection(index) tabBar.currentIndex: ", tabBar.currentIndex,
-                        "currentNetworkPath: ", currentNetworkPath, " before customFileDlg.openIndexSelected(index)")
+                        "currentNetworkPath 4: ", currentNetworkPath, " before customFileDlg.openIndexSelected(index)")
                         customFileDlg.openIndexSelected(index)
 //                        rootWnd.currentCustomDlgTb = tabBar.currentIndex
                         customFileDlg.selectedIndices = []
@@ -514,7 +514,7 @@ Window {
                     // rootWnd.currentLocalPath = model.path // TODO:
                     console.log("gridView.model.path : ", gridView.model.path)
                     console.log("tabBar.currentIndex: ", tabBar.currentIndex, " currentLocalPath: ", currentLocalPath,
-                            " currentNetworkPath: ", currentNetworkPath);
+                            " currentNetworkPath 5: ", currentNetworkPath);
                     //  cleanNwPath = model.cleanPath
                     setParentPaths(tabBar.currentIndex, currentLocalPath, currentNetworkPath, currentNetworkPath)
                     customFileDlg.selectedIndices = []
