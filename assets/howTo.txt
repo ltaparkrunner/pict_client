@@ -21,7 +21,8 @@ they both are in client 100 percent.. ../ folder in new virtual folder
 4. не закрывать диалог
 5. переписывание между двумя сетевыми папками(файлами), или двумя дисковыми
 6. Удаление по другому
-
+7. local files and net files behave differently -- fix it.
+8. not understand if token expired
 
 
 int UnifiedStorageModel::writeImagesToFolder 2

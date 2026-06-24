@@ -66,6 +66,7 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
 
 Q_INVOKABLE QVariantMap FileHelper::extCheckPathType(const QString &path) {
 // Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
+    qDebug() << "FileHelper::extCheckPathType path:" << path;
     QString netPath;
     QVariantMap result;
     if (path.isEmpty()) {

@@ -21,7 +21,7 @@ ApplicationWindow {
 
     property string parentLocalPath: Qt.platform.os === "windows" ? "C:/Users" : "/home"
     property string parentNetworkPath: "http://minio:9000/"
-//    property string cleanNetworkPath: parentNetworkPath
+    property string cleanNetworkPath: parentNetworkPath
 
     property int parentCustomDlgTb: 0  //  Main.StoreType.Local
 
@@ -36,7 +36,7 @@ ApplicationWindow {
         // Связываем свойство QSettings со свойством окна
         property alias parentLocalPath: rootWnd.parentLocalPath
         property alias parentNetworkPath: rootWnd.parentNetworkPath
-//        property alias parentNetworkPath: rootWnd.cleanNetworkPath
+        property alias cleanNetworkPath: rootWnd.cleanNetworkPath
         property alias parentCustomDlgTb: rootWnd.parentCustomDlgTb
     }
 
@@ -175,8 +175,9 @@ ApplicationWindow {
                 parentCustomDlgTb = 1;
                 parentNetworkPath = networkPath;
                 cleanNetworkPath = nwCleanPath
-                console.log("tf.tfContent = cleanNetworkPath")
-                tf.tfContent = cleanNetworkPath;
+                // console.log("tf.tfContent = cleanNetworkPath")
+                // tf.tfContent = cleanNetworkPath;
+                tf.tfContent = nwCleanPath
             }
         }
     }
@@ -395,7 +396,8 @@ ApplicationWindow {
                     contentItem: Text {
                         text: fileButton.text
                         font: fileButton.font
-                        color: "#2c2c2c"        //fileButton.down ? "#ffffff" : (fileButton.hovered ? "#ffffff" : "#2c2c2c")//"#2c3e50")
+                        // color: "#2c2c2c"        //fileButton.down ? "#ffffff" : (fileButton.hovered ? "#ffffff" : "#2c2c2c")//"#2c3e50")
+                        color: fileButton.down ? "#ffffff" : (fileButton.hovered ? "#ffffff" : "#2c2c2c")
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideRight
@@ -410,8 +412,8 @@ ApplicationWindow {
 
                         // Плавная смена цвета фона в зависимости от состояния кнопки
                         color: {
-                            //if (fileButton.down) return "#98fb98"       //return "#1a5276"      // Цвет при клике (темно-синий)
-                            //if (fileButton.hovered) return "#98fb98"    //return "#2980b9"   // Цвет при наведении (акцентный синий)
+                            if (fileButton.down) return "#98fb98"       //return "#1a5276"      // Цвет при клике (темно-синий)
+                            if (fileButton.hovered) return "#98fb98"    //return "#2980b9"   // Цвет при наведении (акцентный синий)
                             return "#ddfbdd"    //return "#ebf5fb"                           // Цвет в покое (светло-голубой)
                         }
 
@@ -754,6 +756,7 @@ ApplicationWindow {
             let result = FileHelper.extCheckPathType(tf.text);
             tf.tfContent = result.path
             let type = result.type
+            console.log("cleanPath: ", result.path, "  type: ", type)
             if (type === FileHelperType.LocalFile) {
                 imageModel.addImagePath(tf.text)
             } else if (type === FileHelperType.LocalFolder) {
@@ -783,8 +786,9 @@ ApplicationWindow {
     }
 
     Component.onCompleted:{
-        console.log("parentLocalPath", parentLocalPath,  "parentNetworkPath", parentNetworkPath)
-        if(parentCustomDlgTb !== 0 && parentNetworkPath !== "") tf.tfContent = parentNetworkPath;
+        console.log("parentLocalPath", parentLocalPath,  "parentNetworkPath", parentNetworkPath, "cleanNetworkPath", cleanNetworkPath)
+//        if(parentCustomDlgTb !== 0 && parentNetworkPath !== "") tf.tfContent = parentNetworkPath;
+        if(parentCustomDlgTb !== 0 && parentNetworkPath !== "") { parentNetworkPath = cleanNetworkPath; tf.tfContent = parentNetworkPath; }
         else if((parentCustomDlgTb === 0 || parentNetworkPath === "") && parentLocalPath !== "") {
             console.log("Component.onCompleted: tf.tfContent = parentLocalPath")
             tf.tfContent = parentLocalPath; parentCustomDlgTb = 0;
