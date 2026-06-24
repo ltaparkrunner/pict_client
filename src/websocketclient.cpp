@@ -279,7 +279,7 @@ Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const Q
     // }
     QFile *file = new QFile(cleanPath);
     if (!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "Could not open file:" << cleanPath;
+        qDebug() << "Could not open file 3:" << cleanPath;
         delete file;
         return -1; // Ошибка открытия файла
     }

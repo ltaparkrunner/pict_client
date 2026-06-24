@@ -396,8 +396,7 @@ ApplicationWindow {
                     contentItem: Text {
                         text: fileButton.text
                         font: fileButton.font
-                        // color: "#2c2c2c"        //fileButton.down ? "#ffffff" : (fileButton.hovered ? "#ffffff" : "#2c2c2c")//"#2c3e50")
-                        color: fileButton.down ? "#ffffff" : (fileButton.hovered ? "#ffffff" : "#2c2c2c")
+                        color: "#2c2c2c"        //fileButton.down ? "#ffffff" : (fileButton.hovered ? "#ffffff" : "#2c2c2c")//"#2c3e50")
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         elide: Text.ElideRight
@@ -412,8 +411,8 @@ ApplicationWindow {
 
                         // Плавная смена цвета фона в зависимости от состояния кнопки
                         color: {
-                            if (fileButton.down) return "#98fb98"       //return "#1a5276"      // Цвет при клике (темно-синий)
-                            if (fileButton.hovered) return "#98fb98"    //return "#2980b9"   // Цвет при наведении (акцентный синий)
+                            if (fileButton.down) return "#cafbca" // "#aafbaa" "#bafbba" "#cafbca" "#98fb98"
+                            //if (fileButton.hovered) return "#98fb98"    //return "#2980b9"   // Цвет при наведении (акцентный синий)
                             return "#ddfbdd"    //return "#ebf5fb"                           // Цвет в покое (светло-голубой)
                         }
 

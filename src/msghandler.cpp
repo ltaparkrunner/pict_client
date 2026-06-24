@@ -98,7 +98,7 @@ int MsgHandler::addFileRequest(const QString &netFolderPath, const QString &file
 
     QFile *file = new QFile(filepath);
     if (!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "Could not open file:" << filepath;
+        qDebug() << "Could not open file 1:" << filepath;
         delete file;
         return -1; // Ошибка открытия файла
     }
@@ -296,7 +296,7 @@ int MsgHandler::rewriteFileRequest(const QString &netFolderPath, const QString &
 
     QFile *file = new QFile(filepath);
     if (!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "Could not open file:" << filepath;
+        qDebug() << "Could not open file 2:" << filepath;
         delete file;
         return -1; // Ошибка открытия файла
     }
