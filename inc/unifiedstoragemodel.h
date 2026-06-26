@@ -54,7 +54,7 @@ public:
     Q_INVOKABLE void enterMinioBucket(const QString &path);
     Q_INVOKABLE int openFolderImages(int indx);
     Q_INVOKABLE int enterFolder(int indx);
-    Q_INVOKABLE bool getNetPath(const QString &path);
+    Q_INVOKABLE bool getNetPath(const QString &path, int type);
     Q_INVOKABLE int deleteIndices(const QList<int> &indxs);
     //  Q_INVOKABLE int writeToFolder(const QStringList &ls);
     Q_INVOKABLE void minioPathsToQML(const QList<QStringList> &paths);

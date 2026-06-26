@@ -16,12 +16,13 @@ public:
     explicit MsgHandler(WebSocketClient *client, QObject *parent = nullptr);
 
     Q_INVOKABLE int getBucketsListRequest() const;
-    int addFileRequest(const QString &folder, const QString &path, const QString &id);
+    int addFileRequest(const QString &folder, const QString &path, const QString &mId);
     int getFilesFoldersListfromBucketRequest(const QString &path, const QString &name);
     int getFilesFoldersListfromBucketRequest2(const QString &path, const bool isDir);
     //  int getFileRequest(const QString &path, const QString &id, const QString &arrival);
     int getFilesRequest(const QStringList &path, const QStringList &id, const QString &arrival);
     int getNetStore(const QString &netPath);
+    int getFileNetStore(const QString &netPath);
     // int getFilesOnlyListfromBucketRequest(const QString &path);
 
     // int deleteMinioBucketsRequest(const QStringList &buckets);
@@ -36,6 +37,7 @@ signals:
     void resultError(const QString &msg);
     void writeUrlsToLocal(const QVector<QUrl> &paths);
     void pathInfoResp(const int, const QString &netPath, const QString &cleanNetPath);
+    void filePathResp(const QString &fileName, const QString &url, const QString &mId);
 public slots:
 
 private slots:

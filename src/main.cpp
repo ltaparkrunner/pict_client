@@ -23,8 +23,9 @@ int main(int argc, char *argv[])
     WebSocketClient wsClient(&authHandler, QUrl("wss://localhost:8082"));
 
     FileHelper fileHlp(&wsClient);
-    ImageModel imodel(&wsClient);
+
     MsgHandler msgHandler(&wsClient);
+    ImageModel imodel(&wsClient, &msgHandler);
     UnifiedStorageModel usModel(&wsClient, &msgHandler);
 
     QQmlApplicationEngine engine;

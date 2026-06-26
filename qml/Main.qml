@@ -769,14 +769,15 @@ ApplicationWindow {
                 //customDialog.currentTabIndex = 1;
                 storageModel.setParent(tf.text, "mb")
                 console.log("Это бакет MinIO after setParent");
-                storageModel.getNetPath(tf.text)
+                storageModel.getNetPath(tf.text, 98)
             } else if(type === FileHelperType.MinioFolder) {
                 parentCustomDlgTb = 1;
                 storageModel.setParent(tf.text, "md")
-                storageModel.getNetPath(tf.text)
+                storageModel.getNetPath(tf.text, 100)
             } else if (type === FileHelperType.MinioFile) {
                 storageModel.setParent(tf.text, "mf")
-                storageModel.getNetPath(tf.text)
+                console.log("storageModel.getNetFilePath: ", tf.text);
+                storageModel.getNetPath(tf.text, 102)
             } else {
                 warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;
                 warningDialog.open()

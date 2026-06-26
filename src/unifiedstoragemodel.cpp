@@ -530,7 +530,7 @@ int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
     return 0;
 }
 
-Q_INVOKABLE bool UnifiedStorageModel::getNetPath(const QString &path){
+Q_INVOKABLE bool UnifiedStorageModel::getNetPath(const QString &path, int type){
     // to check if the way is a local or network dir or file and if file(local or network (http://minio:9000/))
     // then open in main window, if dir then open in customFileDialog
     // QString prefix = "http://minio:9000/";
@@ -539,8 +539,9 @@ Q_INVOKABLE bool UnifiedStorageModel::getNetPath(const QString &path){
     if (path.startsWith(netPrefixes[2], Qt::CaseInsensitive)) {
         workPath.replace(0, 4, netPrefixes[0]);
     }
-    if(path.startsWith(netPrefixes[0]) || path.startsWith(netPrefixes[1]) || path.startsWith(netPrefixes[2])) {
-        msghandler -> getNetStore(workPath);
+    if(path.startsWith(netPrefixes[0]) || path.startsWith(netPrefixes[1]) || path.startsWith(netPrefixes[2]) ) {
+        if(type != 'f') msghandler -> getNetStore(workPath);
+        else   msghandler -> getFileNetStore(workPath);
         return true;
     }  // if exist and file, if exist and dir
     else return false;

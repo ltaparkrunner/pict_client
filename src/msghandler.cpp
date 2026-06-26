@@ -55,6 +55,7 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         }
         emit writeUrlsToLocal(urls);
     }
+
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::PathInfResponse){
         qDebug() << "pict_data::ServerEnvelope::ContentFields::PathInfResponse";
         const auto &response = data.pathInfResponse();
@@ -74,6 +75,14 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
             emit pathInfoResp('n',  netP, extCleanNetworkFilePath(netP));
         }
 
+    }
+    else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::FilePathResponse){
+        qDebug() << "pict_data::ServerEnvelope::ContentFields::FilePathResponse";
+        const auto &response = data.filePathResponse();
+        QString fileName = response.fileName();
+        QString url = response.url();
+        QString mId = response.mongoId();
+        emit filePathResp(fileName, url, mId);
     }
 }
 
@@ -267,6 +276,7 @@ int MsgHandler::getNetStore(const QString &netPath){
     if (bucketIdx != -1) {
         qsizetype startPos = bucketIdx + bucket.length();
         qsizetype endPos = path.lastIndexOf('/');
+        //qsizetype endPos = path.length();
         if (endPos > startPos) {
             if (path.at(startPos) == '/') {
                 startPos++;
@@ -277,7 +287,7 @@ int MsgHandler::getNetStore(const QString &netPath){
     }
     pict_data::ClientEnvelope cenv;
     pict_data::PathInfoRequest message;
-
+    qDebug() << "MsgHandler::getNetStore netPath: " << netPath << " path: " << path << " fPath: " << fPath;
     message.setNetPath(fPath);
     cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
     cenv.setPathInfRequest(message);
@@ -288,6 +298,42 @@ int MsgHandler::getNetStore(const QString &netPath){
     return 0;
 }
 
+int MsgHandler::getFileNetStore(const QString &netPath){
+    QUrl netUrl(netPath);
+    QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    if (path.startsWith('/')) {
+        path.remove(0, 1);
+    }
+
+    QStringList parts = path.split('/');
+    QString bucket = parts.takeFirst();
+    qsizetype bucketIdx = path.indexOf(bucket);
+    QString fPath = "";
+    if (bucketIdx != -1) {
+        qsizetype startPos = bucketIdx + bucket.length();
+        //qsizetype endPos = path.lastIndexOf('/');
+        qsizetype endPos = path.length();
+        if (endPos > startPos) {
+            if (path.at(startPos) == '/') {
+                startPos++;
+            }
+            qsizetype length = endPos - startPos;
+            fPath = path.sliced(startPos, length);
+        }
+    }
+    pict_data::ClientEnvelope cenv;
+    pict_data::FilePathRequest message;
+
+    qDebug() << "MsgHandler::getNetStore netPath: " << netPath << " path: " << path << " fPath: " << fPath;
+    message.setNetPath(fPath);
+    cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
+    cenv.setFilePathRequest(message);
+    QProtobufSerializer serializer;
+    QByteArray data = cenv.serialize(&serializer);
+    qDebug() << "Before m_client->sendBinaryMessage(data)";
+    /*qint64 sz = */ m_client->sendBinaryMessage(data);
+    return 0;
+}
 int MsgHandler::rewriteFileRequest(const QString &netFolderPath, const QString &filepath, const QString &id) {
     //    (const QString &filepath, const QString &id, const QString &netFolderPath, const QString &fname){
     qDebug() << "MsgHandler::addFileRequest" << filepath << " " << id << "  " << netFolderPath;

@@ -68,9 +68,21 @@ message PathInfoRequest {
 }
 
 message PathInfoResponse {
+    string fileName = 1;
+    string netPath = 2;
+    string netStorePath = 3;
+    string result = 4;
+}
+
+message FilePathRequest {
     string netPath = 1;
-    string netStorePath = 2;
-    string result = 3;
+}
+
+message FilePathResponse {
+    string fileName = 1;
+    string mongoId = 2;
+    string url = 3;
+    int64 size = 4;
 }
 
 message FileInfo {
@@ -174,7 +186,7 @@ message ClientEnvelope {
     CLIENT_MESSAGE = 2;
   }
   Type type = 1;
-  string token = 15;
+  string token = 16;
   oneof content {
     AddFileRequest addFile = 2;
     AddFolderRequest addFolder = 3;
@@ -190,6 +202,7 @@ message ClientEnvelope {
     RegisterRequest regRequest = 12;
     AuthRequest authRequest = 13;
     RewriteFileRequest rewriteFileRequest = 14;
+    FilePathRequest filePathRequest = 15;
   }
 }
 
@@ -212,5 +225,6 @@ message ServerEnvelope {
     AuthResponse authResponse = 9;
     FilesOnlyListResponse filesIdsResponse = 10;
     PathInfoResponse pathInfResponse = 11;
+    FilePathResponse FilePathResponse = 12;
   }
 }

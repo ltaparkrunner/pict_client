@@ -10,6 +10,7 @@
 #include <QClipboard>
 
 #include "websocketclient.h"
+#include "msghandler.h"
 #include "auxilary.h"
 
 struct ImageItem {
@@ -28,7 +29,12 @@ public:
         ImageNameRole = Qt::UserRole + 16, ImagePathRole, ImageCleanPathRole, ImageIsNetworkRole, ImageIsDirRole, ImageMongoIdRole
     };
 
-    explicit ImageModel(WebSocketClient *wsc, QObject *parent = nullptr) : QAbstractListModel(parent), wsclient (wsc) {
+    explicit ImageModel(WebSocketClient *wsc, MsgHandler *msgh, QObject *parent = nullptr) :
+        QAbstractListModel(parent)
+        , wsclient (wsc)
+        , msghandler (msgh)
+    {
+        connect(msghandler, &MsgHandler::filePathResp, this, &ImageModel:: minioImgToQML);
         connect(wsclient, &WebSocketClient::filesReceived, this, &ImageModel::minioPathsToQML);
     }
 
@@ -159,6 +165,17 @@ public:
         return {};
     }
 
+    Q_INVOKABLE void minioImgToQML(const QString &fileName, const QString &fileNetPath, const QString &mId){
+        QUrl url = QUrl::fromUserInput(fileNetPath);
+        QString pathForQml = url.toString();
+        beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
+        qDebug() << "QString minioPathsToQML(const QList<QStringList> &files) extCleanNetworkFilePath" << extCleanNetworkFilePath(pathForQml);
+        m_imageItems.append({fileName, pathForQml, extCleanNetworkFilePath(pathForQml), true, false, mId});
+        endInsertRows();
+
+        minioImageToQML(pathForQml);
+    }
+
     Q_INVOKABLE QVariantMap get(int row) const {
         // Проверка границ, чтобы избежать падения
         qDebug() << "QVariantMap get(int row) const";
@@ -284,6 +301,7 @@ private:
 //    QStringList m_imagePaths;
     QVector<ImageItem> m_imageItems;
     WebSocketClient *wsclient;
+    MsgHandler *msghandler;
 };
 
 #endif // LISTSTRINGMODEL_H

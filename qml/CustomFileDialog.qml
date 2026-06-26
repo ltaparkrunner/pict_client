@@ -217,15 +217,15 @@ Window {
                     if (type === FileHelperType.MinioBucket) {
                         storageModel.setParent(currentNetworkPath, "mb")
                         console.log("before storageModel.getNetPath(",currentNetworkPath, ")")
-                        storageModel.getNetPath(currentNetworkPath)
+                        storageModel.getNetPath(currentNetworkPath, 98)
                     } else if(type === FileHelperType.MinioFolder) {
                         storageModel.setParent(currentNetworkPath, "md")
                         console.log("before storageModel.getNetPath(",currentNetworkPath, ")")
-                        storageModel.getNetPath(currentNetworkPath)                    
+                        storageModel.getNetPath(currentNetworkPath, 100)
                     } else if(type === FileHelperType.MinioFile) {
                         storageModel.setParent(currentNetworkPath, "md")
                         console.log("before storageModel.getNetPath(",currentNetworkPath, ")")
-                        storageModel.getNetPath(currentNetworkPath)
+                        storageModel.getNetPath(currentNetworkPath, 100)
                     } else {
                         warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;
                         warningDialog.open()
