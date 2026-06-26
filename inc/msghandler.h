@@ -32,7 +32,7 @@ public:
 signals:
     //  void startWebSocket(QString token);
     void bucketsReceived(const QStringList &buckets);
-    void pathsReceived(const QList<QStringList> &paths);
+    void pathsReceived(const QList<QStringList> &paths, const QString &folderName);
     void resultSuccess(const QString &msg);
     void resultError(const QString &msg);
     void writeUrlsToLocal(const QVector<QUrl> &paths);

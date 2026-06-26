@@ -35,7 +35,8 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
             qDebug() << "fileName: " << info.fileName() << "  url: " << info.url() <<
                 "  mongoId: " << info.mongoId() << "  ";
         }
-        emit pathsReceived(sl);
+        //  QString path = response.folderName();
+        emit pathsReceived(sl, response.folderName());
     }
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ServerResp) {
         qDebug() << "pict_data::ServerEnvelope::ContentFields::ServerResp";
