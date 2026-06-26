@@ -67,30 +67,32 @@ void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
     endResetModel();
 }
 
-void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString folderPath) {
+void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString &folderPath) {
     beginResetModel();
     m_items.clear();    
     QUrl url(folderPath);
 
     QFileInfo info(url.toString());
     info.fileName();
-    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths): " << folderPath;
-    // bool bucket = false;
-    // if(folderPath == netPrefixes[0] || folderPath == netPrefixes[1] || folderPath == netPrefixes[2] ||
-    //     folderPath == netPrefixes[0]+"/" || folderPath == netPrefixes[1]+"/" || folderPath == netPrefixes[2]+"/")
-    //     bucket = true;
-    // m_parentItem = {info.fileName(), folderPath, extCleanNetworkFilePath(folderPath), true, true, bucket, true};
+    QString npath = extCleanNetworkFilePath(folderPath);
 
+    bool bucket = false;
+    if(folderPath == netPrefixes[0] || folderPath == netPrefixes[1] || folderPath == netPrefixes[2] ||
+        folderPath == netPrefixes[0]+"/" || folderPath == netPrefixes[1]+"/" || folderPath == netPrefixes[2]+"/")
+        bucket = true;
+    m_parentItem = {info.fileName(), folderPath, extCleanNetworkFilePath(folderPath), true, true, bucket, true};
+    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString folderPath): " << folderPath
+             << "  npath: " << npath << " name: " << info.fileName();
 
     // int symbs = m_parentItem.path.count('/');
-    int symbs = folderPath.count('/');
-    // if(symbs <=2) { m_items.append({"..", "http://minio:9000/", "http://minio:9000/", true, true, true, false});
-    //     qDebug() << "path for ..  " << "http://minio:9000/";
-    // }
-    // else
-    if(symbs <=4) { m_items.append({"..", netPrefixes[0]+"/" , netPrefixes[0]+"/", true, true, true, false});
-        qDebug() << "path for ..  " << netPrefixes[0]+"/";
+    int symbs = npath.count('/');
+    if(symbs <=2) { m_items.append({"..", "http://minio:9000/", "http://minio:9000/", true, true, true, false});
+        qDebug() << "path for ..  " << "http://minio:9000/";
     }
+    // else
+    // if(symbs <=4) { m_items.append({"..", netPrefixes[0]+"/" , netPrefixes[0]+"/", true, true, true, false});
+    //     qDebug() << "path for ..  " << netPrefixes[0]+"/";
+    // }
     else {
         int prevSlashIdx = folderPath.lastIndexOf('/', -2);
         if (prevSlashIdx != -1) {
