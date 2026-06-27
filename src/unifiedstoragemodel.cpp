@@ -68,6 +68,7 @@ void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
 }
 
 void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString &folderPath) {
+    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString folderPath): " << folderPath;
     beginResetModel();
     m_items.clear();    
     QUrl url(folderPath);
@@ -86,18 +87,19 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const
 
     // int symbs = m_parentItem.path.count('/');
     int symbs = npath.count('/');
-    if(symbs <=2) { m_items.append({"..", "http://minio:9000/", "http://minio:9000/", true, true, true, false});
-        qDebug() << "path for ..  " << "http://minio:9000/";
-    }
-    // else
-    // if(symbs <=4) { m_items.append({"..", netPrefixes[0]+"/" , netPrefixes[0]+"/", true, true, true, false});
-    //     qDebug() << "path for ..  " << netPrefixes[0]+"/";
+    // if(symbs <=2) { m_items.append({"..", "http://minio:9000/", "http://minio:9000/", true, true, true, false});
+    //     qDebug() << "path for ..  " << "http://minio:9000/ is minio bucket";
     // }
+    //  else
+    if(symbs <=4) { m_items.append({"..", netPrefixes[0]+"/" , netPrefixes[0]+"/", true, true, true, false});
+        qDebug() << "path for ..  " << netPrefixes[0]+"/  is minio bucket";
+    }
     else {
-        int prevSlashIdx = folderPath.lastIndexOf('/', -2);
+        int prevSlashIdx = npath.lastIndexOf('/', -2);
         if (prevSlashIdx != -1) {
-            m_items.append({"..", folderPath.left(prevSlashIdx + 1), folderPath.left(prevSlashIdx + 1), true, true, false, false});
-            qDebug() << "m_parentItem.path.left(lastSlashIdx + 1);" << folderPath.left(prevSlashIdx + 1); // Оставит '/' в конце
+//            m_items.append({"..", folderPath.left(prevSlashIdx + 1), folderPath.left(prevSlashIdx + 1), true, true, false, false});
+            m_items.append({"..", npath.left(prevSlashIdx + 1), npath.left(prevSlashIdx + 1), true, true, false, false});
+qDebug() << "m_parentItem.path.left(lastSlashIdx + 1);" << npath.left(prevSlashIdx + 1) << " is not a minio bucket"; // Оставит '/' в конце
         }
         else {  m_items.append({"..", netPrefixes[0]+"/",  netPrefixes[0]+"/", true, true, true, false});
             qDebug() << "path for ..  " << netPrefixes[0]+"/";

@@ -23,7 +23,6 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         emit bucketsReceived(sl);
     }
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ListResponse) {
-        qDebug() << "pict_data::ServerEnvelope::ContentFields::ListResponse";
         const auto &response = data.listResponse();
         QList<QStringList> sl;
         for (const auto &info : response.folders()) {
@@ -35,7 +34,7 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
             qDebug() << "fileName: " << info.fileName() << "  url: " << info.url() <<
                 "  mongoId: " << info.mongoId() << "  ";
         }
-        //  QString path = response.folderName();
+        qDebug() << "pict_data::ServerEnvelope::ContentFields::ListResponse response.folderName(): " << response.folderName();
         emit pathsReceived(sl, response.folderName());
     }
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ServerResp) {
