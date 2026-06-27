@@ -67,22 +67,22 @@ void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
     endResetModel();
 }
 
-void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString &folderPath) {
-    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString folderPath): " << folderPath;
+void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString &netFolderPath) {
+    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString netFolderPath): " << netFolderPath;
     beginResetModel();
     m_items.clear();    
-    QUrl url(folderPath);
+    QUrl url(netFolderPath);
 
     QFileInfo info(url.toString());
     info.fileName();
-    QString npath = extCleanNetworkFilePath(folderPath);
+    QString npath = extCleanNetworkFilePath(netFolderPath);
 
     bool bucket = false;
-    if(folderPath == netPrefixes[0] || folderPath == netPrefixes[1] || folderPath == netPrefixes[2] ||
-        folderPath == netPrefixes[0]+"/" || folderPath == netPrefixes[1]+"/" || folderPath == netPrefixes[2]+"/")
+    if(netFolderPath == netPrefixes[0] || netFolderPath == netPrefixes[1] || netFolderPath == netPrefixes[2] ||
+        netFolderPath == netPrefixes[0]+"/" || netFolderPath == netPrefixes[1]+"/" || netFolderPath == netPrefixes[2]+"/")
         bucket = true;
-    m_parentItem = {info.fileName(), folderPath, extCleanNetworkFilePath(folderPath), true, true, bucket, true};
-    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString folderPath): " << folderPath
+    m_parentItem = {info.fileName(), netFolderPath, extCleanNetworkFilePath(netFolderPath), true, true, bucket, true};
+    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString netFolderPath): " << netFolderPath
              << "  npath: " << npath << " name: " << info.fileName();
 
     // int symbs = m_parentItem.path.count('/');
@@ -97,9 +97,9 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const
     else {
         int prevSlashIdx = npath.lastIndexOf('/', -2);
         if (prevSlashIdx != -1) {
-//            m_items.append({"..", folderPath.left(prevSlashIdx + 1), folderPath.left(prevSlashIdx + 1), true, true, false, false});
+//            m_items.append({"..", netFolderPath.left(prevSlashIdx + 1), netFolderPath.left(prevSlashIdx + 1), true, true, false, false});
             m_items.append({"..", npath.left(prevSlashIdx + 1), npath.left(prevSlashIdx + 1), true, true, false, false});
-qDebug() << "m_parentItem.path.left(lastSlashIdx + 1);" << npath.left(prevSlashIdx + 1) << " is not a minio bucket"; // Оставит '/' в конце
+            qDebug() << "m_parentItem.path.left(lastSlashIdx + 1);" << npath.left(prevSlashIdx + 1) << " is not a minio bucket"; // Оставит '/' в конце
         }
         else {  m_items.append({"..", netPrefixes[0]+"/",  netPrefixes[0]+"/", true, true, true, false});
             qDebug() << "path for ..  " << netPrefixes[0]+"/";
@@ -109,6 +109,7 @@ qDebug() << "m_parentItem.path.left(lastSlashIdx + 1);" << npath.left(prevSlashI
         if(image[2] != "folder") m_items.append({image[0], image[1],  extCleanNetworkFilePath(image[1]), false, true, false, false, image[3]});
         else m_items.append({image[0], image[1],  image[1], true, true, false, false, image[3]});
     }
+    qDebug() << "UnifiedStorageModel::minioPathsToQML m_parentItem.cleanPath: " << m_parentItem.cleanPath << "name: " << m_parentItem.name;
     endResetModel();
 }
 
@@ -288,14 +289,20 @@ Q_INVOKABLE int UnifiedStorageModel::enterFolder(int indx){ // Open folder in Fi
         return 0;
     }
     else if(m_parentItem.isMinio && m_parentItem.isMinioBucket) { // Minio Bucket
-        qDebug() << " m_parentItem: " << m_parentItem.path << "first enter";
-        if(m_parentItem.path == "http://minio:9000/") msghandler->getBucketsListRequest();
-        else msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path, "" /*, usmodel*/);
+        qDebug() << " Minio Bucket m_parentItem: " << m_parentItem.path << "first enter";
+        if(m_parentItem.path == netPrefixes[0]+"/" || m_parentItem.path == netPrefixes[1]+"/" || m_parentItem.path == netPrefixes[2]+"/") {
+            qDebug() << " Minio Bucket m_parentItem: msghandler->getBucketsListRequest() m_parentItem.path: " << m_parentItem.path;
+            msghandler->getBucketsListRequest();
+        }
+        else {
+            qDebug() << " Minio Bucket m_parentItem: msghandler->getFilesFoldersListfromBucketRequest m_parentItem.path: " << m_parentItem.path;
+            msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path, "" /*, usmodel*/);
+        }
         return 0;
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && !m_parentItem.isVirtualDir) {
         qDebug() << " m_parentItem: " << m_parentItem.path << "UnifiedStorageModel::enterFolder";
-        msghandler->getFilesFoldersListfromBucketRequest2(m_parentItem.path, true  /*, usmodel*/);
+        msghandler->getFilesFoldersListfromBucketRequest2(m_parentItem.path, true  /*, us:model*/);
         return 0;               // Minio simple folder
     }
     else if(m_parentItem.isMinio && !m_parentItem.isMinioBucket && m_parentItem.isDirectory && m_parentItem.isVirtualDir) {
@@ -452,8 +459,10 @@ Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf,
         qDebug() << "int UnifiedStorageModel::writeImagesMinioDirectory";
         QStringList paths;
         for(const QVariant &v : lf){
-            QVariantMap item = v.toMap();if(!item["isNetwork"].toBool() && !item["isDir"].toBool())
-            qDebug() << item["path"].toString() << "  " << item["mongoId"].toString() << " target folder: " << m_parentItem.path;
+            QVariantMap item = v.toMap();
+//            if(!item["isNetwork"].toBool() && !item["isDir"].toBool())
+            qDebug() << item["path"].toString() << "  " << item["mongoId"].toString() << " target folder: " << m_parentItem.path
+                     << "  isNetwork: " << item["isNetwork"].toBool() << "  isDir: " << item["isDir"].toBool();
             if(!item["isNetwork"].toBool() && !item["isDir"].toBool()) { // from local to network
                 QString localPath = QUrl(item["path"].toString()).toLocalFile();
                 msghandler->addFileRequest(m_parentItem.path, localPath, item["mongoId"].toString());

@@ -24,6 +24,7 @@ they both are in client 100 percent.. ../ folder in new virtual folder
 7. local files and net files behave differently -- fix it.
 8. not understand if token expired
 
+1. network tab doesnot work. local folder was recorded to network?
 
 int UnifiedStorageModel::writeImagesToFolder 2
 "http://minio:9000/images/USERS/6a35a61f63bac442370

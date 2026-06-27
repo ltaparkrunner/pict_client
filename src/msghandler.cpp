@@ -336,22 +336,22 @@ int MsgHandler::getFileNetStore(const QString &netPath){
 }
 int MsgHandler::rewriteFileRequest(const QString &netFolderPath, const QString &filepath, const QString &id) {
     //    (const QString &filepath, const QString &id, const QString &netFolderPath, const QString &fname){
-    qDebug() << "MsgHandler::addFileRequest" << filepath << " " << id << "  " << netFolderPath;
+    qDebug() << "MsgHandler::rewriteFileRequest" << filepath << " " << id << "  " << netFolderPath;
     pict_data::ClientEnvelope cenv;
     pict_data::RewriteFileRequest message;
 
-    QFile *file = new QFile(filepath);
-    if (!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "Could not open file 2:" << filepath;
-        delete file;
-        return -1; // Ошибка открытия файла
-    }
-    //    else qDebug() << "Open file: " << path;
-    QByteArray fileData = file->readAll();
+    // QFile *file = new QFile(filepath);
+    // if (!file->open(QIODevice::ReadOnly)) {
+    //     qDebug() << "Could not open file 2:" << filepath;
+    //     delete file;
+    //     return -1; // Ошибка открытия файла
+    // }
+    // //    else qDebug() << "Open file: " << path;
+    // QByteArray fileData = file->readAll();
 
-    QFileInfo fileInfo(filepath);
-    QString fileName = fileInfo.fileName();
-    QString completeSuffix = fileInfo.completeSuffix();
+    // QFileInfo fileInfo(filepath);
+    // QString fileName = fileInfo.fileName();
+    // QString completeSuffix = fileInfo.completeSuffix();
 
     /*--------------------*/
     QUrl netUrl(netFolderPath);
@@ -359,6 +359,7 @@ int MsgHandler::rewriteFileRequest(const QString &netFolderPath, const QString &
     if (path.startsWith('/')) {
         path.remove(0, 1);
     }
+
 
     QStringList parts = path.split('/');
     QString bucket = parts.takeFirst();
@@ -375,9 +376,13 @@ int MsgHandler::rewriteFileRequest(const QString &netFolderPath, const QString &
             folder = path.sliced(startPos, length);
         }
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder;
+    qDebug() << "MsgHandler::rewriteFileRequest bucket: " << bucket << " folder " << folder;
 
-    message.setFileName(fileName);
+    QUrl netUrl2(filepath);
+    QFileInfo netFileInfo(netUrl2.toString());
+    QString fname = netFileInfo.fileName();
+
+    message.setFileName(fname);
     //    message.setUserLogin("Ivon");
     //    message.setBucketName(bucket);
     message.setFolder(folder);
