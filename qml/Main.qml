@@ -265,10 +265,6 @@ ApplicationWindow {
                             console.log("Finished editing, but no changes were made.")
                         }
                     }
-                    onTextChanged: {
-                        console.log("Текст изменился:", tf.text)
-                        // Здесь можно вызвать вашу C++ функцию обработки пути
-                    }
                 }
                 AbstractButton {
                     id: loginButton

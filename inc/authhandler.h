@@ -23,7 +23,7 @@ public:
         LogoutTimeoutErr,
         LogoutConnErr
     };
-    explicit AuthHandler(/*WebSocketClient *client,*/ QObject *parent = nullptr);
+    explicit AuthHandler(QObject *parent = nullptr);
     Q_INVOKABLE void sendLogin(QString user, QString pass);
     Q_INVOKABLE void sendRegister(QString user, QString pass);
     Q_INVOKABLE void sendAuth(QString user, QString pass, QString path);
@@ -33,24 +33,17 @@ public:
     QString authToken() const { return m_authToken; }
     QString username() const { return m_username; }
     void setUsername(const QString &newUsername);
-//    void onWssConnected();
-//    void onWssDisconnected();
 
 signals:
     void startWebSocket(/*QString token*/);
     void authErr(AuthCond authc, QString errmsg);
     void authSucc(AuthCond authc, QString succmsg);
-//    void loggedInChanged();
-//    void loginRegSuccess();
+
     void usernameChanged();
     void logoffSuccess();
 
-private slots:
-//    void handleIncomingAuthData(const pict_data::AuthResponse &data);
 private:
-//    WebSocketClient *m_client;
     QSettings settings;
-//    QString token;
     QString m_authToken;
     QString m_username;
     bool m_loggedIn;

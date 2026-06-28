@@ -48,10 +48,6 @@ public:
         if (!index.isValid() || index.row() < 0 || index.row() >= m_imageItems.count())
             return QVariant();
 
-        // if (role == ImagePathRole)
-        //     return m_imageItems.at(index.row());
-
-        // return QVariant();
         const ImageItem &item = m_imageItems.at(index.row());
         switch (role) {
         case ImageNameRole:
@@ -91,7 +87,7 @@ public:
         QString pathForQml = url.toString();
         QFileInfo fileInfo(pathForQml);
         QString fileName = fileInfo.fileName();
-        qDebug() << "void addImagePath(const QString &path): " << path << "  pathForQml: " << pathForQml << "cleanPath" << cleanLocalFilePath(path);
+
         beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
         m_imageItems.append({fileName, pathForQml, cleanLocalFilePath(path), false, false, ""});
         endInsertRows(); // This triggers the QML view update
@@ -135,7 +131,7 @@ public:
         QUrl url = QUrl::fromUserInput(path);
         QString pathForQml = url.toString();
         beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
-        qDebug() << "QString addMinioImagePath(const QString &path) extCleanNetworkFilePath" << extCleanNetworkFilePath(path);
+
         m_imageItems.append({"img1", pathForQml, extCleanNetworkFilePath(path), true, false, ""});  // TODO:
         endInsertRows(); // This triggers the QML view update
         return pathForQml;
@@ -149,11 +145,11 @@ public:
 
     Q_INVOKABLE QString  minioPathsToQML(const QList<QStringList> &files) {
         for (const QStringList &image : std::as_const(files)) {
-//            addImageMinioPath(image[1]);
+
             QUrl url = QUrl::fromUserInput(image.at(1));
             QString pathForQml = url.toString();
             beginInsertRows(QModelIndex(), m_imageItems.count(),m_imageItems.count());
-            qDebug() << "QString minioPathsToQML(const QList<QStringList> &files) extCleanNetworkFilePath" << extCleanNetworkFilePath(pathForQml);
+
             m_imageItems.append({image.at(0), pathForQml, extCleanNetworkFilePath(pathForQml), true, false, image.at(3)});
             endInsertRows(); // This triggers the QML view update
         }
@@ -169,7 +165,7 @@ public:
         QUrl url = QUrl::fromUserInput(fileNetPath);
         QString pathForQml = url.toString();
         beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
-        qDebug() << "QString minioPathsToQML(const QList<QStringList> &files) extCleanNetworkFilePath" << extCleanNetworkFilePath(pathForQml);
+
         m_imageItems.append({fileName, pathForQml, extCleanNetworkFilePath(pathForQml), true, false, mId});
         endInsertRows();
 
@@ -178,9 +174,7 @@ public:
 
     Q_INVOKABLE QVariantMap get(int row) const {
         // Проверка границ, чтобы избежать падения
-        qDebug() << "QVariantMap get(int row) const";
         if (row < 0 || row >= m_imageItems.count()) {
-            qDebug() << "row >= m_imageItems.count()";
             return QVariantMap();
         }
 
@@ -208,14 +202,14 @@ public:
     }
 
     void getImageFromUdsm(QString name, QString path, bool isNet, bool isDir, QString mongoID) {
-        qDebug() << "getImageFromUdsm";
+
         if(isNet && !isDir){
             QUrl url = QUrl::fromUserInput(path);
             QString pathForQml = url.toString();
             beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
-            qDebug() << "QString minioPathsToQML(const QList<QStringList> &files) extCleanNetworkFilePath" << extCleanNetworkFilePath(pathForQml);
+
             m_imageItems.append({name, pathForQml, extCleanNetworkFilePath(pathForQml), isNet, isDir, mongoID});
-            qDebug() << "m_imageItems.append isNet name: " << name << "  path: " << path;
+
             endInsertRows(); // This triggers the QML view update
             return;
         }
@@ -223,16 +217,16 @@ public:
             QUrl url = QUrl::fromUserInput(path);
             QString pathForQml = url.toString();
             beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
-            qDebug() << "QString minioPathsToQML(const QList<QStringList> &files) cleanLocalFilePath" << cleanLocalFilePath(pathForQml);
+
             m_imageItems.append({name, pathForQml, cleanLocalFilePath(pathForQml), isNet, isDir, mongoID});
-            qDebug() << "m_imageItems.append name: " << name << "  path: " << path;
+
             endInsertRows(); // This triggers the QML view update
             return;
         }
 
     }
     Q_INVOKABLE int insertImage(const QVariantMap &map) {
-        qDebug() << "insertImage(const QVariantMap &map) cleanPath: " << map["cleanPath"] << " isMinio: " <<  map["isMinio"].toBool() ;
+
         bool isDir = map["isDir"].toBool();
 //        bool isNetwork = map["isNetwork"].toBool();
         bool isNetwork = map["isMinio"].toBool();
@@ -240,9 +234,9 @@ public:
             QUrl url = QUrl::fromUserInput(map["path"].toString());
             QString pathForQml = url.toString();
             beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
-            qDebug() << "int insertImage(const QVariantMap &map) extCleanNetworkFilePath" << extCleanNetworkFilePath(pathForQml);
+
             m_imageItems.append({map["name"].toString(), pathForQml, extCleanNetworkFilePath(pathForQml), isNetwork, isDir, map["mongoId"].toString()});
-            qDebug() << "m_imageItems.append isNet name: " << map["name"].toString() << "  pathForQml: " << pathForQml;
+
             endInsertRows(); // This triggers the QML view update
             return 0;
         }
@@ -250,9 +244,8 @@ public:
             QUrl url = QUrl::fromUserInput(map["path"].toString());
             QString pathForQml = url.toString();
             beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
-            qDebug() << "int insertImage(const QVariantMap &map) extCleanLocalFilePath" << extCleanNetworkFilePath(pathForQml);
+
             m_imageItems.append({map["name"].toString(), pathForQml, extCleanNetworkFilePath(pathForQml), isNetwork, isDir, map["mongoId"].toString()});
-            qDebug() << "m_imageItems.append name: " << map["name"].toString() << "  pathForQml: " << pathForQml;
             endInsertRows(); // This triggers the QML view update
             return 0;
         }
@@ -260,7 +253,6 @@ public:
     }
 
     Q_INVOKABLE int insertImages(const QVariantList &lf) {
-        qDebug() << "insertImages(const QVariantList &lf)";
         QVector<ImageItem> ImItm;
         for(const QVariant &v : lf) {
             QVariantMap map = v.toMap();
@@ -269,20 +261,13 @@ public:
             if(isNetwork && !isDir){
                 QUrl url = QUrl::fromUserInput(map["path"].toString());
                 QString pathForQml = url.toString();
-                // beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
-                qDebug() << "int insertImage(const QVariantMap &map) extCleanNetworkFilePath" << extCleanNetworkFilePath(pathForQml);
                 ImItm.append({map["name"].toString(), pathForQml, extCleanNetworkFilePath(pathForQml), isNetwork, isDir, map["mongoId"].toString()});
-                qDebug() << "m_imageItems.append isNet name: " << map["name"].toString() << "  pathForQml: " << pathForQml;
-                //endInsertRows(); // This triggers the QML view update
             }
             if(!isNetwork && !isDir){
                 QUrl url = QUrl::fromUserInput(map["path"].toString());
                 QString pathForQml = url.toString();
-                // beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count());
-                qDebug() << "int insertImage(const QVariantMap &map) extCleanNetworkFilePath" << extCleanNetworkFilePath(pathForQml);
+
                 ImItm.append({map["name"].toString(), pathForQml, extCleanNetworkFilePath(pathForQml), isNetwork, isDir, map["mongoId"].toString()});
-                qDebug() << "m_imageItems.append name: " << map["name"].toString() << "  pathForQml: " << pathForQml;
-                //endInsertRows(); // This triggers the QML view update
             }
         }
         beginInsertRows(QModelIndex(), m_imageItems.count(), m_imageItems.count() + ImItm.size() - 1);
