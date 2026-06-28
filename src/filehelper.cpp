@@ -8,12 +8,12 @@ Q_INVOKABLE bool FileHelper::fileExists(const QString &path) {
     if (localPath.startsWith("file:///")) {
         localPath = QUrl(path).toLocalFile();
     }
-    qDebug() << "FileHelper::fileExists";
+
     return QFile::exists(localPath);
 }
 
 Q_INVOKABLE bool FileHelper::exists(const QString &path) {
-    qDebug() << "FileHelper::exists";
+
     if (path.isEmpty()) {
         qDebug() << "FileHelper::exists, path.isEmpty() ";
         return false;
@@ -28,7 +28,7 @@ Q_INVOKABLE bool FileHelper::exists(const QString &path) {
 }
 
 Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
-    qDebug() << "FileHelper::checkPathType" << path;
+
     if (path.isEmpty()) return Unknown;
 
     QUrl url(path);
@@ -41,32 +41,30 @@ Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
         qDebug() << "localPath" << localPath << " is " << info.exists()
                  << " is local file " << info.isFile() << " is local folder" << info.isDir();
         if (!info.exists()) return Unknown;
-        //        qDebug() << "if (!info.exists()) return Unknown;";
+
         if (info.isDir()) return LocalFolder;
-        //        qDebug() << "if (if (info.isDir()) return LocalFolder;";
+
         if (info.isFile()) return LocalFile;
     }
-    qDebug() << "Is not local.";
+
     // 2. Проверка MinIO (основана на структуре URL)
     // Обычно формат: http://minio-server:9000/bucket-name/object-name
     if (url.scheme() == "http" || url.scheme() == "https") {
         QString pathStr = url.path();
-        qDebug() << "pathStr: " << pathStr;
+
         if (pathStr.startsWith("/")) pathStr = pathStr.mid(1); // убираем первый слеш
         QStringList parts = pathStr.split('/', Qt::SkipEmptyParts);
-        qDebug() << "pathStr: " << pathStr <<"  parts: " << parts.count();
+
         if (parts.count() <= 1) return MinioBucket; // Только имя бакета
-        //qDebug() << "after minio check 4";
+
         if (parts.count() > 1 && path.endsWith('/')) return MinioFolder;    // Бакет + путь к объекту
         return MinioFile;
-        //qDebug() << "after minio check 5";
     }
     return Unknown;
 }
 
 Q_INVOKABLE QVariantMap FileHelper::extCheckPathType(const QString &path) {
-// Q_INVOKABLE int FileHelper::checkPathType(const QString &path) {
-    qDebug() << "FileHelper::extCheckPathType path:" << path;
+
     QString netPath;
     QVariantMap result;
     if (path.isEmpty()) {
@@ -76,29 +74,29 @@ Q_INVOKABLE QVariantMap FileHelper::extCheckPathType(const QString &path) {
     }
     if(path.startsWith(netPrefixes[0]) || path.startsWith(netPrefixes[1]) || path.startsWith(netPrefixes[2])){
         netPath = path;
-        qDebug() << "Is not local.";
+
         if(netPath.startsWith(netPrefixes[2])) netPath.replace(0, 4, netPrefixes[0]);
         QUrl url(netPath);
         QString pathStr = url.path();
-        qDebug() << "pathStr: " << pathStr;
+
         if (pathStr.startsWith("/")) pathStr = pathStr.mid(1); // убираем первый слеш
         QStringList parts = pathStr.split('/', Qt::SkipEmptyParts);
-        qDebug() << "pathStr: " << pathStr <<"  parts: " << parts.count();
+
         if (parts.count() <= 1) {
             result["path"] = netPath;
             result["type"] = MinioBucket;
             return result;
         } // Только имя бакета
-        //qDebug() << "after minio check 4";
+
         if (parts.count() > 1 && path.endsWith('/')) {
             result["path"] = extCleanNetworkFilePath(netPath);
-            qDebug() << "MinioFolder result[path]" << result["path"];
+
             result["type"] = MinioFolder;
             return result;
         }    // Бакет + путь к объекту
         result["path"] = extCleanNetworkFilePath(netPath);
         result["type"] = MinioFile;
-        qDebug() << "MinioFile result[path]" << result["path"];
+
         return result;
     }
     QUrl url(path);
@@ -108,51 +106,24 @@ Q_INVOKABLE QVariantMap FileHelper::extCheckPathType(const QString &path) {
         QString localPath = url.isLocalFile() ? url.toLocalFile() : path;
         QFileInfo info(localPath);
 
-        qDebug() << "localPath" << localPath << " is " << info.exists()
-                 << " is local file " << info.isFile() << " is local folder" << info.isDir();
         if (!info.exists()) {
             result["path"] = QDir::homePath();
             result["type"] = LocalFolder;
             return result;
         }
-//        qDebug() << "if (!info.exists()) return Unknown;";
+
         if (info.isDir()) {
             result["path"] = path;
             result["type"] = LocalFolder;
             return result;
         }
-//        qDebug() << "if (if (info.isDir()) return LocalFolder;";
+
         if (info.isFile()) {
             result["path"] = path;
             result["type"] = LocalFile;
             return result;
         }
     }
-    // qDebug() << "Is not local.";
-    // 2. Проверка MinIO (основана на структуре URL)
-    // Обычно формат: http://minio-server:9000/bucket-name/object-name
-    // if (url.scheme() == "http" || url.scheme() == "https") {
-    //     QString pathStr = url.path();
-    //     qDebug() << "pathStr: " << pathStr;
-    //     if (pathStr.startsWith("/")) pathStr = pathStr.mid(1); // убираем первый слеш
-    //     QStringList parts = pathStr.split('/', Qt::SkipEmptyParts);
-    //     qDebug() << "pathStr: " << pathStr <<"  parts: " << parts.count();
-    //     if (parts.count() <= 1) {
-    //         result["path"] = path;
-    //         result["type"] = MinioBucket;
-    //         return result;
-    //     } // Только имя бакета
-    //     //qDebug() << "after minio check 4";
-    //     if (parts.count() > 1 && path.endsWith('/')) {
-    //         result["path"] = path;
-    //         result["type"] = MinioFolder;
-    //         return result;
-    //     }    // Бакет + путь к объекту
-    //     result["path"] = path;
-    //     result["type"] = MinioFile;
-    //     return result;
-    //     //qDebug() << "after minio check 5";
-    // }
     result["path"] = path;
     result["type"] = LocalFile;
     return result;
@@ -200,12 +171,12 @@ Q_INVOKABLE bool FileHelper::saveFilesToFolder(const QString &folderUrl, const Q
 }
 
 Q_INVOKABLE int FileHelper::processWritePathsLocal(const QStringList &ls, const QString &path){
-    qDebug() << "int processWritePathsLocal(const QStringList &ls, const QString &path)";
+
     return 0;
 }
 
 Q_INVOKABLE int FileHelper::processWritePathsMinio(const QStringList &ls, const QString &path){
-//    qDebug() << "int processWritePathsMinio(const QStringList &ls, const QString &path)";
+
     for(const QString &file : ls){
             wsclient->addFileRequest(file, path);
     }
@@ -213,7 +184,7 @@ Q_INVOKABLE int FileHelper::processWritePathsMinio(const QStringList &ls, const 
 }
 
 Q_INVOKABLE int FileHelper::processDeleteFolderLocal(const QString &folderPath){
-    qDebug() << "int processDeleteFolderLocal(const QString &path)";
+
     QDir directory(folderPath);
 
     if (!directory.exists()) {
@@ -237,21 +208,19 @@ Q_INVOKABLE int FileHelper::processDeleteFolderLocal(const QString &folderPath){
         if (QFile::remove(filePath)) {
             deletedCount++;
         } else {
-            qDebug() << "Не удалось удалить:" << fileName;
-//            return -2;
+            return -2;
         }
     }
-    qDebug() << "Удаление завершено. Удалено файлов:" << deletedCount;
     return deletedCount;
 }
 
 Q_INVOKABLE int FileHelper::processDeleteFolderMinio(const QString &path){
-    qDebug() << "int processDeleteFolderMinio(const QString &path)";
+
     return 0;
 }
 
 Q_INVOKABLE int FileHelper::processDeleteFileLocal(const QString &filePath){
-    qDebug() << "int processDeletePathLocal(const QString &path)";
+
     QFileInfo fileInfo(filePath);
     QString ext = fileInfo.suffix().toLower(); // Получаем расширение в нижнем регистре
 
@@ -259,27 +228,26 @@ Q_INVOKABLE int FileHelper::processDeleteFileLocal(const QString &filePath){
     QStringList validExtensions = { "jpg", "jpeg", "png", "gif", "bmp", "webp" };
 
     if (!validExtensions.contains(ext)) {
-        qDebug() << "Ошибка: Файл не является поддерживаемым изображением (." << ext << ")";
         return -3;
     }
 
     // Проверяем, существует ли файл перед удалением
     if (QFile::exists(filePath)) {
         if (QFile::remove(filePath)) {
-            qDebug() << "Файл успешно удален:" << filePath;
+            //  qDebug() << "Файл успешно удален:" << filePath;
         } else {
-            qDebug() << "Не удалось удалить файл. Возможно, он занят другим процессом.";
+            //  qDebug() << "Не удалось удалить файл. Возможно, он занят другим процессом.";
             return -2;
         }
     } else {
-        qDebug() << "Файл не найден по пути:" << filePath;
+        //  qDebug() << "Файл не найден по пути:" << filePath;
         return -1;
     }
     return 0;
 }
 
 Q_INVOKABLE int FileHelper::processDeleteFileMinio(const QString &path){
-    qDebug() << "int processDeletePathMinio(const QString &path)";
+
     wsclient->deleteFileFromBucketRequest(path);
     return 0;
 }

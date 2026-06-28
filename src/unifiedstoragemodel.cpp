@@ -11,7 +11,7 @@ UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHn
 {
     connect(msghandler, &MsgHandler::pathsReceived, this, &UnifiedStorageModel::minioPathsToQML);
     connect(wsclient, &WebSocketClient::errReceived, this, [=](){
-        qDebug() << " errReceived";
+
         beginResetModel();
         m_items.clear();
         endResetModel();
@@ -22,7 +22,6 @@ UnifiedStorageModel::UnifiedStorageModel(WebSocketClient *wsc, MsgHandler *svrHn
 }
 
 void UnifiedStorageModel::enterLocal(const QString &path) {
-    qDebug() << "UnifiedStorageModel::enterLocal: " << path << "m_parentItem" << m_parentItem.path;
 
     beginResetModel();
     m_items.clear();
@@ -37,10 +36,10 @@ void UnifiedStorageModel::enterLocal(const QString &path) {
     filters << "*.jpg" << "*.jpeg" << "*.png" << "*.gif" << "*.bmp" << "*.webp";
 
     QFileInfoList files = dir.entryInfoList(filters, QDir::AllEntries | QDir::NoDot, QDir::DirsFirst);
-//    QFileInfoList list = dir.entryInfoList(QDir::AllEntries | QDir::NoDot, QDir::DirsFirst);
+
     QFileInfoList dirs = dir.entryInfoList(QDir::Dirs | QDir::NoDot, QDir::DirsFirst);
     QFileInfoList fullList = dirs + files;
-//    for (auto &info : dir.entryInfoList(QDir::AllEries | QDir::NoDot)) {
+
     for (const QFileInfo &info : std::as_const(fullList)) {
         m_items.append({info.fileName(), info.absoluteFilePath(), info.absoluteFilePath(), info.isDir(), false, false, false});
     }
@@ -52,12 +51,12 @@ void UnifiedStorageModel::enterNetStore(QString path) {
 }
 
 void UnifiedStorageModel::enterMinioBucket(const QString &path) {
-    qDebug() << "UnifiedStorageModel::enterMinioBucket and request   m_parentItem.path: " << m_parentItem.path << "path" << path;
+
     msghandler->getFilesFoldersListfromBucketRequest(m_parentItem.path, "" /*, usmodel*/);
 }
 
 void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
-    qDebug() << "UnifiedStorageModel::minioBucketsToQML: " << buckets[0]<< " " << buckets[1];
+
     beginResetModel();
     m_items.clear();
 
@@ -68,7 +67,7 @@ void UnifiedStorageModel::minioBucketsToQML(const QStringList &buckets) {
 }
 
 void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString &netFolderPath) {
-    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString netFolderPath): " << netFolderPath;
+
     beginResetModel();
     m_items.clear();    
     QUrl url(netFolderPath);
@@ -82,24 +81,16 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const
         netFolderPath == netPrefixes[0]+"/" || netFolderPath == netPrefixes[1]+"/" || netFolderPath == netPrefixes[2]+"/")
         bucket = true;
     m_parentItem = {info.fileName(), netFolderPath, extCleanNetworkFilePath(netFolderPath), true, true, bucket, true};
-    qDebug() << "void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const QString netFolderPath): " << netFolderPath
-             << "  npath: " << npath << " name: " << info.fileName();
 
-    // int symbs = m_parentItem.path.count('/');
     int symbs = npath.count('/');
-    // if(symbs <=2) { m_items.append({"..", "http://minio:9000/", "http://minio:9000/", true, true, true, false});
-    //     qDebug() << "path for ..  " << "http://minio:9000/ is minio bucket";
-    // }
-    //  else
+
     if(symbs <=4) { m_items.append({"..", netPrefixes[0]+"/" , netPrefixes[0]+"/", true, true, true, false});
         qDebug() << "path for ..  " << netPrefixes[0]+"/  is minio bucket";
     }
     else {
         int prevSlashIdx = npath.lastIndexOf('/', -2);
         if (prevSlashIdx != -1) {
-//            m_items.append({"..", netFolderPath.left(prevSlashIdx + 1), netFolderPath.left(prevSlashIdx + 1), true, true, false, false});
             m_items.append({"..", npath.left(prevSlashIdx + 1), npath.left(prevSlashIdx + 1), true, true, false, false});
-            qDebug() << "m_parentItem.path.left(lastSlashIdx + 1);" << npath.left(prevSlashIdx + 1) << " is not a minio bucket"; // Оставит '/' в конце
         }
         else {  m_items.append({"..", netPrefixes[0]+"/",  netPrefixes[0]+"/", true, true, true, false});
             qDebug() << "path for ..  " << netPrefixes[0]+"/";
@@ -109,7 +100,6 @@ void UnifiedStorageModel::minioPathsToQML(const QList<QStringList> &paths, const
         if(image[2] != "folder") m_items.append({image[0], image[1],  extCleanNetworkFilePath(image[1]), false, true, false, false, image[3]});
         else m_items.append({image[0], image[1],  image[1], true, true, false, false, image[3]});
     }
-    qDebug() << "UnifiedStorageModel::minioPathsToQML m_parentItem.cleanPath: " << m_parentItem.cleanPath << "name: " << m_parentItem.name;
     endResetModel();
 }
 
