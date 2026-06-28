@@ -15,11 +15,8 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         QStringList sl;
         for (const auto &info : response.bucketInf()) {
             sl.append(info.bucketName());
-            qDebug() << "info.bucketName()" << info.bucketName();
             sl.append(info.url());
-            qDebug() << "info.url()" << info.url();
         }
-        qDebug() << "emit bucketsReceived(sl)" << sl[0] << " " << sl[1];
         emit bucketsReceived(sl);
     }
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ListResponse) {
@@ -27,14 +24,10 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         QList<QStringList> sl;
         for (const auto &info : response.folders()) {
             sl.append({info.folderName(), info.url(), "folder", ""});
-            qDebug() << "folderName: " << info.folderName() << "  url: " << info.url();
         }
         for (const auto &info : response.files()) {
             sl.append({info.fileName(), info.url(), "file", info.mongoId()});
-            qDebug() << "fileName: " << info.fileName() << "  url: " << info.url() <<
-                "  mongoId: " << info.mongoId() << "  ";
         }
-        qDebug() << "pict_data::ServerEnvelope::ContentFields::ListResponse response.folderName(): " << response.folderName();
         emit pathsReceived(sl, response.folderName());
     }
     else if(data.contentField() == pict_data::ServerEnvelope::ContentFields::ServerResp) {
@@ -46,11 +39,9 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
     else if(data.contentField() == pict_data:: ServerEnvelope::ContentFields::FilesIdsResponse){
         qDebug() << "pict_data:: ServerEnvelope::ContentFields::FilesIdsResponse info.url()";
         const auto &response = data.filesIdsResponse();
-//        qDebug() << "response: " << response.files()[0].url();
         QVector<QUrl> urls;
 
         for(const auto &info : response.files()) {
-            qDebug() << "info.url" << info.url();
             urls.append(info.url());
         }
         emit writeUrlsToLocal(urls);
@@ -61,17 +52,14 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
         const auto &response = data.pathInfResponse();
         QString res = response.result();
         QString netP = response.netPath();
-        qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse info.url(): " << res << " cleanPath: " << extCleanNetworkFilePath(netP) ;
+
         if(res == "file") {
-            qDebug() << "fileTempPath" << response.netPath();
             emit pathInfoResp('f', netP, extCleanNetworkFilePath(netP));
         }
         else if (res == "folder") {
-            qDebug() << "pict_data:: ServerEnvelope::ContentFields::PathInfResponse folder" << response.netPath();
             emit pathInfoResp('d', netP, extCleanNetworkFilePath(netP));
         }
         else if (res == "not exist") {
-            qDebug() << "not_exist";
             emit pathInfoResp('n',  netP, extCleanNetworkFilePath(netP));
         }
 
@@ -87,7 +75,6 @@ void MsgHandler::handleIncomingServerData(const pict_data::ServerEnvelope &data)
 }
 
 Q_INVOKABLE int MsgHandler::getBucketsListRequest() const{
-    qDebug() << "MsgHandler::getBucketsListRequest()";
     pict_data::ClientEnvelope cenv;
     pict_data::BucketsRequest message;
 
@@ -100,18 +87,16 @@ Q_INVOKABLE int MsgHandler::getBucketsListRequest() const{
 }
 
 int MsgHandler::addFileRequest(const QString &netFolderPath, const QString &filepath, const QString &id) {
-//    (const QString &filepath, const QString &id, const QString &netFolderPath, const QString &fname){
     qDebug() << "MsgHandler::addFileRequest" << filepath << " " << id << "  " << netFolderPath;
     pict_data::ClientEnvelope cenv;
     pict_data::AddFileRequest message;
 
     QFile *file = new QFile(filepath);
     if (!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "Could not open file 1:" << filepath;
         delete file;
         return -1; // Ошибка открытия файла
     }
-//    else qDebug() << "Open file: " << path;
+
     QByteArray fileData = file->readAll();
 
     QFileInfo fileInfo(filepath);
@@ -140,12 +125,9 @@ int MsgHandler::addFileRequest(const QString &netFolderPath, const QString &file
             folder = path.sliced(startPos, length);
         }
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder;
-
 
     message.setFileName(fileName);
-//    message.setUserLogin("Ivon");
-//    message.setBucketName(bucket);
+
     message.setFolder(folder);
     message.setInfo(completeSuffix);
     message.setData(fileData);
@@ -181,13 +163,11 @@ int MsgHandler::getFilesFoldersListfromBucketRequest(const QString &netPath, con
             folder = path.sliced(startPos, length);
         }
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder << ", fname: " << fname;
+    //  qDebug() << "bucket: " << bucket << " folder " << folder << ", fname: " << fname;
 
     pict_data::ClientEnvelope cenv;
     pict_data::FilesFoldersListRequest message;
     message.setFolderName(fname);
-//    message.setBucketName(bucket);
-//    message.setUserLogin("Ivon");
 
     cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
     cenv.setListRequest(message);
@@ -207,21 +187,17 @@ int MsgHandler::getFilesFoldersListfromBucketRequest2(const QString &netPath, co
 
     QStringList parts = path.split('/');
     QString bucket = parts.takeFirst();
-    //  qsizetype bucketIdx = path.indexOf(bucket);
-    QString folder = "";
-    int l = parts.length();
 
-    qDebug() << "parts" << parts << "parts.length(): " << parts.length() << parts[l-1] << " / "; // << parts[3];
+    QString folder = "";
+    //  int l = parts.length();
+
     if(parts.length()>1) {
         folder = parts.join('/');
-        qDebug() << "parts.mid(2).join('/')" << parts.join('/');
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder;
+    //  qDebug() << "bucket: " << bucket << " folder " << folder;
     pict_data::ClientEnvelope cenv;
     pict_data::FilesFoldersListRequest message;
     message.setFolderName(folder);
-    //    message.setBucketName(bucket);
-    //    message.setUserLogin("Ivon");
 
     cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
     cenv.setListRequest(message);
@@ -236,9 +212,7 @@ int MsgHandler::deleteFileFromServerRequest(const QStringList &fileData){
         pict_data::ClientEnvelope cenv;
         pict_data::DeleteFileRequest message;
         message.setFileName(fileData.at(0));
-//        message.setBucketName(fileData.at(1));
         message.setMongoId(fileData.at(2));
-//        message.setUserLogin(fileData.at(3));
 
         cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
         cenv.setDeleteFile(message);
@@ -264,7 +238,7 @@ int MsgHandler::getFilesRequest(const QStringList &paths, const QStringList &ids
 
 int MsgHandler::getNetStore(const QString &netPath){
     QUrl netUrl(netPath);
-    QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
+    QString path = netUrl.path();
     if (path.startsWith('/')) {
         path.remove(0, 1);
     }
@@ -276,7 +250,7 @@ int MsgHandler::getNetStore(const QString &netPath){
     if (bucketIdx != -1) {
         qsizetype startPos = bucketIdx + bucket.length();
         qsizetype endPos = path.lastIndexOf('/');
-        //qsizetype endPos = path.length();
+
         if (endPos > startPos) {
             if (path.at(startPos) == '/') {
                 startPos++;
@@ -287,18 +261,19 @@ int MsgHandler::getNetStore(const QString &netPath){
     }
     pict_data::ClientEnvelope cenv;
     pict_data::PathInfoRequest message;
-    qDebug() << "MsgHandler::getNetStore netPath: " << netPath << " path: " << path << " fPath: " << fPath;
+
     message.setNetPath(fPath);
     cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
     cenv.setPathInfRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = cenv.serialize(&serializer);
-    qDebug() << "Before m_client->sendBinaryMessage(data)";
+
     /*qint64 sz = */ m_client->sendBinaryMessage(data);
     return 0;
 }
 
 int MsgHandler::getFileNetStore(const QString &netPath){
+    qDebug() << "MsgHandler::getNetStore netPath: " << netPath;
     QUrl netUrl(netPath);
     QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
     if (path.startsWith('/')) {
@@ -311,7 +286,7 @@ int MsgHandler::getFileNetStore(const QString &netPath){
     QString fPath = "";
     if (bucketIdx != -1) {
         qsizetype startPos = bucketIdx + bucket.length();
-        //qsizetype endPos = path.lastIndexOf('/');
+
         qsizetype endPos = path.length();
         if (endPos > startPos) {
             if (path.at(startPos) == '/') {
@@ -324,42 +299,26 @@ int MsgHandler::getFileNetStore(const QString &netPath){
     pict_data::ClientEnvelope cenv;
     pict_data::FilePathRequest message;
 
-    qDebug() << "MsgHandler::getNetStore netPath: " << netPath << " path: " << path << " fPath: " << fPath;
     message.setNetPath(fPath);
     cenv.setType(pict_data::ClientEnvelope::Type::CLIENT_MESSAGE);
     cenv.setFilePathRequest(message);
     QProtobufSerializer serializer;
     QByteArray data = cenv.serialize(&serializer);
-    qDebug() << "Before m_client->sendBinaryMessage(data)";
+
     /*qint64 sz = */ m_client->sendBinaryMessage(data);
     return 0;
 }
 int MsgHandler::rewriteFileRequest(const QString &netFolderPath, const QString &filepath, const QString &id) {
-    //    (const QString &filepath, const QString &id, const QString &netFolderPath, const QString &fname){
+
     qDebug() << "MsgHandler::rewriteFileRequest" << filepath << " " << id << "  " << netFolderPath;
     pict_data::ClientEnvelope cenv;
     pict_data::RewriteFileRequest message;
-
-    // QFile *file = new QFile(filepath);
-    // if (!file->open(QIODevice::ReadOnly)) {
-    //     qDebug() << "Could not open file 2:" << filepath;
-    //     delete file;
-    //     return -1; // Ошибка открытия файла
-    // }
-    // //    else qDebug() << "Open file: " << path;
-    // QByteArray fileData = file->readAll();
-
-    // QFileInfo fileInfo(filepath);
-    // QString fileName = fileInfo.fileName();
-    // QString completeSuffix = fileInfo.completeSuffix();
-
     /*--------------------*/
     QUrl netUrl(netFolderPath);
     QString path = netUrl.path(); // Вернет "/photos/holiday/sun.jpg"
     if (path.startsWith('/')) {
         path.remove(0, 1);
     }
-
 
     QStringList parts = path.split('/');
     QString bucket = parts.takeFirst();
@@ -376,15 +335,14 @@ int MsgHandler::rewriteFileRequest(const QString &netFolderPath, const QString &
             folder = path.sliced(startPos, length);
         }
     }
-    qDebug() << "MsgHandler::rewriteFileRequest bucket: " << bucket << " folder " << folder;
+    //  qDebug() << "MsgHandler::rewriteFileRequest bucket: " << bucket << " folder " << folder;
 
     QUrl netUrl2(filepath);
     QFileInfo netFileInfo(netUrl2.toString());
     QString fname = netFileInfo.fileName();
 
     message.setFileName(fname);
-    //    message.setUserLogin("Ivon");
-    //    message.setBucketName(bucket);
+
     message.setFolder(folder);
     message.setMongoId(id);
 

@@ -704,23 +704,19 @@ ApplicationWindow {
         if(path) {
             let type = FileHelper.checkPathType(path);
             if (type === FileHelperType.LocalFile) {
-                console.log("before imageGrid.model.addFilePath(path)", path)
+//                console.log("before imageGrid.model.addFilePath(path)", path)
                 imageGrid.model.addImagePath(path)
-//                console.log("after imageGrid.model.addFilePath(path)")
                 mainImageSource = imageGrid.model.resolvePath(path)
-//                console.log("after mainImageSource = imageGrid.model.resolvePath(path)", path)
             } else if (type === FileHelperType.LocalFolder) {
-//                console.log("Это локальная папка");
                 mainImageSource = imageGrid.model.addFilesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
-//                console.log("Это бакет MinIO");
                 mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {
-//                console.log("Это объект (файл) в MinIO", path);
                 mainImageSource = imageGrid.model.addMinioImagePath(path)
-            } else {
-                console.log("Путь не распознан или не существует");
             }
+            // else {
+            //     console.log("Путь не распознан или не существует");
+            // }
         }
     }
 
@@ -733,25 +729,22 @@ ApplicationWindow {
             } else if (type === FileHelperType.LocalFolder) {
                 mainImageSource = imageGrid.model.addFilesFromFolder(path)
             } else if (type === FileHelperType.MinioBucket) {
-//                console.log("Это бакет MinIO");
                 mainImageSource = imageGrid.model.addImagesFromMinioBucket(path)
             } else if (type === FileHelperType.MinioFile) {
-                console.log("Это объект (файл) в MinIO", path);
                 mainImageSource = imageGrid.model.addMinioImagePath(path)
-            } else {
-                console.log("Путь не распознан или не существует");
             }
+            // else {
+            //     console.log("Путь не распознан или не существует");
+            // }
         }
     }
 
     function processTFPath(){
         wsClient.connectToServer()
-//        if(tf.text && tf.text.trim().length > 0)
         {
             let result = FileHelper.extCheckPathType(tf.text);
             tf.tfContent = result.path
             let type = result.type
-            console.log("cleanPath: ", result.path, "  type: ", type)
             if (type === FileHelperType.LocalFile) {
                 imageModel.addImagePath(tf.text)
             } else if (type === FileHelperType.LocalFolder) {
@@ -760,11 +753,9 @@ ApplicationWindow {
                 parentLocalPath = tf.text;
                 customDialog.show();
             } else if (type === FileHelperType.MinioBucket) {
-                console.log("Это бакет MinIO");
                 parentCustomDlgTb = 1;
                 //customDialog.currentTabIndex = 1;
                 storageModel.setParent(tf.text, "mb")
-                console.log("Это бакет MinIO after setParent");
                 storageModel.getNetPath(tf.text, 98)
             } else if(type === FileHelperType.MinioFolder) {
                 parentCustomDlgTb = 1;
@@ -772,7 +763,6 @@ ApplicationWindow {
                 storageModel.getNetPath(tf.text, 100)
             } else if (type === FileHelperType.MinioFile) {
                 storageModel.setParent(tf.text, "mf")
-                console.log("storageModel.getNetFilePath: ", tf.text);
                 storageModel.getNetPath(tf.text, 102)
             } else {
                 warningDialog.messageText = "Путь не распознан или не существует:  " +  tf.text;
@@ -782,11 +772,9 @@ ApplicationWindow {
     }
 
     Component.onCompleted:{
-        console.log("parentLocalPath", parentLocalPath,  "parentNetworkPath", parentNetworkPath, "cleanNetworkPath", cleanNetworkPath)
-//        if(parentCustomDlgTb !== 0 && parentNetworkPath !== "") tf.tfContent = parentNetworkPath;
+//        console.log("parentLocalPath", parentLocalPath,  "parentNetworkPath", parentNetworkPath, "cleanNetworkPath", cleanNetworkPath)
         if(parentCustomDlgTb !== 0 && parentNetworkPath !== "") { parentNetworkPath = cleanNetworkPath; tf.tfContent = parentNetworkPath; }
         else if((parentCustomDlgTb === 0 || parentNetworkPath === "") && parentLocalPath !== "") {
-            console.log("Component.onCompleted: tf.tfContent = parentLocalPath")
             tf.tfContent = parentLocalPath; parentCustomDlgTb = 0;
         }
         else {

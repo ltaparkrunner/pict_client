@@ -321,7 +321,7 @@ Q_INVOKABLE int UnifiedStorageModel::deleteIndices(const QList<int> &indxs){
 
             QDir dir{dirPath};
             bool success = dir.remove(m_items[indx].name);
-            if(!success) qDebug() << "int UnifiedStorageModel::deleteIndices something went wrong";
+            //  if(!success) qDebug() << "int UnifiedStorageModel::deleteIndices something went wrong";
         }
     }
     return 0;
@@ -384,14 +384,12 @@ Q_INVOKABLE int UnifiedStorageModel::writeImagesToFolder(const QVariantList &lf,
         QStringList paths;
         for(const QVariant &v : lf){
             QVariantMap item = v.toMap();
-            qDebug() << item["path"].toString() << "  " << item["mongoId"].toString();
             if(!item["isNetwork"].toBool() && !item["isDir"].toBool()) {// from local to network
                 QString localPath = QUrl(item["path"].toString()).toLocalFile();
                 msghandler->addFileRequest(m_parentItem.path, localPath, item["mongoId"].toString());
             }
             else if(item["isNetwork"].toBool() && !item["isDir"].toBool()) {// from network to network
                 msghandler->rewriteFileRequest(m_parentItem.path, item["path"].toString(), item["mongoId"].toString());
-                //  paths.append(item["path"].toString());
             }
         }
         return 0;
@@ -473,16 +471,12 @@ int UnifiedStorageModel::writeUrlsToLocal(const QVector<QUrl> &paths) {
                 FileDownloader *downloader = new FileDownloader(); // Создаем экземпляр
                 // Подписываемся на результат
                 QObject::connect(downloader, &FileDownloader::downloadFinished, [downloader](const QString &path) {
-
-                    qDebug() << "Готово! Файл сохранен в:" << path;
                     downloader->deleteLater(); // Безопасно удаляем объект из памяти
                 });
 
                 QObject::connect(downloader, &FileDownloader::downloadError, [downloader](const QString &err) {
-                    qCritical() << "Ошибка скачивания из Minio:" << err;
                     downloader->deleteLater();
                 });
-
                 // Запуск скачивания
                 downloader->downloadFile(QUrl(urlpath), m_parentItem.path);
             }
