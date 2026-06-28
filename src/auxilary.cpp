@@ -34,7 +34,7 @@ QString extCleanNetworkFilePath(QString networkFilePath){
     if (networkFilePath.startsWith('/')) {
         newPath = "/" + newPath;
     }
-    qDebug() << "extCleanNetworkFilePath: " << newPath;
+
     return newPath;
 }
 
@@ -57,7 +57,6 @@ QString cleanFilePath(QString filePath, bool isNetwork){
 bool copyFileWithUniqueName(const QString &sourceFilePath, const QString &targetDirPath) {
     QFileInfo sourceInfo(sourceFilePath);
     if (!sourceInfo.exists()) {
-        qDebug() << "Source file does not exist:" << sourceFilePath;
         return false;
     }
 
@@ -81,10 +80,8 @@ bool copyFileWithUniqueName(const QString &sourceFilePath, const QString &target
 
     // Copy the file to the unique destination path
     if (QFile::copy(sourceFilePath, destinationPath)) {
-        qDebug() << "File successfully saved to:" << destinationPath;
         return true;
     } else {
-        qDebug() << "Failed to copy file to:" << destinationPath;
         return false;
     }
 }

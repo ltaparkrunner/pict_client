@@ -43,7 +43,7 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
     QNetworkReply* reply = manager->post(request, QJsonDocument(json).toJson());// = manager->post(request, QJsonDocument(json).toJson());
 
     connect(reply, &QNetworkReply::finished, this, [=]() {
-        qDebug() << "reply->error()" << reply->error();
+
         if (reply->error() == QNetworkReply::NoError) {
             QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
             m_authToken = doc.object().value("token").toString();
@@ -52,14 +52,13 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
             settings.setValue("accessToken", m_authToken);
             settings.setValue("username", m_username);
             settings.endGroup();
-//            setLoggedIn(true);
-//            emit succAuth(reply->errorString());
+
             emit authSucc(AuthCond::LoginSucc, "LoginSucc");
         } else if(reply->error() == QNetworkReply::TimeoutError){
-            qDebug() << "QNetworkReply::TimeoutError";
+
             emit authErr(AuthCond::LoginTimeoutErr, "LoginTimeoutErr");
         } else if(reply->error() == QNetworkReply::ConnectionRefusedError){
-            qDebug() << "QNetworkReply::LoginConnErr";
+
             emit authErr(AuthCond::LoginConnErr, "LoginConnErr");
         }
         else {
@@ -71,36 +70,16 @@ Q_INVOKABLE void AuthHandler::sendAuth(QString user, QString pass, QString path)
         }
         reply->deleteLater();
     });
-
-    //  reply = manager->post(request, QJsonDocument(json).toJson());
-    // connect(reply, &QNetworkReply::errorOccurred, [reply](QNetworkReply::NetworkError code) {
-    //     qDebug() << " reply->error() " << reply->error() << "QNetworkReply::NetworkError" << code;
-    //     if (code == QNetworkReply::OperationCanceledError) {
-    //         qDebug() << "Request timed out or was canceled!";
-    //     }
-    // });
-    // QTimer* timer = new QTimer(reply);
-    // timer->setSingleShot(true);
-    // timer->start(5000);
-
-    // // 3. Handle the timeout event (Connection hung / No response)
-    // QObject::connect(timer, &QTimer::timeout, this, [reply]() {
-    //     if (reply->isRunning()) {
-    //         qDebug() << "Error: Connection timed out. Server did not respond.";
-    //         reply->abort(); // This forces the reply to close and triggers the error signal
-    //     }
-    // });
 }
 
 Q_INVOKABLE void AuthHandler::logout(){
-    qDebug() << "Инициация процесса выхода из системы (Logoff)...";
 
     QSettings settings("Alex@Co", "Alex@Co");
 
     if (settings.contains("Auth/accessToken")) {
         settings.remove("Auth/accessToken");
         settings.sync(); // Принудительно сохраняем изменения на диск
-        qDebug() << "JWT-токен успешно удален из QSettings.";
+
     }
     if (settings.contains("Auth/username")) {
         settings.remove("Auth/username");
@@ -111,8 +90,6 @@ Q_INVOKABLE void AuthHandler::logout(){
     this->m_username = "";
 
     emit this ->logoffSuccess();
-    qDebug() << "Пользователь успешно разлогинен. Интерфейс QML уведомлен.";
-
 }
 // TODO: reset the token, if attempt to enter on wrong login/password.
 // TODO: logoff button
@@ -124,11 +101,3 @@ void AuthHandler::setUsername(const QString &newUsername) {
     emit usernameChanged(); // КРИТИЧЕСКИ ВАЖНО: уведомляем QML об изменении
 }
 
-// void AuthHandler::onWssConnected(){
-//     qDebug() << "AuthHandler::onWssConnected()";
-//     emit usernameChanged();
-// }
-
-// void AuthHandler::onWssDisconnected(){
-//     qDebug() << "AuthHandler::onWssDisconnected()";
-// }
