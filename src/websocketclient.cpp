@@ -5,7 +5,7 @@
 //  #include <QSettings>
 
 void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
-    //    qDebug() << "FileClient::onBinaryMessageReceived(const QByteArray &data)";
+
     pict_data::BaseMessage base;
     QProtobufSerializer serializer;
     if (!base.deserialize(&serializer, data)) return;
@@ -14,12 +14,9 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
         QList<QStringList> sl;
         for (const auto &info : response.files()) {
             sl.append({info.fileName(), info.url(), "file", info.mongoId()});
-            qDebug() << "fileName: " << info.fileName() << "  url: " << info.url() <<
-                "  mongoId: " << info.mongoId() << "  ";
         }
         for (const auto &info : response.folders()) {
             sl.append({info.folderName(), info.url(), "folder", ""});
-            qDebug() << "folderName: " << info.folderName() << "  url: " << info.url();
         }
             emit pathsReceived(sl);
     }
@@ -28,8 +25,6 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
         QList<QStringList> sl;
         for (const auto &info : response.files()) {
             sl.append({info.fileName(), info.url(), "file", info.mongoId()});
-            qDebug() << "fileName: " << info.fileName() << "  url: " << info.url() <<
-                "  mongoId: " << info.mongoId() << "  ";
         }
         emit filesReceived(sl);
     }
@@ -38,16 +33,12 @@ void WebSocketClient::onBinaryMessageReceived(const QByteArray &data) {
         QStringList sl;
         for (const auto &info : response.bucketInf()) {
             sl.append(info.bucketName());
-            qDebug() << "info.bucketName()" << info.bucketName();
             sl.append(info.url());
-            qDebug() << "info.url()" << info.url();
         }
         emit bucketsReceived(sl);
     }
     if (base.contentField() == pict_data::BaseMessage::ContentFields::ServerResp) {
         const auto &response = base.serverResp();
-        //QStringList sl;
-        qDebug() << "fileName" << "response content" << response.content() << "status" << response.status();
     }
 }
 
@@ -62,7 +53,6 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
     , m_reconnectAttempts(0)
     , m_pongReceived(true)
 {
-    qDebug() << "WebSocketClient::WebSocketClient  token: "; // << token;
     m_reconnectTimer.setSingleShot(true);
     connect(&m_reconnectTimer, &QTimer::timeout, this, &WebSocketClient::connectToServer);
     connect(&m_pingTimer, &QTimer::timeout, this, [&]() {
@@ -98,7 +88,6 @@ WebSocketClient::WebSocketClient(AuthHandler *authHandler, const QUrl &url, QObj
 }
 
 Q_INVOKABLE void WebSocketClient::connectToServer(/*const QString &url*/) {
-    qDebug() << "WebSocketClient::connectToServer";
     if (m_webSocket && m_webSocket->state() == QAbstractSocket::ConnectedState) return;
 //    if (!m_authHandler || !m_authHandler->loggedIn()) return;
     setConnectionState(AuthConnectState::Connecting);
@@ -112,7 +101,7 @@ QString WebSocketClient::lastReceivedPath() const { return m_path; }
 Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &filePath){
     QUrl minioUrl(filePath);
     QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
-    qDebug() << "Path: " << path;
+
     if (path.startsWith('/')) {
         path.remove(0, 1);
     }
@@ -123,12 +112,9 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 
     pict_data::BaseMessage base;
     pict_data::DeleteFileRequest message;
-    qDebug() << "deleteFileFromBucketRequest" << filePath << "bucket" << bucket;
 
     message.setFileName(key);
     message.setMongoId("1111111");
-//    message.setUserLogin("Ivon");
-//    message.setBucketName(bucket);
 
     base.setDeleteFile(message);
     QProtobufSerializer serializer;
@@ -138,7 +124,7 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 }
 
 /*Q_INVOKABLE*/ void WebSocketClient::getFilesFoldersListfromBucketRequest(const QString &minioPath){
-    qDebug() << "WebSocketClient::getFilesFoldersListfromBucketRequest(const QString &minioPath)" << minioPath;
+
     QUrl minioUrl(minioPath);
     QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
     if (path.startsWith('/')) {
@@ -160,13 +146,11 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
             folder = path.sliced(startPos, length);
         }
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder;
+    //  qDebug() << "bucket: " << bucket << " folder " << folder;
 
     pict_data::BaseMessage base;
     pict_data::FilesFoldersListRequest message;
     message.setFolderName(folder);
-//    message.setBucketName(bucket);
-//    message.setUserLogin("Ivon");
 
     base.setListRequest(message);
     QProtobufSerializer serializer;
@@ -175,7 +159,6 @@ Q_INVOKABLE int WebSocketClient::deleteFileFromBucketRequest(const QString &file
 }
 
 void WebSocketClient::onConnected() {
-    qDebug() << "Connected. Heartbeat has started.";
     qDebug() << "WSS Network layer connected.";
     m_pongReceived = true;
     m_reconnectAttempts = 0;
@@ -186,34 +169,29 @@ void WebSocketClient::onConnected() {
 }
 
 void WebSocketClient::onDisconnected() {
-    qDebug() << "WebSocketClient::onDisconnected: " << m_webSocket->error() << " error " << m_webSocket->errorString();
-    qDebug() << "WebSocketClient::onDisconnected: AuthConnectState: " << m_authConnectState;
     m_pingTimer.stop();
 
     if (m_authConnectState == AuthConnectState::NotAuthorized) {
-        qWarning() << "Stopping: Token is spoiled.";
+        //  qWarning() << "Stopping: Token is spoiled.";
         //  Show login screen, clear saved token
         setConnectionState(AuthConnectState::NotAuthorized);
         return;
     }
     if (m_authConnectState == AuthConnectState::LoggingOut) {
-        qWarning() << "Stopping: Token is spoiled.";
+        //  qWarning() << "Stopping: Token is spoiled.";
         //  Show login screen, clear saved token
         setConnectionState(AuthConnectState::LoggedOut);
         return;
     }
     else if(m_authConnectState != AuthConnectState::UserDisconnecting && m_reconnectAttempts < m_maxReconnectAttempts) {
-        qDebug() << "WebSocketClient::onDisconnected > m_reconnectAttempts: " << m_reconnectAttempts << " " << m_webSocket->error();
+        //  qDebug() << "WebSocketClient::onDisconnected > m_reconnectAttempts: " << m_reconnectAttempts << " " << m_webSocket->error();
         setConnectionState(AuthConnectState::Connecting);
         m_reconnectAttempts++;
         m_reconnectTimer.start(RECONNECT_INTERVAL);
     }
     else if((m_authConnectState != AuthConnectState::UserDisconnecting && m_reconnectAttempts >= m_maxReconnectAttempts)
                || (m_authConnectState == AuthConnectState::UserDisconnecting)){
-        qDebug() << "WebSocketClient::onDisconnected <= m_reconnectAttempts: " << m_reconnectAttempts << " " << m_webSocket->error();
-        // emit connectionFailedPermanently();
-        // m_authHandler->onWssDisconnected();
-        //emit isConnectedChanged();
+//        qDebug() << "WebSocketClient::onDisconnected <= m_reconnectAttempts: " << m_reconnectAttempts << " " << m_webSocket->error();
         setConnectionState(AuthConnectState::NoConnection);
     }
 }
@@ -223,29 +201,22 @@ void WebSocketClient::onTextMessageReceived(const QString &message) {
 }
 
 void WebSocketClient::onErrorOccurred(QAbstractSocket::SocketError error) {
-    qDebug() << "Error:" << m_webSocket->errorString() << " " << m_webSocket->error() << "  m_authConnectState: " << m_authConnectState;
-    qDebug() << " error: " << error;
+    //  qDebug() << "Error:" << m_webSocket->errorString() << " " << m_webSocket->error() << "  m_authConnectState: " << m_authConnectState;
     if (m_authConnectState == AuthConnectState::Connecting &&
         error == QAbstractSocket::ConnectionRefusedError ||
         error == QAbstractSocket::UnknownSocketError) {
         QString systemError = m_webSocket->errorString();
-        qDebug() << "Handshake error occurred:" << systemError;
         if (systemError.contains("Authenticate")) {
             qDebug() << "Token expired! Initiate authentication refresh.";
             setConnectionState(AuthConnectState::NotAuthorized);
         }
-        //  qWarning() << "Authentication failed. Token is likely invalid.";
     }
     else if(m_authConnectState != AuthConnectState::UserDisconnecting
                    && m_authConnectState != AuthConnectState::NoConnection)
         setConnectionState(AuthConnectState::ExternalDisconnecting);
-    // if (m_webSocket->state() != QAbstractSocket::ConnectedState && !m_reconnectTimer.isActive()) {
-    //     m_reconnectTimer.start(RECONNECT_INTERVAL);
-    // }
 }
 
 Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const QString &minioPath){
-    qDebug() << "addFileRequest(const QStringList &filePath)" << filePath << "minioPath: " << minioPath;
     QString cleanPath = filePath;
     if (cleanPath.startsWith("file:///")) {
         cleanPath = QUrl(cleanPath).toLocalFile();
@@ -270,24 +241,17 @@ Q_INVOKABLE int WebSocketClient::addFileRequest(const QString &filePath, const Q
     if(sz > 2) {
         folder = parts.sliced(1, sz - 2).join("/");
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder << "fileName" << fileName << "cleanPath" << cleanPath;
-//    QString localPath = QUrl(filePath).toLocalFile();
-    // QFile file(cleanPath);
-    // if(!file.isOpen()) {
-    //     qDebug() << "Error: File " << cleanPath << " is not open. The parameter filePath: " << filePath;
-    //     return -5;
-    // }
+
     QFile *file = new QFile(cleanPath);
     if (!file->open(QIODevice::ReadOnly)) {
-        qDebug() << "Could not open file 3:" << cleanPath;
+        //  qDebug() << "Could not open file 3:" << cleanPath;
         delete file;
         return -1; // Ошибка открытия файла
     }
-    else qDebug() << "Open file: " << cleanPath;
+    //  else qDebug() << "Open file: " << cleanPath;
     QByteArray fileData = file->readAll();
     message.setFileName(fileName);
-//    message.setUserLogin("Ivon");
-//    message.setBucketName(bucket);
+
     message.setFolder(folder);
     message.setInfo("jpg");
     message.setData(fileData);
@@ -327,7 +291,7 @@ int WebSocketClient::deleteFileFromServerRequest(const QStringList &fileData){
 }
 
 int WebSocketClient::getFilesOnlyListfromBucketRequest(const QString &minioPath) {
-    qDebug() << "getFilesOnlyListfromBucketRequest(const QString &minioPath)" << minioPath;
+    // qDebug() << "getFilesOnlyListfromBucketRequest(const QString &minioPath)" << minioPath;
     QUrl minioUrl(minioPath);
     QString path = minioUrl.path(); // Вернет "/photos/holiday/sun.jpg"
     if (path.startsWith('/')) {
@@ -341,13 +305,11 @@ int WebSocketClient::getFilesOnlyListfromBucketRequest(const QString &minioPath)
     if(sz > 2) {
         folder = parts.sliced(1, sz - 2).join("/");
     }
-    qDebug() << "bucket: " << bucket << " folder " << folder;
+    //  qDebug() << "bucket: " << bucket << " folder " << folder;
 
     pict_data::BaseMessage base;
     pict_data::FilesOnlyListRequest message;
     message.setFolderName(folder);
-//    message.setBucketName(bucket);
-//    message.setUserLogin("Ivon");
 
     base.setFilesListRequest(message);
     QProtobufSerializer serializer;
@@ -361,43 +323,34 @@ void WebSocketClient::onBinaryMessageReceived2(const QByteArray &rawBytes){
     pict_data::ServerEnvelope envelope;
     QProtobufSerializer serializer;
     if (!envelope.deserialize(&serializer, rawBytes)) {
-        qDebug() << "onBinaryMessageReceived2 -> onBinaryMessageReceived";
         onBinaryMessageReceived(rawBytes);
         return;
     }
-    qDebug() << "envelope.type(): " << envelope.type();
     switch (envelope.type()) {
     case pict_data::ServerEnvelope::Type::AUTH_RESPONSE:{
-        // qDebug() << "onBinaryMessageReceived2 -> AUTH_RESPONSE";
         if (envelope.hasAuthResponse()) {
-            // emit authResponseReceived2(envelope);
             emit authResponseReceived(envelope.authResponse());
         }
         break;
     }
     case pict_data::ServerEnvelope::Type::SERVER_MESSAGE: {
-        qDebug() << "onBinaryMessageReceived2 -> SERVER_MESSAGE";
-//        if (envelope.hasServerResp())
         {
-            qDebug() << "envelope.hasServerResp()";
             emit serverResponseReceived(envelope);
         }
         break;
     }
     default:
-        qWarning() << "onBinaryMessageReceived2 ->Unknown message type received";
         onBinaryMessageReceived(rawBytes);
         break;
     }
 }
 
 void WebSocketClient::sendBinaryMessage(const QByteArray &data) {
-    qDebug() << "WebSocketClient::sendBinaryMessage(const QByteArray &data)";
+
     if (m_webSocket && m_webSocket->isValid()) {
         m_webSocket->sendBinaryMessage(data);
     }
     else {
-        qDebug() << "emit errReceived()";
         emit errReceived();
     }
 }
@@ -414,7 +367,6 @@ void WebSocketClient::setConnectionState(AuthConnectState newState) {
     if (m_authConnectState == newState) return;
     m_authConnectState = newState;
     emit authConnectionStateChanged();
-    qDebug() << "State changed to:" << static_cast<int>(m_authConnectState);
 }
 
 Q_INVOKABLE void WebSocketClient::loginRequested(const QString &login, const QString &passw){
@@ -422,10 +374,9 @@ Q_INVOKABLE void WebSocketClient::loginRequested(const QString &login, const QSt
     connect(m_authHandler, &AuthHandler::authSucc, this, &WebSocketClient::connectToServer);
     connect(m_authHandler, &AuthHandler::authErr, this,
             [=](AuthHandler::AuthCond authCond, QString errmsg){
-                qDebug() << "Login Error LoginConnErr";
                 if(authCond == AuthHandler::AuthCond::LoginTimeoutErr ||
                     authCond == AuthHandler::AuthCond::LoginConnErr ){
-                    qDebug() << "LoginTimeoutErr or LoginConnErr";
+
                     setConnectionState(AuthConnectState::NoConnection);
                 }
                 else setConnectionState(AuthConnectState::NotAuthorized);// errmsg transmit to
@@ -438,10 +389,9 @@ Q_INVOKABLE void WebSocketClient::registerRequested(const QString &login, const 
     connect(m_authHandler, &AuthHandler::authSucc, this, &WebSocketClient::connectToServer);
     connect(m_authHandler, &AuthHandler::authErr, this,
             [=](AuthHandler::AuthCond authCond, QString errmsg){
-        qDebug() << "Login Error LoginConnErr";
         if(authCond == AuthHandler::AuthCond::LoginTimeoutErr ||
            authCond == AuthHandler::AuthCond::LoginConnErr ){
-            qDebug() << "LoginTimeoutErr or LoginConnErr";
+
             setConnectionState(AuthConnectState::NoConnection);
         }
         else setConnectionState(AuthConnectState::NotAuthorized);// errmsg transmit to

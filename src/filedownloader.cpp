@@ -61,7 +61,6 @@ void FileDownloader::onFinished() {
     int statusCode = m_currentReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
     if (m_currentReply->error() == QNetworkReply::NoError && (statusCode == 200 || statusCode == 206)) {
-        qDebug() << "File successfully downloaded to:" << m_localFile.fileName();
         emit downloadFinished(m_localFile.fileName());
     } else if (m_currentReply->error() == QNetworkReply::NoError) {
         // Ошибка на уровне протокола HTTP (например, 403 Forbidden из-за протухшего токена)
